@@ -1,5 +1,6 @@
 import { env } from "#env";
 import { DataSource } from "typeorm";
+import { Builds } from "./entities/Builds.js";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
@@ -12,3 +13,7 @@ export const dataSource = new DataSource({
   entities: [__dirname + "/entities/{*.ts,*.js}"],
   migrations: [__dirname + "/migrations/{*.ts,*.js}"],
 })
+
+export const entities = {
+  Builds
+}

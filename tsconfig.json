@@ -5,6 +5,9 @@
 		// Output Options
 		"outDir": "./build",
 		"rootDir": "./src",
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
 		// Path mapping Options
 		"paths": {
