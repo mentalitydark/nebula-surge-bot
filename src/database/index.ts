@@ -8,7 +8,7 @@ export const dataSource = new DataSource({
   type: 'sqlite',
   database: env.DATABASE_NAME,
   synchronize: false,
-  logging: true,
+  logging: env.NODE_ENV === 'development' ? true : false,
   migrationsRun: true,
   entities: [__dirname + "/entities/{*.ts,*.js}"],
   migrations: [__dirname + "/migrations/{*.ts,*.js}"],
