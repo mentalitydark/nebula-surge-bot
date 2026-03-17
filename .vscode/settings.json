@@ -36,6 +36,21 @@
       "base": "vm",
       "color": "indigo-500",
       "folderNames": ["discord"]
+  }, {
+    "name": "domain",
+    "base": "core",
+    "color": "blue-500",
+    "folderNames": ["domain"]
+  }, {
+    "name": "typeorm",
+    "base": "database",
+    "color": "red-800",
+    "folderNames": ["typeorm"]
+  }, {
+    "name": "entities",
+    "base": "class",
+    "color": "yellow-700",
+    "folderNames": ["entities"]
   }],
   "material-icon-theme.files.customClones": [{
       "name": "constants",
