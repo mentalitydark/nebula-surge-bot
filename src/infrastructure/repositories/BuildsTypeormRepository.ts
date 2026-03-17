@@ -2,7 +2,7 @@ import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput 
 import { Builds, BuildsModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
-import { ILike, Repository } from "typeorm";
+import { ILike, Not, Repository } from "typeorm";
 
 export class BuildsTypeormRepository implements BuildsRepositoryInterface {
   private repository: Repository<Builds>
@@ -21,9 +21,9 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     return res
   }
 
-  public async conflitingEquipament(equipament: string): Promise<void> {
-    const res = await this.repository.findOneBy({ equipament })
-
+  public async conflitingEquipament(equipament: string, id?: number): Promise<void> {
+    const res = await this.repository.findOneBy({ equipament, id: id ? Not(id) : undefined })
+    
     if (res) {
       throw new ConflictError(`Equipamento \`${equipament}\` já cadastrado`)
     }

@@ -17,7 +17,7 @@ createResponder({
       
       const build = repository.create({ equipament, content })
 
-      await repository.conflitingEquipament(equipament)
+      await repository.conflitingEquipament(equipament, Number(buildId))
 
       const saveResult = await repository.update({ ...build, id: Number(buildId) })
 

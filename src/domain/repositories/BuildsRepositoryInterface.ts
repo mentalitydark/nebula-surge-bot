@@ -11,7 +11,7 @@ export interface BuildsRepositoryInterface extends RepositoryInterface<BuildsMod
   findByEquipament(equipament: string): Promise<BuildsModel>
 
   /** @throws {Error} */
-  conflitingEquipament(equipament: string): Promise<void>
+  conflitingEquipament(equipament: string, id?: number): Promise<void>
 
   /** @throws {Error} */
   deleteByEquipament(equipament: string): Promise<void>
