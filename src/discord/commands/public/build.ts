@@ -1,42 +1,35 @@
 import { createCommand } from "#base";
-import { dataSource, entities } from "#database";
+import { BuildsTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
-import { ILike } from "typeorm";
 
 createCommand({
     name: "build",
-    description: "Pesquise uma build de um Warframe, arma ou companheiro...",
+    description: "Pesquise por builds de equipamentos (warframe, armas, companheiro, etc)",
     type: ApplicationCommandType.ChatInput,
-    options: [
-      {
-        name: "equipamento",
-        description: "Warframe, arma ou companheiro...",
-        type: ApplicationCommandOptionType.String,
-        required: true
-      }
-    ],
+    options: [{
+      name: "equipamento",
+      description: "Equipamento que a ser pesquisado",
+      type: ApplicationCommandOptionType.String,
+      required: true
+    }],
     async run(interaction) {
         const { options } = interaction
 
         const equipament = options.getString("equipamento", true)
 
-        const repository = dataSource.getRepository(entities.Builds)
+        const repository =  new BuildsTypeormRepository()
 
-        const [builds, count] = await repository.findAndCount({
-          where: {
-            equipament: ILike(`%${equipament}%`)
-          }
-        })
+        const result = await repository.search({ filter: equipament })
 
-        if (!builds.length) {
+        if (result.total === 0) {
           await interaction.reply({
             flags: ["Ephemeral"],
             embeds: [
               createEmbed({
-                color: constants.colors.warning,
+                color: constants.colors.azoxo,
                 description: brBuilder(
-                  '### Nenhum build encontrada :(',
+                  '### Nenhuma build encontrada :(',
                   `Equipamento pesquisado: \`${equipament}\``
                 )
               })
@@ -48,13 +41,13 @@ createCommand({
 
         await interaction.reply({
           flags: ["Ephemeral"],
-          embeds: builds.slice(0, 10).map((build, index) => createEmbed({
+          embeds: result.data.slice(0, 10).map((build, index) => createEmbed({
             color: constants.colors.primary,
             description: brBuilder(
               `### Build \`${build.equipament}\``,
               build.content
             ),
-            footer: `Build ${index + 1} de ${count}`,
+            footer: `Build ${index + 1} de ${result.total}`,
             timestamp: build.updatedAt ?? build.createdAt
           }))
         })
