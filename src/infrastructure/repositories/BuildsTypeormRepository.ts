@@ -46,7 +46,7 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
-      where: filter ? { equipament: ILike(filter) } : undefined,
+      where: filter ? { equipament: ILike(`%${filter}%`) } : undefined,
     })
 
     return {
