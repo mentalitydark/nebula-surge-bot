@@ -5,14 +5,11 @@
   "scripts": {
     "check": "tsc --noEmit && echo ✔ Ok",
     "build": "tsc",
-    "dev": "tsx --env-file=.env ./src/index.ts",
-    "dev:dev": "tsx --env-file=.env.dev ./src/index.ts",
-    "watch": "tsx --watch --env-file=.env ./src/index.ts",
-    "watch:dev": "tsx --watch --include \"./src/**/*.ts\" --env-file=.env.dev ./src/index.ts",
+    "dev": "tsx --env-file=.env.dev ./src/index.ts",
+    "watch": "tsx watch --include \"./src/**/*.ts\" --env-file=.env.dev ./src/index.ts",
     "start": "node --env-file=.env .",
-    "start:dev": "node --env-file=.env.dev .",
-    "typeorm": "tsx --env-file=.env ./node_modules/typeorm/cli.js",
-    "typeorm:revert": "tsx --env-file=.env ./node_modules/typeorm/cli.js migration:revert -d ./src/database/index.ts"
+    "typeorm": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js",
+    "typeorm:revert": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:revert -d ./src/database/index.ts"
   },
   "dependencies": {
     "@constatic/base": "latest",
