@@ -1,5 +1,3 @@
-import { NotFoundError } from "#errors"
-
 export type DirOptions = 'ASC' | 'DESC'
 
 export type SearchInput<Model> = {
@@ -22,12 +20,12 @@ export interface RepositoryInterface<Model, T> {
   insert(model: Model): Promise<Model>
   search(props: SearchInput<Model>): Promise<SearchOutput<Model>>
 
-  /** @throws {NotFoundError} */
+  /** @throws {Error} */
   findById(id: number): Promise<Model>
 
-  /** @throws {NotFoundError} */
+  /** @throws {Error} */
   update(model: Model): Promise<Model>
 
-  /** @throws {NotFoundError} */
+  /** @throws {Error} */
   delete(id: number): Promise<void>
 }

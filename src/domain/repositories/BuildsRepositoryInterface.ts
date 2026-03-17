@@ -1,5 +1,4 @@
 import { BuildsModel } from "#entities";
-import { ConflictError, NotFoundError } from "#errors";
 import { RepositoryInterface } from "./RepositoryInterface.js";
 
 export type CreateBuildProps = {
@@ -8,12 +7,12 @@ export type CreateBuildProps = {
 }
 
 export interface BuildsRepositoryInterface extends RepositoryInterface<BuildsModel, CreateBuildProps> {
-  /** @throws {NotFoundError} */
+  /** @throws {Error} */
   findByEquipament(equipament: string): Promise<BuildsModel>
 
-  /** @throws {ConflictError} */
+  /** @throws {Error} */
   conflitingEquipament(equipament: string): Promise<void>
 
-  /** @throws {NotFoundError} */
+  /** @throws {Error} */
   deleteByEquipament(equipament: string): Promise<void>
 }
