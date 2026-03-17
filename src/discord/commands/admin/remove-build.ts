@@ -18,7 +18,7 @@ createCommand({
     async run(interaction) {
       const { options } = interaction
 
-      const equipament = options.getString("equipamento", true)
+      const equipament = options.getString("identificador", true)
 
       const repository = new BuildsTypeormRepository()
 
