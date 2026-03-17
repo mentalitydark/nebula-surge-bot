@@ -21,6 +21,11 @@
 			"#lib/*": ["./src/lib/*"],
 			"#shared/*": ["./src/shared/*"],
 			"#types/*": ["./src/@types/*"],
+			"#entities": ["./src/domain/entities/index.ts"],
+			"#errors": ["./src/domain/errors/index.ts"],
+			"#domain/*": ["./src/domain/*"],
+      "#repositories": ["./src/infrastructure/repositories/index.ts"],
+      "#typeorm": ["./src/infrastructure/typeorm/index.ts"],
 			"#emojis": ["./emojis.json"],
 		}
 	},

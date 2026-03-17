@@ -1,17 +1,17 @@
 import { createCommand } from "#base";
-import { dataSource, entities } from "#database";
+import { BuildsTypeormRepository } from "#repositories";
 import { createLabel, createModalFields, createTextInput } from "@magicyan/discord";
 import { ApplicationCommandOptionType, ApplicationCommandType, TextInputStyle } from "discord.js";
 
 createCommand({
     name: "update-build",
-    description: "Abre o formulário para atualizar uma build",
+    description: "Abre o formulário para atualizar uma build já existente",
     type: ApplicationCommandType.ChatInput,
     defaultMemberPermissions: ["Administrator"],
     options: [
       {
-        name: "equipamento",
-        description: "Warframe, arma ou companheiro...",
+        name: "identificador",
+        description: "Identificador dado para a build",
         type: ApplicationCommandOptionType.String,
         required: true
       }
@@ -21,13 +21,9 @@ createCommand({
 
       const equipament = options.getString("equipamento", true)
 
-      const repository = dataSource.getRepository(entities.Builds)
+      const repository = new BuildsTypeormRepository()
 
-      const build = await repository.findOneBy({ equipament })
-
-      if (!build) {
-        throw new Error(`Build \`${equipament}\` não encontrada.`)
-      }
+      const build = await repository.findByEquipament(equipament)
 
       await interaction.showModal({
         customId: `/form/update-build/${build.id}`,
@@ -38,7 +34,7 @@ createCommand({
             createTextInput({
               customId: 'equipament',
               required: true,
-              placeholder: 'Warframe, Arma ou Companheiro...',
+              placeholder: 'Digite o nome do equipamento (warframe, arma e etc). Ex: Saryn Prime [Nuke] [End-Game]',
               value: build.equipament
             })
           ),
@@ -47,7 +43,7 @@ createCommand({
             createTextInput({
               customId: 'content',
               required: true,
-              placeholder: 'Um breve texto que será enviando ao pesquisar a build. Utilizar o link do overframe por enquanto',
+              placeholder: 'Uma mensagem que irá disponibilizar o link do Overframe da builda. Permite markdown',
               style: TextInputStyle.Paragraph,
               value: build.content
             })

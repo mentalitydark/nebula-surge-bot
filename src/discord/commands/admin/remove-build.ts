@@ -1,16 +1,16 @@
 import { createCommand } from "#base";
-import { dataSource, entities } from "#database";
+import { BuildsTypeormRepository } from "#repositories";
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
 
 createCommand({
     name: "remove-build",
-    description: "Selecione uma build para remover",
+    description: "Remove uma build a partir do seu identificador",
     type: ApplicationCommandType.ChatInput,
     defaultMemberPermissions: ["Administrator"],
     options: [
       {
-        name: "equipamento",
-        description: "Warframe, arma ou companheiro...",
+        name: "identificador",
+        description: "Identificador dado para a build",
         type: ApplicationCommandOptionType.String,
         required: true
       }
@@ -20,19 +20,13 @@ createCommand({
 
       const equipament = options.getString("equipamento", true)
 
-      const repository = dataSource.getRepository(entities.Builds)
+      const repository = new BuildsTypeormRepository()
 
-      const build = await repository.findOneBy({ equipament })
-
-      if (!build) {
-        throw new Error(`Build \`${equipament}\` não encontrada.`)
-      }
-
-      await repository.remove(build)
+      await repository.deleteByEquipament(equipament)
 
       await interaction.reply({
         flags: ["Ephemeral"],
-        content: `Build \`${build.equipament}\` removida.`
+        content: `Build \`${equipament}\` removida.`
       })
     }
 });

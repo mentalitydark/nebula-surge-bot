@@ -59,6 +59,21 @@
     ],
     "#shared/*": [
       "./build/shared/*"
+    ],
+    "#entities": [
+      "./build/domain/entities/index.js"
+    ],
+    "#errors": [
+      "./build/domain/errors/index.js"
+    ],
+    "#repositories": [
+      "./build/infrastructure/repositories/index.js"
+    ],
+    "#domain/*": [
+      "./build/domain/*"
+    ],
+    "#typeorm": [
+      "./build/infrastructure/typeorm/index.js"
     ]
   },
   "baseVersion": "1.5.5"

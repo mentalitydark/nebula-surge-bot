@@ -1,8 +1,16 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+export interface BuildsModel {
+  id: number;
+  equipament: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date|null;
+}
+
 @Entity({ name: "builds" })
-export class Builds {
-    @PrimaryGeneratedColumn()
+export class Builds implements BuildsModel {
+    @PrimaryGeneratedColumn('increment')
     id: number;
 
     @Column({ type: "text", unique: true })

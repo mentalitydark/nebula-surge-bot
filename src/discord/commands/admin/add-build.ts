@@ -4,7 +4,7 @@ import { ApplicationCommandType, TextInputStyle } from "discord.js";
 
 createCommand({
     name: "add-build",
-    description: "Abre o formulário para enviar uma build",
+    description: "Abre o formulário para adicionar uma nova build",
     type: ApplicationCommandType.ChatInput,
     defaultMemberPermissions: ["Administrator"],
     async run(interaction) {
@@ -14,14 +14,18 @@ createCommand({
         components: createModalFields(
           createLabel(
             "Identificador da build",
-            createTextInput({ customId: 'equipament', required: true, placeholder: 'Warframe, Arma ou Companheiro...'})
+            createTextInput({
+              customId: 'equipament',
+              required: true,
+              placeholder: 'Digite um ID único. Ex: Saryn Prime [Nuke] [End-Game]'
+            })
           ),
           createLabel(
             "Conteúdo da mensagem",
             createTextInput({
               customId: 'content',
               required: true,
-              placeholder: 'Um breve texto que será enviando ao pesquisar a build. Utilizar o link do overframe por enquanto',
+              placeholder: 'Uma mensagem que irá disponibilizar o link do Overframe da builda. Permite markdown',
               style: TextInputStyle.Paragraph
             })
           )
