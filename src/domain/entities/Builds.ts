@@ -19,9 +19,9 @@ export class Builds implements BuildsModel {
     @Column({ type: "text" })
     content: string;
 
-    @CreateDateColumn({ name: "created_at" })
+    @CreateDateColumn({ name: "created_at", default: () => "CURRENT_TIMESTAMP"})
     createdAt: Date;
 
-    @UpdateDateColumn({ name: "updated_at", nullable: true, default: null })
+    @UpdateDateColumn({ name: "updated_at", nullable: true, default: null, onUpdate: "CURRENT_TIMESTAMP"})
     updatedAt: Date|null;
 }
