@@ -69,13 +69,13 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
 
   public async deleteByEquipament(equipament: string): Promise<void> {
     const build = await this.findByEquipament(equipament)
-    
-    this.repository.remove(build)
+
+    await this.repository.remove(build)
   }
 
   public async delete(id: number): Promise<void> {
     const build = await this._get(id)
-    this.repository.remove(build)
+    await this.repository.remove(build)
   }
 
   private async _get(id: number): Promise<BuildsModel> {
