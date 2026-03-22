@@ -7,11 +7,12 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
   beforeAll(async () => {
     await dataSource.initialize()
+    await dataSource.synchronize()
+    repository = new BuildsTypeormRepository()
   })
 
   beforeEach(async () => {
     await dataSource.createQueryBuilder().delete().from('builds').execute()
-    repository = new BuildsTypeormRepository()
   })
 
   afterEach(async () => {})
