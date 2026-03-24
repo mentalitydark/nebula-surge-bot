@@ -21,3 +21,16 @@ This is the most complete discord bot base you've ever seen! Developed by [@rinc
 - [Commands](https://constatic-docs.vercel.app/docs/discord/commands)
 - [Responder](https://constatic-docs.vercel.app/docs/discord/responders)
 - [Events](https://constatic-docs.vercel.app/docs/discord/events)
+
+## Deployment
+
+This project includes a GitHub Action workflow to automatically deploy to [Discloud](https://discloud.com/) when a push is made to the `master` branch.
+
+### Prerequisites
+
+1.  **Discloud Token:** Obtain your API token via the Discloud Dashboard or the `/api token` command in Discord.
+2.  **GitHub Secret:** Add your token as a repository secret in GitHub:
+    *   Go to **Settings** > **Secrets and variables** > **Actions**.
+    *   Create a new repository secret named `DISCLOUD_TOKEN` and paste your token there.
+
+The workflow is located at `.github/workflows/deploy.yaml`. It automatically installs dependencies, builds the project, and performs the deployment.
