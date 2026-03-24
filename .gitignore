@@ -8,6 +8,7 @@
 # Files
 /.env
 /.env.dev
+/.env.test
 /.env.development
 
 # Config files
