@@ -1,11 +1,13 @@
 import { ConflictError, NotFoundError } from "#errors"
 import { dataSource } from "#typeorm"
+import assert from "node:assert"
+import { after, before, beforeEach, describe, it } from "node:test"
 import { BuildsTypeormRepository } from "./BuildsTypeormRepository.js"
 
 describe('BuildsTypeormRepository - Testes Unitários', () => {
   let repository: BuildsTypeormRepository
 
-  beforeAll(async () => {
+  before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
     repository = new BuildsTypeormRepository()
@@ -15,19 +17,16 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
     await dataSource.createQueryBuilder().delete().from('builds').execute()
   })
 
-  afterEach(async () => {})
-
-  afterAll(async () => {
+  after(async () => {
     if (dataSource.isInitialized) {
       await dataSource.createQueryBuilder().delete().from('builds').execute()
-      await dataSource.createQueryBuilder().delete().from('SQLITE_SEQUENCE').where('name = :name', { name: 'builds' }).execute()
       await dataSource.destroy()
     }
   })
 
   describe('findByEquipament', () => {
     it('Deve retornar um erro quando o equipamento não existir', async () => {
-      await expect(repository.findByEquipament('not-exist')).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.findByEquipament('not-exist'), NotFoundError)
     })
 
     it('Deve retornar uma build quando o equipamento existir', async () => {
@@ -36,10 +35,10 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       const build = await repository.findByEquipament('equipament')
 
-      expect(build).toEqual(equipament)
-      expect(build.id).toBeDefined()
-      expect(build.createdAt).toBeDefined()
-      expect(build.updatedAt).toBeDefined()
+      assert.deepStrictEqual(build, equipament)
+      assert.ok(build.id)
+      assert.ok(build.createdAt)
+      assert.ok(build.updatedAt)
     })
   })
 
@@ -49,15 +48,15 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       const build = await repository.insert(equipament)
 
-      expect(build.id).toBeDefined()
-      expect(build.createdAt).toBeDefined()
-      expect(build.updatedAt).toBeDefined()
+      assert.ok(build.id)
+      assert.ok(build.createdAt)
+      assert.ok(build.updatedAt)
     })
 
     it('Deve retornar um erro ao inserir uma build já existente', async () => {
       await repository.insert(repository.create({ equipament: 'error equipament', content: '' }))
 
-      await expect(repository.insert(repository.create({ equipament: 'error equipament', content: '' }))).rejects.toThrow(Error)
+      await assert.rejects(repository.insert(repository.create({ equipament: 'error equipament', content: '' })), Error)
     })
   })
 
@@ -71,15 +70,15 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       const updatedBuild = await repository.update(build)
 
-      expect(updatedBuild.equipament).toEqual('new equipament')
-      expect(updatedBuild.content).toEqual('new content')
-      expect(updatedBuild.id).toBeDefined()
-      expect(updatedBuild.createdAt).toBeDefined()
-      expect(updatedBuild.updatedAt).toBeDefined()
+      assert.strictEqual(updatedBuild.equipament, 'new equipament')
+      assert.strictEqual(updatedBuild.content, 'new content')
+      assert.ok(updatedBuild.id)
+      assert.ok(updatedBuild.createdAt)
+      assert.ok(updatedBuild.updatedAt)
     })
 
     it('Deve retornar um erro ao atualizar uma build não existente', async () => {
-      await expect(repository.update(repository.create({ equipament: 'error equipament', content: '' }))).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.update(repository.create({ equipament: 'error equipament', content: '' })), NotFoundError)
     })
   
     it('Deve retornar um erro ao atualizar uma build já existente', async () => {
@@ -90,7 +89,7 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       build02.equipament = 'equipament 01'
 
-      await expect(repository.update(build02)).rejects.toThrow(Error)
+      await assert.rejects(repository.update(build02), Error)
     })
   })
 
@@ -101,11 +100,11 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       await repository.delete(build.id)
 
-      await expect(repository.findById(build.id)).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.findById(build.id), NotFoundError)
     })
 
     it('Deve retornar um erro ao deletar uma build não existente', async () => {
-      await expect(repository.delete(9999)).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.delete(9999), NotFoundError)
     })
   })
 
@@ -117,11 +116,11 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       await repository.deleteByEquipament(build.equipament)
 
-      await expect(repository.deleteByEquipament(build.equipament)).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.deleteByEquipament(build.equipament), NotFoundError)
     })
 
     it('Deve retornar um erro ao deletar uma build não existente', async () => {
-      await expect(repository.deleteByEquipament('not-exist')).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.deleteByEquipament('not-exist'), NotFoundError)
     })
   })
 
@@ -130,11 +129,11 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
       const build = repository.create({ equipament: 'equipament', content: 'content' })
       await repository.insert(build)
 
-      await expect(repository.conflitingEquipament('equipament')).rejects.toThrow(ConflictError)
+      await assert.rejects(repository.conflitingEquipament('equipament'), ConflictError)
     })
 
     it('Não deve retornar um erro quando o equipamento não existir', async () => {
-      await expect(repository.conflitingEquipament('not-exist')).resolves.not.toThrow()
+      await assert.doesNotReject(repository.conflitingEquipament('not-exist'))
     })
   })
 
@@ -145,11 +144,11 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       const foundBuild = await repository.findById(build.id)
 
-      expect(foundBuild).toEqual(build)
+      assert.deepStrictEqual(foundBuild, build)
     })
 
     it('Deve retornar um erro quando o id não existir', async () => {
-      await expect(repository.findById(9999)).rejects.toThrow(NotFoundError)
+      await assert.rejects(repository.findById(9999), NotFoundError)
     })
   })
 
@@ -160,15 +159,15 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       const result = await repository.search({})
 
-      expect(result.data).toHaveLength(2)
-      expect(result.total).toBe(2)
+      assert.strictEqual(result.data.length, 2)
+      assert.strictEqual(result.total, 2)
     })
 
     it('Deve retornar uma lista vazia quando não houver builds', async () => {
       const result = await repository.search({})
 
-      expect(result.data).toHaveLength(0)
-      expect(result.total).toBe(0)
+      assert.strictEqual(result.data.length, 0)
+      assert.strictEqual(result.total, 0)
     })
   
     it('Deve retornar uma lista de builds com paginação', async () => {
@@ -177,15 +176,15 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
       }
 
       const resultPage1 = await repository.search({ page: 1, per_page: 10 })
-      expect(resultPage1.data).toHaveLength(10)
-      expect(resultPage1.total).toBe(15)
-      expect(resultPage1.current_page).toBe(1)
-      expect(resultPage1.per_page).toBe(10)
+      assert.strictEqual(resultPage1.data.length, 10)
+      assert.strictEqual(resultPage1.total, 15)
+      assert.strictEqual(resultPage1.current_page, 1)
+      assert.strictEqual(resultPage1.per_page, 10)
 
       const resultPage2 = await repository.search({ page: 2, per_page: 10 })
-      expect(resultPage2.data).toHaveLength(5)
-      expect(resultPage2.total).toBe(15)
-      expect(resultPage2.current_page).toBe(2)
+      assert.strictEqual(resultPage2.data.length, 5)
+      assert.strictEqual(resultPage2.total, 15)
+      assert.strictEqual(resultPage2.current_page, 2)
     })
 
     it('Deve retornar uma lista de builds com filtro', async () => {
@@ -195,8 +194,8 @@ describe('BuildsTypeormRepository - Testes Unitários', () => {
 
       const result = await repository.search({ filter: 'sword' })
 
-      expect(result.data).toHaveLength(2)
-      expect(result.total).toBe(2)
+      assert.strictEqual(result.data.length, 2)
+      assert.strictEqual(result.total, 2)
     })
   })
 })
