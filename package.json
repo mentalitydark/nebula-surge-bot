@@ -10,7 +10,7 @@
     "start": "node --env-file=.env .",
     "typeorm": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js",
     "typeorm:revert": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:revert -d ./src/database/index.ts",
-    "test": "NODE_OPTIONS='--no-experimental-webstorage --experimental-vm-modules' npx dotenv-cli -e .env.test -- jest --runInBand"
+    "test": "npx dotenv-cli -e .env.test -- tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "@constatic/base": "latest",
@@ -26,10 +26,7 @@
   },
   "devDependencies": {
     "@types/cli-color": "^2.0.6",
-    "@types/jest": "^30.0.0",
     "@types/node": "^22.16.4",
-    "jest": "^30.3.0",
-    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "tsx": "4.19.3",
     "typescript": "5.9.3"
