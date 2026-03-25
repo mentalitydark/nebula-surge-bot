@@ -1,8 +1,6 @@
 {
 	"extends": "@constatic/base/tsconfig",
 	"compilerOptions": {
-    "types": ["jest"],
-
 		// Output Options
 		"outDir": "./build",
 		"rootDir": "./src",
