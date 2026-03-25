@@ -31,4 +31,4 @@ jobs:
           echo "NODE_ENV=test" >> .env.test
 
       - name: Run unit tests
-        run: npm test -- --test-reporter=node-test-github-reporter
+        run: npm test -- --test-reporter node-test-github-reporter --test-reporter-destination stdout
