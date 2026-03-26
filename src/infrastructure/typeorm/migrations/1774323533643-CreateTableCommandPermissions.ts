@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
-export class CreateTableCommandPermission1774323533643 implements MigrationInterface {
+export class CreateTableCommandPermissions1774323533643 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
         new Table({
-          name: "command_permission",
+          name: "command_permissions",
           columns: [
             {
               name: "id",
@@ -15,17 +15,17 @@ export class CreateTableCommandPermission1774323533643 implements MigrationInter
               generationStrategy: "increment"
             },
             {
-              name: "command_name",
+              name: "command",
               type: "varchar",
               isNullable: false
             },
             {
-              name: "role_id",
+              name: "role",
               type: "varchar",
               isNullable: false
             },
             {
-              name: "guild_id",
+              name: "guild",
               type: "varchar",
               isNullable: false
             },
@@ -43,17 +43,17 @@ export class CreateTableCommandPermission1774323533643 implements MigrationInter
           ],
           indices: [
             {
-              columnNames: ["command_name", "role_id", "guild_id"],
+              columnNames: ["command", "role", "guild"],
               isUnique: true
             },
             {
-              columnNames: ["command_name"]
+              columnNames: ["command"]
             },
             {
-              columnNames: ["role_id"]
+              columnNames: ["role"]
             },
             {
-              columnNames: ["guild_id"]
+              columnNames: ["guild"]
             }
           ]
         })
@@ -61,7 +61,7 @@ export class CreateTableCommandPermission1774323533643 implements MigrationInter
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable("command_permission", true)
+      await queryRunner.dropTable("command_permissions", true)
     }
 
 }

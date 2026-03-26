@@ -11,28 +11,46 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     this.repository = dataSource.getRepository(CommandPermission)
   }
 
-  public async findByCommand(commandName: string): Promise<CommandPermissionModel[]> {
-    return this.repository.findBy({ commandName })
+  public async findByCommand(command: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ command })
+
+    if (res.length === 0) {
+      throw new NotFoundError(`Permissões para o comando \`${command}\` não encontradas`)
+    }
+
+    return res
   }
 
-  public async findByRoleId(roleId: string): Promise<CommandPermissionModel[]> {
-    return this.repository.findBy({ roleId })
+  public async findByRole(role: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ role })
+
+    if (res.length === 0) {
+      throw new NotFoundError(`Permissões para o cargo \`${role}\` não encontradas`)
+    }
+
+    return res
   }
 
-  public async findByGuildId(guildId: string): Promise<CommandPermissionModel[]> {
-    return this.repository.findBy({ guildId })
+  public async findByGuild(guild: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ guild })
+
+    if (res.length === 0) {
+      throw new NotFoundError(`Permissões para a guild \`${guild}\` não encontradas`)
+    }
+
+    return res
   }
 
-  public async conflitingPermission(commandName: string, roleId: string, guildId: string, id?: number): Promise<void> {
+  public async conflitingPermission(command: string, role: string, guild: string, id?: number): Promise<void> {
     const res = await this.repository.findOneBy({ 
-      commandName, 
-      roleId, 
-      guildId, 
-      id: id ? Not(id) : undefined 
+      command, 
+      role, 
+      guild, 
+      id: id ? Not(id) : undefined
     })
     
     if (res) {
-      throw new ConflictError(`Permissão para o comando \`${commandName}\` com cargo \`${roleId}\` já cadastrada nesta guild`)
+      throw new ConflictError(`Permissão para o comando \`${command}\` com cargo \`${role}\` já cadastrada nesta guild`)
     }
   }
 
@@ -53,7 +71,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
-      where: filter ? { commandName: ILike(`%${filter}%`) } : undefined,
+      where: filter ? { command: ILike(`%${filter}%`) } : undefined,
     })
 
     return {

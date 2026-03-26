@@ -1,2 +1,3 @@
-export * from './Builds.js';
+export * from './Build.js';
 export * from './CommandPermission.js';
+

@@ -1,27 +1,31 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export interface CommandPermissionModel {
   id: number;
-  commandName: string;
-  roleId: string;
-  guildId: string;
+  command: string;
+  role: string;
+  guild: string;
   createdAt: Date;
   updatedAt: Date | null;
 }
 
-@Entity({ name: "command_permission" })
+@Entity({ name: "command_permissions" })
+@Index(["command", "role", "guild"], { unique: true })
+@Index(["command"])
+@Index(["role"])
+@Index(["guild"])
 export class CommandPermission implements CommandPermissionModel {
   @PrimaryGeneratedColumn("increment")
   id: number;
 
-  @Column({ name: "command_name", type: "varchar" })
-  commandName: string;
+  @Column({ name: "command", type: "varchar" })
+  command: string;
 
-  @Column({ name: "role_id", type: "varchar" })
-  roleId: string;
+  @Column({ name: "role", type: "varchar" })
+  role: string;
 
-  @Column({ name: "guild_id", type: "varchar" })
-  guildId: string;
+  @Column({ name: "guild", type: "varchar" })
+  guild: string;
 
   @CreateDateColumn({ name: "created_at", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

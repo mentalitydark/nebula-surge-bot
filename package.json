@@ -9,7 +9,8 @@
     "watch": "tsx watch --include \"./src/**/*.ts\" --env-file=.env.dev ./src/index.ts",
     "start": "node --env-file=.env .",
     "typeorm": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js",
-    "typeorm:revert": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:revert -d ./src/database/index.ts",
+    "typeorm:up": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:run -d ./src/infrastructure/typeorm/index.ts",
+    "typeorm:down": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:revert -d ./src/infrastructure/typeorm/index.ts",
     "test": "node --env-file=.env.test --import tsx --test --test-reporter @nomicfoundation/hardhat-node-test-reporter --test-reporter-destination stdout --test-concurrency=1 'src/**/*.test.ts'",
     "test:github": "node --env-file=.env.test --import tsx --test --test-reporter @nomicfoundation/hardhat-node-test-reporter --test-reporter-destination stdout --test-reporter node-test-github-reporter --test-reporter-destination stdout --test-concurrency=1 'src/**/*.test.ts'"
   },

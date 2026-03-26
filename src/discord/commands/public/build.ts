@@ -1,6 +1,6 @@
 import { createCommand } from "#base";
 import { BuildsRepositoryInterface } from "#domain/repositories/BuildsRepositoryInterface.js";
-import { BuildsModel } from "#entities";
+import { BuildModel } from "#entities";
 import { GenerateButtonPrevNext } from "#functions";
 import { BuildsTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed, createRow } from "@magicyan/discord";
@@ -73,7 +73,7 @@ createCommand({
     }
 });
 
-function createEmbedBuild(build: BuildsModel, index: number, total: number, currentPage: number) {
+function createEmbedBuild(build: BuildModel, index: number, total: number, currentPage: number) {
   return createEmbed({
     color: constants.colors.primary,
     title: build.equipament,

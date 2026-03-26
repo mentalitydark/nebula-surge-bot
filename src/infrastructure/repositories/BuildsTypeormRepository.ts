@@ -1,17 +1,17 @@
 import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "#domain/repositories/index.js";
-import { Builds, BuildsModel } from "#entities";
+import { Build, BuildModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
 import { ILike, Not, Repository } from "typeorm";
 
 export class BuildsTypeormRepository implements BuildsRepositoryInterface {
-  private repository: Repository<Builds>
+  private repository: Repository<Build>
 
   public constructor() {
-    this.repository = dataSource.getRepository(Builds)
+    this.repository = dataSource.getRepository(Build)
   }
 
-  public async findByEquipament(equipament: string): Promise<BuildsModel> {
+  public async findByEquipament(equipament: string): Promise<BuildModel> {
     const res = await this.repository.findOneBy({ equipament })
 
     if (!res) {
@@ -29,20 +29,20 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     }
   }
 
-  public create(data: CreateBuildProps): BuildsModel {
+  public create(data: CreateBuildProps): BuildModel {
     return this.repository.create(data)
   }
 
-  public async insert(model: BuildsModel): Promise<BuildsModel> {
+  public async insert(model: BuildModel): Promise<BuildModel> {
     return this.repository.save(model)
   }
 
-  public async search(props: SearchInput<BuildsModel>): Promise<SearchOutput<BuildsModel>> {
+  public async search(props: SearchInput<BuildModel>): Promise<SearchOutput<BuildModel>> {
     const page = props.page ?? 1
     const per_page = props.per_page ?? 10
     const filter = props.filter ?? null
 
-    const [builds, total] = await this.repository.findAndCount({
+    const [Build, total] = await this.repository.findAndCount({
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
@@ -50,18 +50,18 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     })
 
     return {
-      data: builds,
+      data: Build,
       current_page: page,
       per_page,
       total
     }
   }
 
-  public findById(id: number): Promise<BuildsModel> {
+  public findById(id: number): Promise<BuildModel> {
     return this._get(id)
   }
 
-  public async update(model: BuildsModel): Promise<BuildsModel> {
+  public async update(model: BuildModel): Promise<BuildModel> {
     const build = await this._get(model.id)
     this.repository.merge(build, model)
     return this.repository.save(build)
@@ -78,7 +78,7 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     await this.repository.remove(build)
   }
 
-  private async _get(id: number): Promise<BuildsModel> {
+  private async _get(id: number): Promise<BuildModel> {
     const build = await this.repository.findOneBy({ id })
 
     if (!build) {
