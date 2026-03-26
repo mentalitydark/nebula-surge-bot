@@ -12,15 +12,33 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
   }
 
   public async findByCommand(command: string): Promise<CommandPermissionModel[]> {
-    return this.repository.findBy({ command })
+    const res = await this.repository.findBy({ command })
+
+    if (res.length === 0) {
+      throw new NotFoundError(`Permissões para o comando \`${command}\` não encontradas`)
+    }
+
+    return res
   }
 
-  public async findByRoleId(role: string): Promise<CommandPermissionModel[]> {
-    return this.repository.findBy({ role })
+  public async findByRole(role: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ role })
+
+    if (res.length === 0) {
+      throw new NotFoundError(`Permissões para o cargo \`${role}\` não encontradas`)
+    }
+
+    return res
   }
 
-  public async findByGuildId(guild: string): Promise<CommandPermissionModel[]> {
-    return this.repository.findBy({ guild })
+  public async findByGuild(guild: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ guild })
+
+    if (res.length === 0) {
+      throw new NotFoundError(`Permissões para a guild \`${guild}\` não encontradas`)
+    }
+
+    return res
   }
 
   public async conflitingPermission(command: string, role: string, guild: string, id?: number): Promise<void> {
@@ -28,7 +46,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
       command, 
       role, 
       guild, 
-      id: id ? Not(id) : undefined 
+      id: id ? Not(id) : undefined
     })
     
     if (res) {
