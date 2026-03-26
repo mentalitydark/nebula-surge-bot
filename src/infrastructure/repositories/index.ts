@@ -1,2 +1,3 @@
 export * from './BuildsTypeormRepository.js';
-export * from './CommandPermissionTypeormRepository.js';
+export * from './CommandPermissionsTypeormRepository.js';
+
