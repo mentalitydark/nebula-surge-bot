@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export interface CommandPermissionModel {
   id: number;
@@ -10,6 +10,10 @@ export interface CommandPermissionModel {
 }
 
 @Entity({ name: "command_permissions" })
+@Index(["command", "role", "guild"], { unique: true })
+@Index(["command"])
+@Index(["role"])
+@Index(["guild"])
 export class CommandPermission implements CommandPermissionModel {
   @PrimaryGeneratedColumn("increment")
   id: number;
