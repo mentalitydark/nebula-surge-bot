@@ -2,21 +2,21 @@ import { CommandPermissionModel } from "#entities";
 import { RepositoryInterface } from "./RepositoryInterface.js";
 
 export type CreateCommandPermissionProps = {
-  commandName: string;
-  roleId: string;
-  guildId: string;
+  command: string;
+  role: string;
+  guild: string;
 }
 
 export interface CommandPermissionRepositoryInterface extends RepositoryInterface<CommandPermissionModel, CreateCommandPermissionProps> {
   /** @throws {Error} */
-  findByCommand(commandName: string): Promise<CommandPermissionModel[]>
+  findByCommand(command: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
-  findByRoleId(roleId: string): Promise<CommandPermissionModel[]>
+  findByRoleId(role: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
-  findByGuildId(guildId: string): Promise<CommandPermissionModel[]>
+  findByGuildId(guild: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
-  conflitingPermission(commandName: string, roleId: string, guildId: string, id?: number): Promise<void>
+  conflitingPermission(command: string, role: string, guild: string, id?: number): Promise<void>
 }
