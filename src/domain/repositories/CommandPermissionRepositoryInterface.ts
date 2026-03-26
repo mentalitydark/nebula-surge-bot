@@ -12,10 +12,10 @@ export interface CommandPermissionRepositoryInterface extends RepositoryInterfac
   findByCommand(command: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
-  findByRoleId(role: string): Promise<CommandPermissionModel[]>
+  findByRole(role: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
-  findByGuildId(guild: string): Promise<CommandPermissionModel[]>
+  findByGuild(guild: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
   conflitingPermission(command: string, role: string, guild: string, id?: number): Promise<void>
