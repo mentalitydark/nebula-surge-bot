@@ -1,4 +1,4 @@
-import { BuildsModel } from "#entities";
+import { BuildModel } from "#entities";
 import { RepositoryInterface } from "./RepositoryInterface.js";
 
 export type CreateBuildProps = {
@@ -6,9 +6,9 @@ export type CreateBuildProps = {
   content: string,
 }
 
-export interface BuildsRepositoryInterface extends RepositoryInterface<BuildsModel, CreateBuildProps> {
+export interface BuildsRepositoryInterface extends RepositoryInterface<BuildModel, CreateBuildProps> {
   /** @throws {Error} */
-  findByEquipament(equipament: string): Promise<BuildsModel>
+  findByEquipament(equipament: string): Promise<BuildModel>
 
   /** @throws {Error} */
   conflitingEquipament(equipament: string, id?: number): Promise<void>
