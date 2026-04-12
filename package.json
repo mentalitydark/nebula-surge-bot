@@ -74,6 +74,9 @@
     "#domain/*": [
       "./build/domain/*"
     ],
+    "#application/*": [
+      "./build/application/*"
+    ],
     "#typeorm": [
       "./build/infrastructure/typeorm/index.js"
     ]
