@@ -1,4 +1,4 @@
-import { BadRequestError, ConflictError, NotFoundError } from "#errors"
+import { BadRequestError, ConflictError, Forbidden, NotFoundError } from "#errors"
 import { Logger } from "#functions"
 import { createEmbed } from "@magicyan/discord"
 import { CacheType, CommandInteraction, MessageComponentInteraction, ModalSubmitInteraction } from "discord.js"
@@ -18,6 +18,9 @@ export async function onError(error: any, interaction: CommandInteraction<CacheT
     embed.description = error.message
   } else if (BadRequestError.isAppError(error)) {
     embed.title = 'Requisição inválida'
+    embed.description = error.message
+  } else if (Forbidden.isAppError(error)) {
+    embed.title = 'Acesso negado'
     embed.description = error.message
   } else if (error instanceof Error) {
     embed.description = error.message

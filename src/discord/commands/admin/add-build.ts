@@ -1,4 +1,5 @@
 import { createCommand } from "#base";
+import { requirePermissionDecorator } from "#functions";
 import { createLabel, createModalFields, createTextInput } from "@magicyan/discord";
 import { ApplicationCommandType, TextInputStyle } from "discord.js";
 
@@ -6,8 +7,7 @@ createCommand({
     name: "add-build",
     description: "Abre o formulário para adicionar uma nova build",
     type: ApplicationCommandType.ChatInput,
-    defaultMemberPermissions: ["Administrator"],
-    async run(interaction) {
+    run: requirePermissionDecorator(async (interaction) => {
       await interaction.showModal({
         customId: '/form/add-build',
         title: 'Adicionar build',
@@ -31,5 +31,5 @@ createCommand({
           )
         )
       })
-    }
+    })
 });
