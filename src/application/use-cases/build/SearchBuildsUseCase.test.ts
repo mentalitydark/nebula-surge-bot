@@ -3,7 +3,7 @@ import { dataSource } from "#typeorm";
 import assert from "node:assert";
 import { after, before, beforeEach, describe, it } from "node:test";
 import { CreateBuildUseCase } from "./CreateBuildUseCase.js";
-import { ListAllBuildsUseCase } from "./SearchBuildsUseCase.js";
+import { SearchBuildsUseCase } from "./SearchBuildsUseCase.js";
 
 describe('SearchBuildsUseCase - Testes Unitários', () => {
   before(async () => {
@@ -24,7 +24,7 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
 
   it('Deve retornar nenhuma build quando não houver builds', async () => {
     const repository = new BuildsTypeormRepository()
-    const useCase = new ListAllBuildsUseCase(repository)
+    const useCase = new SearchBuildsUseCase(repository)
 
     const response = await useCase.execute()
 
@@ -35,7 +35,7 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
   it('Deve retornar várias builds quando não informado filtros', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const useCase = new ListAllBuildsUseCase(repository)
+    const useCase = new SearchBuildsUseCase(repository)
 
     await createUseCase.execute({ equipament: 'build 1', content: 'content 1' })
     await createUseCase.execute({ equipament: 'build 2', content: 'content 2' })
@@ -49,7 +49,7 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
   it('Deve retornar builds que satisfação os filtros', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const useCase = new ListAllBuildsUseCase(repository)
+    const useCase = new SearchBuildsUseCase(repository)
 
     await createUseCase.execute({ equipament: 'sword of light', content: 'content 1' })
     await createUseCase.execute({ equipament: 'shield of darkness', content: 'content 2' })
@@ -64,7 +64,7 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
   it('Deve retornar builds com paginação', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const useCase = new ListAllBuildsUseCase(repository)
+    const useCase = new SearchBuildsUseCase(repository)
 
     for (let i = 1; i <= 15; i++) {
       await createUseCase.execute({ equipament: `build ${i}`, content: `content ${i}` })
@@ -84,7 +84,7 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
   it('Deve retornar builds com paginação e filtros', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const useCase = new ListAllBuildsUseCase(repository)
+    const useCase = new SearchBuildsUseCase(repository)
 
     for (let i = 1; i <= 15; i++) {
       await createUseCase.execute({ equipament: `match ${i}`, content: `content ${i}` })

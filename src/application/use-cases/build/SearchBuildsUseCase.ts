@@ -1,7 +1,7 @@
 import { BuildsRepositoryInterface, SearchInput, SearchOutput } from "#application/repositories/index.js"
 import { BuildModel } from "#entities"
 
-export class ListAllBuildsUseCase {
+export class SearchBuildsUseCase {
   public constructor(
     private readonly repository: BuildsRepositoryInterface
   ) {}
