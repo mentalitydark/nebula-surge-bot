@@ -1,4 +1,5 @@
 import { createCommand } from "#base";
+import { requirePermissionDecorator } from "#functions";
 import { BuildsTypeormRepository } from "#repositories";
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
 
@@ -6,7 +7,6 @@ createCommand({
     name: "remove-build",
     description: "Remove uma build a partir do seu identificador",
     type: ApplicationCommandType.ChatInput,
-    defaultMemberPermissions: ["Administrator"],
     options: [
       {
         name: "identificador",
@@ -15,7 +15,7 @@ createCommand({
         required: true
       }
     ],
-    async run(interaction) {
+    run: requirePermissionDecorator( async (interaction) => {
       const { options } = interaction
 
       const equipament = options.getString("identificador", true)
@@ -28,5 +28,5 @@ createCommand({
         flags: ["Ephemeral"],
         content: `Build \`${equipament}\` removida.`
       })
-    }
+    })
 });

@@ -1,4 +1,5 @@
 import { createCommand } from "#base";
+import { requirePermissionDecorator } from "#functions";
 import { BuildsTypeormRepository } from "#repositories";
 import { createLabel, createModalFields, createTextInput } from "@magicyan/discord";
 import { ApplicationCommandOptionType, ApplicationCommandType, TextInputStyle } from "discord.js";
@@ -7,7 +8,6 @@ createCommand({
     name: "update-build",
     description: "Abre o formulário para atualizar uma build já existente",
     type: ApplicationCommandType.ChatInput,
-    defaultMemberPermissions: ["Administrator"],
     options: [
       {
         name: "identificador",
@@ -16,7 +16,7 @@ createCommand({
         required: true
       }
     ],
-    async run(interaction) {
+    run: requirePermissionDecorator(async (interaction) => {
       const { options } = interaction
 
       const equipament = options.getString("identificador", true)
@@ -50,5 +50,5 @@ createCommand({
           )
         )
       })
-    }
+    })
 });
