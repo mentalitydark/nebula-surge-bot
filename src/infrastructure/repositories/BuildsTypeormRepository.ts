@@ -1,8 +1,8 @@
-import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "#domain/repositories/index.js";
 import { Build, BuildModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
 import { ILike, Not, Repository } from "typeorm";
+import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "../../application/repositories/index.js";
 
 export class BuildsTypeormRepository implements BuildsRepositoryInterface {
   private repository: Repository<Build>

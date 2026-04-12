@@ -1,10 +1,10 @@
 import { createCommand } from "#base";
-import { BuildsRepositoryInterface } from "#domain/repositories/BuildsRepositoryInterface.js";
 import { BuildModel } from "#entities";
 import { GenerateButtonPrevNext } from "#functions";
 import { BuildsTypeormRepository } from "#repositories";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { ApplicationCommandType, ButtonInteraction, InteractionCollector } from "discord.js";
+import { BuildsRepositoryInterface } from "../../../application/repositories/BuildsRepositoryInterface.js";
 
 const PER_PAGE = 5;
 

@@ -1,4 +1,4 @@
-import { CommandPermissionRepositoryInterface, CreateCommandPermissionProps, SearchInput, SearchOutput } from "#domain/repositories/index.js";
+import { CommandPermissionRepositoryInterface, CreateCommandPermissionProps, SearchInput, SearchOutput } from "#application/repositories/index.js";
 import { CommandPermission, CommandPermissionModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
