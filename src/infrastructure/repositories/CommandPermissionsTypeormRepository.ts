@@ -50,7 +50,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     })
     
     if (res) {
-      throw new ConflictError(`Permissão para o comando \`${command}\` com cargo \`${role}\` já cadastrada nesta guild`)
+      throw new ConflictError(`Já foi cadastrada a permissão para o cargo <@&${role}> para executar o comando \`${command}\``)
     }
   }
 
