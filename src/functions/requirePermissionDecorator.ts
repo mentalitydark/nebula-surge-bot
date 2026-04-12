@@ -1,4 +1,4 @@
-import { AppError, Forbidden, NotFoundError } from "#errors";
+import { Forbidden, NotFoundError } from "#errors";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { ChatInputCommandInteraction } from "discord.js";
 
@@ -15,31 +15,22 @@ const checkPermission = async (i: interaction) => {
     return
   }
 
-  try {
-    const repository = new CommandPermissionTypeormRepository()
-  
-    const permissions = await repository.findByCommand(commandName)
-  
-    const memberRoles = i.member.roles.cache
-  
-    const hasPermission = permissions.some(p => {
-      if (memberRoles.has(p.role)) {
-        return true
-      }
+  const repository = new CommandPermissionTypeormRepository()
 
-      return false
-    })
+  const permissions = await repository.findByCommand(commandName)
 
-    if (!hasPermission) {
-      throw new Forbidden('Você não tem permissão para executar este comando')
+  const memberRoles = i.member.roles.cache
+
+  const hasPermission = permissions.some(p => {
+    if (memberRoles.has(p.role)) {
+      return true
     }
 
-  } catch (error) {
-    if (AppError.isAppError(error)) {
-      throw new Forbidden(error.message)
-    } else {
-      throw error
-    }
+    return false
+  })
+
+  if (!hasPermission) {
+    throw new Forbidden('Você não tem permissão para executar este comando')
   }
 }
 
