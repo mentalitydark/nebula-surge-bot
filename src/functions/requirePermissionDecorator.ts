@@ -34,8 +34,8 @@ const checkPermission = async (i: interaction) => {
   }
 }
 
-export function requirePermissionDecorator(commandRunner: commandRunner) {
-  return async (interaction: interaction) => {
+function requirePermissionDecorator(commandRunner: commandRunner) {
+  const requirePermission = async (interaction: interaction) => {
     if (!interaction.isChatInputCommand()) {
       return
     }
@@ -44,4 +44,8 @@ export function requirePermissionDecorator(commandRunner: commandRunner) {
 
     await commandRunner(interaction)
   }
+
+  return requirePermission
 }
+
+export { requirePermissionDecorator };
