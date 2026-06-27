@@ -87,23 +87,23 @@ describe('CommandPermissionTypeormRepository - Testes Unitários', () => {
     })
   })
 
-  describe('conflitingPermission', () => {
+  describe('conflictingPermission', () => {
     it('Deve retornar um erro quando a permissão já existir', async () => {
       const p1 = repository.create({ command: 'cmd1', role: 'role1', guild: 'guild1' })
       await repository.insert(p1)
 
-      await assert.rejects(repository.conflitingPermission('cmd1', 'role1', 'guild1'), ConflictError)
+      await assert.rejects(repository.conflictingPermission('cmd1', 'role1', 'guild1'), ConflictError)
     })
 
     it('Não deve retornar um erro quando o GuildId for diferente', async () => {
       const p1 = repository.create({ command: 'cmd1', role: 'role1', guild: 'guild1' })
       await repository.insert(p1)
 
-      await assert.doesNotReject(repository.conflitingPermission('cmd1', 'role1', 'guild2'))
+      await assert.doesNotReject(repository.conflictingPermission('cmd1', 'role1', 'guild2'))
     })
 
     it('Não deve retornar um erro quando a permissão não existir', async () => {
-      await assert.doesNotReject(repository.conflitingPermission('cmd1', 'role1', 'guild1'))
+      await assert.doesNotReject(repository.conflictingPermission('cmd1', 'role1', 'guild1'))
     })
   })
 

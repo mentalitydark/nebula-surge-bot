@@ -18,5 +18,5 @@ export interface CommandPermissionRepositoryInterface extends RepositoryInterfac
   findByGuild(guild: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
-  conflitingPermission(command: string, role: string, guild: string, id?: number): Promise<void>
+  conflictingPermission(command: string, role: string, guild: string, id?: number): Promise<void>
 }

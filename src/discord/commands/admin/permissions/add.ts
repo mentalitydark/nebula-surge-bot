@@ -24,7 +24,7 @@ command.subcommand({
 
     const commandPermission = repository.create({ role, command, guild })
 
-    await repository.conflitingPermission(command, role, guild)
+    await repository.conflictingPermission(command, role, guild)
 
     await repository.insert(commandPermission)
 

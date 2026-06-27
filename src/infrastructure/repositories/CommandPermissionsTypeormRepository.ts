@@ -41,7 +41,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     return res
   }
 
-  public async conflitingPermission(command: string, role: string, guild: string, id?: number): Promise<void> {
+  public async conflictingPermission(command: string, role: string, guild: string, id?: number): Promise<void> {
     const res = await this.repository.findOneBy({ 
       command, 
       role, 
