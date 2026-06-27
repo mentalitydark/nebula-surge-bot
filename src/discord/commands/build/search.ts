@@ -18,7 +18,7 @@ command.subcommand({
     required: false
   }],
   async run(interaction) {
-    const { options, member } = interaction
+    const { options } = interaction
     const title = options.getString("title", false) ?? ''
     const repository = new BuildsTypeormRepository()
     const searchBuildUseCase = new SearchBuildsUseCase(repository)
@@ -37,7 +37,7 @@ command.subcommand({
     const response = await interaction.reply({
       flags: ["Ephemeral"],
       withResponse: true,
-      embeds: searchResult.data.map((build, index) => createEmbedBuild(build, index+1, searchResult.total, currentPage)),
+      embeds: searchResult.data.map((build, index) => createEmbedBuild(build, index + 1, searchResult.total, currentPage)),
       components: [generateButtons(currentPage, totalPages)]
     })
 
@@ -50,13 +50,13 @@ command.subcommand({
       const searchResult = await searchBuildUseCase.execute({ filter: title, page: currentPage, per_page: PER_PAGE })
 
       await i.update({
-        embeds: searchResult.data.map((build, index) => createEmbedBuild(build, index+1, searchResult.total, currentPage)),
+        embeds: searchResult.data.map((build, index) => createEmbedBuild(build, index + 1, searchResult.total, currentPage)),
         components: [generateButtons(currentPage, totalPages)]
       });
     });
 
     collector.on('end', async () => {
-      await interaction.editReply({ components: [] }).catch(() => {});
+      await interaction.editReply({ components: [] }).catch(() => { });
     });
   }
 })
@@ -66,7 +66,7 @@ function createEmbedBuild(build: BuildModel, index: number, total: number, curre
     color: constants.colors.primary,
     title: build.equipament,
     description: build.content,
-    footer: `Build ${(currentPage - 1) * PER_PAGE + index} de ${total} fffffffffffffffffffff`,
+    footer: `Build ${(currentPage - 1) * PER_PAGE + index} de ${total}`,
     timestamp: build.updatedAt ?? build.createdAt
   })
 }
