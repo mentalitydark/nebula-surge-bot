@@ -8,7 +8,7 @@ command.subcommand({
   description: 'Cria uma nova build',
   run: requirePermissionDecorator(async (interaction) => {
     const nameInput = createTextInput({
-      customId: 'equipament',
+      customId: 'equipment',
       required: true,
       placeholder: 'Digite um ID único. Ex: Saryn Prime [Nuke] [End-Game]'
     })

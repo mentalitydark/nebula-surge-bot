@@ -24,10 +24,10 @@ command.subcommand({
     const build = await useCase.execute(id)
 
     const nameInput = createTextInput({
-      customId: 'equipament',
+      customId: 'equipment',
       required: true,
       placeholder: 'Digite um ID único. Ex: Saryn Prime [Nuke] [End-Game]',
-      value: build.equipament
+      value: build.equipment
     })
 
     const contentInput = createTextInput({

@@ -2,26 +2,26 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 
 export interface BuildModel {
   id: number;
-  equipament: string;
+  equipment: string;
   content: string;
   createdAt: Date;
-  updatedAt: Date|null;
+  updatedAt: Date | null;
 }
 
 @Entity({ name: "builds" })
 export class Build implements BuildModel {
-    @PrimaryGeneratedColumn('increment')
-    id: number;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
-    @Column({ type: "text", unique: true })
-    equipament: string;
+  @Column({ type: "text", unique: true })
+  equipment: string;
 
-    @Column({ type: "text" })
-    content: string;
+  @Column({ type: "text" })
+  content: string;
 
-    @CreateDateColumn({ name: "created_at", default: () => "CURRENT_TIMESTAMP"})
-    createdAt: Date;
+  @CreateDateColumn({ name: "created_at", default: () => "CURRENT_TIMESTAMP" })
+  createdAt: Date;
 
-    @UpdateDateColumn({ name: "updated_at", nullable: true, default: null, onUpdate: "CURRENT_TIMESTAMP"})
-    updatedAt: Date|null;
+  @UpdateDateColumn({ name: "updated_at", nullable: true, default: null, onUpdate: "CURRENT_TIMESTAMP" })
+  updatedAt: Date | null;
 }
