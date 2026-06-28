@@ -4,9 +4,9 @@ import { dataSource } from "#typeorm";
 import assert from "node:assert";
 import { after, before, beforeEach, describe, it } from "node:test";
 import { CreateBuildUseCase } from "./CreateBuildUseCase.js";
-import { FindBuildByEquipamentUseCase } from "./FindBuildByEquipamentUseCase.js";
+import { FindBuildByEquipmentUseCase } from "./FindBuildByEquipmentUseCase.js";
 
-describe('FindBuildByEquipamentUseCase - Testes Unitários', () => {
+describe('FindBuildByEquipmentUseCase - Testes Unitários', () => {
   before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
@@ -26,15 +26,15 @@ describe('FindBuildByEquipamentUseCase - Testes Unitários', () => {
   it('Deve retornar uma build quando existir', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const build = await createUseCase.execute({ equipament: 'equipament', content: 'content' })
+    const build = await createUseCase.execute({ equipment: 'equipment', content: 'content' })
 
     assert.ok(build.id)
-    
-    const findByEquipamentUseCase = new FindBuildByEquipamentUseCase(repository)
 
-    const response = await findByEquipamentUseCase.execute(build.equipament)
+    const findByEquipmentUseCase = new FindBuildByEquipmentUseCase(repository)
 
-    assert.strictEqual(response.equipament, build.equipament)
+    const response = await findByEquipmentUseCase.execute(build.equipment)
+
+    assert.strictEqual(response.equipment, build.equipment)
     assert.strictEqual(response.content, build.content)
     assert.ok(response.createdAt)
     assert.ok(response.updatedAt)
@@ -42,9 +42,9 @@ describe('FindBuildByEquipamentUseCase - Testes Unitários', () => {
 
   it('Deve retornar um erro quando a build não existir', async () => {
     const repository = new BuildsTypeormRepository()
-    const useCase = new FindBuildByEquipamentUseCase(repository)
-    
-    await assert.rejects(useCase.execute('equipament'), NotFoundError)
+    const useCase = new FindBuildByEquipmentUseCase(repository)
+
+    await assert.rejects(useCase.execute('equipment'), NotFoundError)
   })
 
 })
