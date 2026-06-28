@@ -17,7 +17,7 @@ const checkPermission = async (i: interaction) => {
 
   const repository = new CommandPermissionTypeormRepository()
 
-  const permissions = await repository.findByCommand(commandName)
+  const permissions = await repository.findByCommand(commandName, i.guildId)
 
   const memberRoles = i.member.roles.cache
 
