@@ -7,10 +7,8 @@ export class FindCommandPermissionsByCommandUseCase {
   ) {}
 
   public async execute(command: string, guild: string): Promise<CommandPermissionModel[]> {
-    const permissions = await this.repository.search({
-      filter: command,
-    });
+    const permissions = await this.repository.findByCommand(command, guild);
 
-    return permissions.data.filter((permission) => permission.guild === guild);
+    return permissions;
   }
 }
