@@ -5,7 +5,7 @@ export type SearchInput<Model> = {
   per_page?: number
   sort?: (keyof Model) | null
   sort_dir?: DirOptions| null
-  filter?: string | null
+  filter?: Partial<Model> | null
 }
 
 export type SearchOutput<Model> = {
