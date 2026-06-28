@@ -1,4 +1,4 @@
-import { CommandPermissionRepositoryInterface, CreateCommandPermissionProps, SearchInput, SearchOutput } from "#application/repositories/index.js";
+import { CommandPermissionRepositoryInterface, CreateCommandPermissionProps, SearchCommandPermissionInput, SearchOutput } from "#application/repositories/index.js";
 import { CommandPermission, CommandPermissionModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
@@ -11,21 +11,21 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     this.repository = dataSource.getRepository(CommandPermission)
   }
 
-  public async findByCommand(command: string): Promise<CommandPermissionModel[]> {
-    const res = await this.repository.findBy({ command })
+  public async findByCommand(command: string, guild: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ command, guild })
 
     if (res.length === 0) {
-      throw new NotFoundError(`Permissões para o comando \`${command}\` não encontradas`)
+      throw new NotFoundError(`Permissões para o comando \`${command}\` na guild \`${guild}\` não encontradas`)
     }
 
     return res
   }
 
-  public async findByRole(role: string): Promise<CommandPermissionModel[]> {
-    const res = await this.repository.findBy({ role })
+  public async findByRole(role: string, guild: string): Promise<CommandPermissionModel[]> {
+    const res = await this.repository.findBy({ role, guild })
 
     if (res.length === 0) {
-      throw new NotFoundError(`Permissões para o cargo \`${role}\` não encontradas`)
+      throw new NotFoundError(`Permissões para o cargo \`${role}\` na guild \`${guild}\` não encontradas`)
     }
 
     return res
@@ -62,16 +62,31 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     return this.repository.save(model)
   }
 
-  public async search(props: SearchInput<CommandPermissionModel>): Promise<SearchOutput<CommandPermissionModel>> {
+  public async search(props: SearchCommandPermissionInput): Promise<SearchOutput<CommandPermissionModel>> {
     const page = props.page ?? 1
     const per_page = props.per_page ?? 10
     const filter = props.filter ?? null
+    const guild = props.guild
+
+    const where: any = { guild }
+    
+    if (filter) {
+      Object.entries(filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'string') {
+            where[key] = ILike(`%${value}%`)
+          } else {
+            where[key] = value
+          }
+        }
+      })
+    }
 
     const [permissions, total] = await this.repository.findAndCount({
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
-      where: filter ? { command: ILike(`%${filter}%`) } : undefined,
+      where,
     })
 
     return {
