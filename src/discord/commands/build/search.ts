@@ -25,7 +25,11 @@ command.subcommand({
 
     let currentPage = 1;
 
-    const searchResult = await searchBuildUseCase.execute({ filter: title, page: currentPage, per_page: PER_PAGE })
+    const searchResult = await searchBuildUseCase.execute({
+      filter: title ? { equipment: title } : undefined,
+      page: currentPage,
+      per_page: PER_PAGE
+    })
 
     if (searchResult.total === 0) {
       await noResult(interaction)
@@ -47,7 +51,11 @@ command.subcommand({
       if (i.customId === 'prev' && currentPage > 1) currentPage--;
       if (i.customId === 'next') currentPage++;
 
-      const searchResult = await searchBuildUseCase.execute({ filter: title, page: currentPage, per_page: PER_PAGE })
+      const searchResult = await searchBuildUseCase.execute({
+        filter: title ? { equipment: title } : undefined,
+        page: currentPage,
+        per_page: PER_PAGE
+      })
 
       await i.update({
         embeds: searchResult.data.map((build, index) => createEmbedBuild(build, index + 1, searchResult.total, currentPage)),
@@ -64,7 +72,7 @@ command.subcommand({
 function createEmbedBuild(build: BuildModel, index: number, total: number, currentPage: number) {
   return createEmbed({
     color: constants.colors.primary,
-    title: build.equipament,
+    title: build.equipment,
     description: build.content,
     footer: `Build ${(currentPage - 1) * PER_PAGE + index} de ${total}`,
     timestamp: build.updatedAt ?? build.createdAt
