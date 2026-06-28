@@ -1,5 +1,5 @@
 import { CommandPermissionModel } from "#entities";
-import { RepositoryInterface } from "./RepositoryInterface.js";
+import { RepositoryInterface, SearchInput, SearchOutput } from "./RepositoryInterface.js";
 
 export type CreateCommandPermissionProps = {
   command: string;
@@ -7,12 +7,18 @@ export type CreateCommandPermissionProps = {
   guild: string;
 }
 
+export type SearchCommandPermissionInput = SearchInput<CommandPermissionModel> & {
+  guild: string;
+}
+
 export interface CommandPermissionRepositoryInterface extends RepositoryInterface<CommandPermissionModel, CreateCommandPermissionProps> {
-  /** @throws {Error} */
-  findByCommand(command: string): Promise<CommandPermissionModel[]>
+  search(props: SearchCommandPermissionInput): Promise<SearchOutput<CommandPermissionModel>>
 
   /** @throws {Error} */
-  findByRole(role: string): Promise<CommandPermissionModel[]>
+  findByCommand(command: string, guild: string): Promise<CommandPermissionModel[]>
+
+  /** @throws {Error} */
+  findByRole(role: string, guild: string): Promise<CommandPermissionModel[]>
 
   /** @throws {Error} */
   findByGuild(guild: string): Promise<CommandPermissionModel[]>
