@@ -26,43 +26,47 @@ describe('CommandPermissionTypeormRepository - Testes Unitários', () => {
 
   describe('findByCommand', () => {
     it('Deve retornar um erro quando o comando não existir', async () => {
-      await assert.rejects(repository.findByCommand('not-exist'), NotFoundError)
+      await assert.rejects(repository.findByCommand('not-exist', 'guild1'), NotFoundError)
     })
 
-    it('Deve retornar uma lista de permissões tendo o mesmo comando', async () => {
+    it('Deve retornar uma lista de permissões tendo o mesmo comando e guild', async () => {
       const p1 = repository.create({ command: 'cmd1', role: 'role1', guild: 'guild1' })
       const p2 = repository.create({ command: 'cmd1', role: 'role2', guild: 'guild1' })
       const p3 = repository.create({ command: 'cmd2', role: 'role1', guild: 'guild1' })
+      const p4 = repository.create({ command: 'cmd1', role: 'role3', guild: 'guild2' })
 
       await repository.insert(p1)
       await repository.insert(p2)
       await repository.insert(p3)
+      await repository.insert(p4)
 
-      const permissions = await repository.findByCommand('cmd1')
+      const permissions = await repository.findByCommand('cmd1', 'guild1')
 
       assert.strictEqual(permissions.length, 2)
-      assert.ok(permissions.every(p => p.command === 'cmd1'))
+      assert.ok(permissions.every(p => p.command === 'cmd1' && p.guild === 'guild1'))
     })
   })
 
   describe('findByRole', () => {
     it('Deve retornar um erro quando o cargo não existir', async () => {
-      await assert.rejects(repository.findByRole('not-exist'), NotFoundError)
+      await assert.rejects(repository.findByRole('not-exist', 'guild1'), NotFoundError)
     })
 
-    it('Deve retornar uma lista de permissões tendo o mesmo cargo', async () => {
+    it('Deve retornar uma lista de permissões tendo o mesmo cargo e guild', async () => {
       const p1 = repository.create({ command: 'cmd1', role: 'role1', guild: 'guild1' })
       const p2 = repository.create({ command: 'cmd2', role: 'role1', guild: 'guild1' })
       const p3 = repository.create({ command: 'cmd1', role: 'role2', guild: 'guild1' })
+      const p4 = repository.create({ command: 'cmd3', role: 'role1', guild: 'guild2' })
 
       await repository.insert(p1)
       await repository.insert(p2)
       await repository.insert(p3)
+      await repository.insert(p4)
 
-      const permissions = await repository.findByRole('role1')
+      const permissions = await repository.findByRole('role1', 'guild1')
 
       assert.strictEqual(permissions.length, 2)
-      assert.ok(permissions.every(p => p.role === 'role1'))
+      assert.ok(permissions.every(p => p.role === 'role1' && p.guild === 'guild1'))
     })
   })
 
@@ -87,23 +91,23 @@ describe('CommandPermissionTypeormRepository - Testes Unitários', () => {
     })
   })
 
-  describe('conflitingPermission', () => {
+  describe('conflictingPermission', () => {
     it('Deve retornar um erro quando a permissão já existir', async () => {
       const p1 = repository.create({ command: 'cmd1', role: 'role1', guild: 'guild1' })
       await repository.insert(p1)
 
-      await assert.rejects(repository.conflitingPermission('cmd1', 'role1', 'guild1'), ConflictError)
+      await assert.rejects(repository.conflictingPermission('cmd1', 'role1', 'guild1'), ConflictError)
     })
 
     it('Não deve retornar um erro quando o GuildId for diferente', async () => {
       const p1 = repository.create({ command: 'cmd1', role: 'role1', guild: 'guild1' })
       await repository.insert(p1)
 
-      await assert.doesNotReject(repository.conflitingPermission('cmd1', 'role1', 'guild2'))
+      await assert.doesNotReject(repository.conflictingPermission('cmd1', 'role1', 'guild2'))
     })
 
     it('Não deve retornar um erro quando a permissão não existir', async () => {
-      await assert.doesNotReject(repository.conflitingPermission('cmd1', 'role1', 'guild1'))
+      await assert.doesNotReject(repository.conflictingPermission('cmd1', 'role1', 'guild1'))
     })
   })
 
@@ -137,18 +141,22 @@ describe('CommandPermissionTypeormRepository - Testes Unitários', () => {
   })
 
   describe('search', () => {
-    it('Deve retornar uma lista de permissões', async () => {
+    it('Deve retornar uma lista de permissões do guild especificado', async () => {
       await repository.insert(repository.create({ command: 'cmd1', role: 'r1', guild: 'g1' }))
-      await repository.insert(repository.create({ command: 'cmd2', role: 'r2', guild: 'g2' }))
+      await repository.insert(repository.create({ command: 'cmd2', role: 'r2', guild: 'g1' }))
+      await repository.insert(repository.create({ command: 'cmd3', role: 'r3', guild: 'g2' }))
 
-      const result = await repository.search({})
+      const result = await repository.search({ guild: 'g1' })
 
       assert.strictEqual(result.data.length, 2)
       assert.strictEqual(result.total, 2)
+      assert.ok(result.data.every(p => p.guild === 'g1'))
     })
 
-    it('Deve retornar uma lista vazia quando não houver permissões', async () => {
-      const result = await repository.search({})
+    it('Deve retornar uma lista vazia quando não houver permissões para o guild', async () => {
+      await repository.insert(repository.create({ command: 'cmd1', role: 'r1', guild: 'g1' }))
+      
+      const result = await repository.search({ guild: 'g2' })
 
       assert.strictEqual(result.data.length, 0)
       assert.strictEqual(result.total, 0)
@@ -156,26 +164,28 @@ describe('CommandPermissionTypeormRepository - Testes Unitários', () => {
 
     it('Deve retornar uma lista de permissões com paginação', async () => {
       for (let i = 0; i < 15; i++) {
-        await repository.insert(repository.create({ command: `cmd${i}`, role: 'r', guild: 'g' }))
+        await repository.insert(repository.create({ command: `cmd${i}`, role: 'r', guild: 'g1' }))
       }
 
-      const resultPage1 = await repository.search({ page: 1, per_page: 10 })
+      const resultPage1 = await repository.search({ guild: 'g1', page: 1, per_page: 10 })
       assert.strictEqual(resultPage1.data.length, 10)
       assert.strictEqual(resultPage1.total, 15)
 
-      const resultPage2 = await repository.search({ page: 2, per_page: 10 })
+      const resultPage2 = await repository.search({ guild: 'g1', page: 2, per_page: 10 })
       assert.strictEqual(resultPage2.data.length, 5)
     })
 
     it('Deve retornar uma lista de permissões com filtro', async () => {
       await repository.insert(repository.create({ command: 'ban', role: 'r1', guild: 'g1' }))
-      await repository.insert(repository.create({ command: 'kick', role: 'r2', guild: 'g2' }))
-      await repository.insert(repository.create({ command: 'bank', role: 'r3', guild: 'g3' }))
+      await repository.insert(repository.create({ command: 'kick', role: 'r2', guild: 'g1' }))
+      await repository.insert(repository.create({ command: 'bank', role: 'r3', guild: 'g1' }))
+      await repository.insert(repository.create({ command: 'ban', role: 'r4', guild: 'g2' }))
 
-      const result = await repository.search({ filter: 'ban' })
+      const result = await repository.search({ guild: 'g1', filter: { command: 'ban' } })
 
       assert.strictEqual(result.data.length, 2) // ban and bank
       assert.strictEqual(result.total, 2)
+      assert.ok(result.data.every(p => p.guild === 'g1'))
     })
   })
 

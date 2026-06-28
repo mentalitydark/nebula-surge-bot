@@ -1,8 +1,8 @@
-import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "#domain/repositories/index.js";
 import { Build, BuildModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
 import { ILike, Not, Repository } from "typeorm";
+import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "../../application/repositories/index.js";
 
 export class BuildsTypeormRepository implements BuildsRepositoryInterface {
   private repository: Repository<Build>
@@ -11,21 +11,21 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     this.repository = dataSource.getRepository(Build)
   }
 
-  public async findByEquipament(equipament: string): Promise<BuildModel> {
-    const res = await this.repository.findOneBy({ equipament })
+  public async findByEquipment(equipment: string): Promise<BuildModel> {
+    const res = await this.repository.findOneBy({ equipment })
 
     if (!res) {
-      throw new NotFoundError(`Equipamento \`${equipament}\` não encontrado`)
+      throw new NotFoundError(`Equipamento \`${equipment}\` não encontrado`)
     }
 
     return res
   }
 
-  public async conflitingEquipament(equipament: string, id?: number): Promise<void> {
-    const res = await this.repository.findOneBy({ equipament, id: id ? Not(id) : undefined })
-    
+  public async conflictingEquipment(equipment: string, id?: number): Promise<void> {
+    const res = await this.repository.findOneBy({ equipment, id: id ? Not(id) : undefined })
+
     if (res) {
-      throw new ConflictError(`Equipamento \`${equipament}\` já cadastrado`)
+      throw new ConflictError(`Equipamento \`${equipment}\` já cadastrado`)
     }
   }
 
@@ -42,11 +42,25 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     const per_page = props.per_page ?? 10
     const filter = props.filter ?? null
 
+    const where: any = {}
+
+    if (filter) {
+      Object.entries(filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'string') {
+            where[key] = ILike(`%${value}%`)
+          } else {
+            where[key] = value
+          }
+        }
+      })
+    }
+
     const [Build, total] = await this.repository.findAndCount({
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
-      where: filter ? { equipament: ILike(`%${filter}%`) } : undefined,
+      where: Object.keys(where).length > 0 ? where : undefined,
     })
 
     return {
@@ -67,8 +81,8 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     return this.repository.save(build)
   }
 
-  public async deleteByEquipament(equipament: string): Promise<void> {
-    const build = await this.findByEquipament(equipament)
+  public async deleteByEquipment(equipment: string): Promise<void> {
+    const build = await this.findByEquipment(equipment)
 
     await this.repository.remove(build)
   }

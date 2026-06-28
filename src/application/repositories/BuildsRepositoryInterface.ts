@@ -2,17 +2,17 @@ import { BuildModel } from "#entities";
 import { RepositoryInterface } from "./RepositoryInterface.js";
 
 export type CreateBuildProps = {
-  equipament: string,
+  equipment: string,
   content: string,
 }
 
 export interface BuildsRepositoryInterface extends RepositoryInterface<BuildModel, CreateBuildProps> {
   /** @throws {Error} */
-  findByEquipament(equipament: string): Promise<BuildModel>
+  findByEquipment(equipment: string): Promise<BuildModel>
 
   /** @throws {Error} */
-  conflitingEquipament(equipament: string, id?: number): Promise<void>
+  conflictingEquipment(equipment: string, id?: number): Promise<void>
 
   /** @throws {Error} */
-  deleteByEquipament(equipament: string): Promise<void>
+  deleteByEquipment(equipment: string): Promise<void>
 }
