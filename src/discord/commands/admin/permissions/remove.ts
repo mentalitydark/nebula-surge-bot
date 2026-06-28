@@ -1,7 +1,7 @@
 import { DeleteCommandPermissionUseCase } from "#application/use-cases/command-permission/DeleteCommandPermissionUseCase.js";
 import { SearchCommandPermissionsUseCase } from "#application/use-cases/command-permission/SearchCommandPermissionsUseCase.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
-import { createEmbed } from "@magicyan/discord";
+import { brBuilder, createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType } from "discord.js";
 import command from "./permissions.js";
 
@@ -43,7 +43,10 @@ command.subcommand({
         embeds: [
           createEmbed({
             color: constants.colors.warning,
-            description: `Permissão não encontrada!\n\nO cargo <@&${role}> não tem permissão para executar o comando \`${commandName}\``
+            description: brBuilder(
+              '### Permissão não encontrada',
+              `O cargo <@&${role}> não tem permissão para executar o comando \`${commandName}\``
+            )
           })
         ]
       })
@@ -57,7 +60,10 @@ command.subcommand({
       embeds: [
         createEmbed({
           color: constants.colors.success,
-          description: `Permissão removida com sucesso!\n\nCargo: <@&${role}>\nComando: \`${commandName}\``
+          description: brBuilder(
+            '### Permissão removida com sucesso!',
+            `Cargo: <@&${role}>\nComando: \`${commandName}\``
+          )
         })
       ]
     })

@@ -1,7 +1,7 @@
 import { CreateCommandPermissionUseCase } from "#application/use-cases/command-permission/CreateCommandPermissionUseCase.js";
 import { registeredCommands } from "#base";
 import { CommandPermissionTypeormRepository } from "#repositories";
-import { createEmbed } from "@magicyan/discord";
+import { brBuilder, createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType } from "discord.js";
 import command from "./permissions.js";
 
@@ -31,7 +31,10 @@ command.subcommand({
         embeds: [
           createEmbed({
             color: constants.colors.danger,
-            description: `O comando \`${commandName}\` não está registrado no bot ou não precisa de permissões específicas.`
+            description: brBuilder(
+              '### Comando não registrado',
+              `O comando \`${commandName}\` não está registrado no bot ou não precisa de permissões específicas.`
+            )
           })
         ]
       })
@@ -49,7 +52,10 @@ command.subcommand({
       embeds: [
         createEmbed({
           color: constants.colors.success,
-          description: `Permissão adicionada com sucesso!\n\nCargo: <@&${role}>\nComando: \`${commandName}\``
+          description: brBuilder(
+            '### Permissão adicionada com sucesso!',
+            `Cargo: <@&${role}>\nComando: \`${commandName}\``
+          )
         })
       ]
     })

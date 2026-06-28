@@ -88,9 +88,8 @@ function createEmbedList(permissions: CommandPermissionModel[], total: number, c
     description: brBuilder(
       commandFilter ? `**Filtro:** \`${commandFilter}\`\n` : '',
       permissionsList,
-      '',
-      `Página ${currentPage} de ${totalPages} | Total: ${total} permissões`
-    )
+    ),
+    footer: `Página ${currentPage} de ${totalPages} | Total: ${total} permissões`
   })
 }
 
