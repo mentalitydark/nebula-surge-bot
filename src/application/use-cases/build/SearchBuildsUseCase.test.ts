@@ -37,8 +37,8 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
     const createUseCase = new CreateBuildUseCase(repository)
     const useCase = new SearchBuildsUseCase(repository)
 
-    await createUseCase.execute({ equipament: 'build 1', content: 'content 1' })
-    await createUseCase.execute({ equipament: 'build 2', content: 'content 2' })
+    await createUseCase.execute({ equipment: 'build 1', content: 'content 1' })
+    await createUseCase.execute({ equipment: 'build 2', content: 'content 2' })
 
     const response = await useCase.execute()
 
@@ -51,13 +51,13 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
     const createUseCase = new CreateBuildUseCase(repository)
     const useCase = new SearchBuildsUseCase(repository)
 
-    await createUseCase.execute({ equipament: 'sword of light', content: 'content 1' })
-    await createUseCase.execute({ equipament: 'shield of darkness', content: 'content 2' })
+    await createUseCase.execute({ equipment: 'sword of light', content: 'content 1' })
+    await createUseCase.execute({ equipment: 'shield of darkness', content: 'content 2' })
 
-    const response = await useCase.execute({ filter: 'sword' })
+    const response = await useCase.execute({ filter: { equipment: 'sword' } })
 
     assert.strictEqual(response.data.length, 1)
-    assert.strictEqual(response.data[0].equipament, 'sword of light')
+    assert.strictEqual(response.data[0].equipment, 'sword of light')
     assert.strictEqual(response.total, 1)
   })
 
@@ -67,7 +67,7 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
     const useCase = new SearchBuildsUseCase(repository)
 
     for (let i = 1; i <= 15; i++) {
-      await createUseCase.execute({ equipament: `build ${i}`, content: `content ${i}` })
+      await createUseCase.execute({ equipment: `build ${i}`, content: `content ${i}` })
     }
 
     const responsePage1 = await useCase.execute({ page: 1, per_page: 10 })
@@ -87,11 +87,11 @@ describe('SearchBuildsUseCase - Testes Unitários', () => {
     const useCase = new SearchBuildsUseCase(repository)
 
     for (let i = 1; i <= 15; i++) {
-      await createUseCase.execute({ equipament: `match ${i}`, content: `content ${i}` })
+      await createUseCase.execute({ equipment: `match ${i}`, content: `content ${i}` })
     }
-    await createUseCase.execute({ equipament: `other`, content: `content` })
+    await createUseCase.execute({ equipment: `other`, content: `content` })
 
-    const response = await useCase.execute({ filter: 'match', page: 2, per_page: 10 })
+    const response = await useCase.execute({ filter: { equipment: 'match' }, page: 2, per_page: 10 })
     assert.strictEqual(response.data.length, 5)
     assert.strictEqual(response.total, 15)
     assert.strictEqual(response.current_page, 2)

@@ -26,15 +26,15 @@ describe('FindBuildByIdUseCase - Testes Unitários', () => {
   it('Deve retornar uma build quando existir', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const build = await createUseCase.execute({ equipament: 'equipament', content: 'content' })
+    const build = await createUseCase.execute({ equipment: 'equipment', content: 'content' })
 
     assert.ok(build.id)
-    
-    const findByEquipamentUseCase = new FindBuildByIdUseCase(repository)
 
-    const response = await findByEquipamentUseCase.execute(build.id)
+    const findByEquipmentUseCase = new FindBuildByIdUseCase(repository)
 
-    assert.strictEqual(response.equipament, build.equipament)
+    const response = await findByEquipmentUseCase.execute(build.id)
+
+    assert.strictEqual(response.equipment, build.equipment)
     assert.strictEqual(response.content, build.content)
     assert.ok(response.createdAt)
     assert.ok(response.updatedAt)
@@ -43,7 +43,7 @@ describe('FindBuildByIdUseCase - Testes Unitários', () => {
   it('Deve retornar um erro quando a build não existir', async () => {
     const repository = new BuildsTypeormRepository()
     const useCase = new FindBuildByIdUseCase(repository)
-    
+
     await assert.rejects(useCase.execute(0), NotFoundError)
   })
 

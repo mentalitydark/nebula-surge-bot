@@ -27,7 +27,7 @@ describe('UpdateBuildUseCase - Testes Unitários', () => {
     const repository = new BuildsTypeormRepository()
     const useCase = new UpdateBuildUseCase(repository)
 
-    await assert.rejects(useCase.execute(999, { equipament: 'new', content: 'content' }), NotFoundError)
+    await assert.rejects(useCase.execute(999, { equipment: 'new', content: 'content' }), NotFoundError)
   })
 
   it('Deve atualizar uma build', async () => {
@@ -35,12 +35,12 @@ describe('UpdateBuildUseCase - Testes Unitários', () => {
     const createUseCase = new CreateBuildUseCase(repository)
     const updateUseCase = new UpdateBuildUseCase(repository)
 
-    const build = await createUseCase.execute({ equipament: 'original', content: 'content' })
+    const build = await createUseCase.execute({ equipment: 'original', content: 'content' })
 
-    const updatedBuild = await updateUseCase.execute(build.id, { equipament: 'updated', content: 'new content' })
+    const updatedBuild = await updateUseCase.execute(build.id, { equipment: 'updated', content: 'new content' })
 
     assert.strictEqual(updatedBuild.id, build.id)
-    assert.strictEqual(updatedBuild.equipament, 'updated')
+    assert.strictEqual(updatedBuild.equipment, 'updated')
     assert.strictEqual(updatedBuild.content, 'new content')
   })
 
@@ -49,11 +49,11 @@ describe('UpdateBuildUseCase - Testes Unitários', () => {
     const createUseCase = new CreateBuildUseCase(repository)
     const updateUseCase = new UpdateBuildUseCase(repository)
 
-    await createUseCase.execute({ equipament: 'existing', content: 'content' })
-    const buildToUpdate = await createUseCase.execute({ equipament: 'to update', content: 'content' })
+    await createUseCase.execute({ equipment: 'existing', content: 'content' })
+    const buildToUpdate = await createUseCase.execute({ equipment: 'to update', content: 'content' })
 
     await assert.rejects(
-      updateUseCase.execute(buildToUpdate.id, { equipament: 'existing', content: 'content' }),
+      updateUseCase.execute(buildToUpdate.id, { equipment: 'existing', content: 'content' }),
       ConflictError
     )
   })

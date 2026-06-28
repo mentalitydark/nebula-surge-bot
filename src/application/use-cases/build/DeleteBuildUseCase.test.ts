@@ -27,10 +27,10 @@ describe('DeleteBuildUseCase - Testes Unitários', () => {
   it('Deve remover uma build', async () => {
     const repository = new BuildsTypeormRepository()
     const createUseCase = new CreateBuildUseCase(repository)
-    const build = await createUseCase.execute({ equipament: 'equipament', content: 'content' })
+    const build = await createUseCase.execute({ equipment: 'equipment', content: 'content' })
 
     assert.ok(build.id)
-    
+
     const deleteUseCase = new DeleteBuildUseCase(repository)
     await deleteUseCase.execute(build.id)
 
@@ -42,7 +42,7 @@ describe('DeleteBuildUseCase - Testes Unitários', () => {
   it('Deve retornar um erro quando o equipamento não existir', async () => {
     const repository = new BuildsTypeormRepository()
     const useCase = new DeleteBuildUseCase(repository)
-    
+
     await assert.rejects(useCase.execute(0), NotFoundError)
   })
 })
