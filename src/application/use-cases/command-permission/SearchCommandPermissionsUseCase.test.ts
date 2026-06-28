@@ -22,28 +22,30 @@ describe('SearchCommandPermissionsUseCase - Testes Unitários', () => {
     }
   })
 
-  it('Deve retornar nenhuma permissão quando não houver permissões', async () => {
+  it('Deve retornar nenhuma permissão quando não houver permissões para o guild', async () => {
     const repository = new CommandPermissionTypeormRepository()
     const useCase = new SearchCommandPermissionsUseCase(repository)
 
-    const response = await useCase.execute()
+    const response = await useCase.execute({ guild: 'guild1' })
 
     assert.strictEqual(response.data.length, 0)
     assert.strictEqual(response.total, 0)
   })
 
-  it('Deve retornar várias permissões quando não informado filtros', async () => {
+  it('Deve retornar várias permissões do guild especificado', async () => {
     const repository = new CommandPermissionTypeormRepository()
     const createUseCase = new CreateCommandPermissionUseCase(repository)
     const useCase = new SearchCommandPermissionsUseCase(repository)
 
     await createUseCase.execute({ command: 'cmd1', role: 'role1', guild: 'guild1' })
-    await createUseCase.execute({ command: 'cmd2', role: 'role2', guild: 'guild2' })
+    await createUseCase.execute({ command: 'cmd2', role: 'role2', guild: 'guild1' })
+    await createUseCase.execute({ command: 'cmd3', role: 'role3', guild: 'guild2' })
 
-    const response = await useCase.execute()
+    const response = await useCase.execute({ guild: 'guild1' })
 
     assert.strictEqual(response.data.length, 2)
     assert.strictEqual(response.total, 2)
+    assert.ok(response.data.every(p => p.guild === 'guild1'))
   })
 
   it('Deve retornar permissões que satisfação os filtros', async () => {
@@ -52,12 +54,14 @@ describe('SearchCommandPermissionsUseCase - Testes Unitários', () => {
     const useCase = new SearchCommandPermissionsUseCase(repository)
 
     await createUseCase.execute({ command: 'match', role: 'role1', guild: 'guild1' })
-    await createUseCase.execute({ command: 'other', role: 'role2', guild: 'guild2' })
+    await createUseCase.execute({ command: 'other', role: 'role2', guild: 'guild1' })
+    await createUseCase.execute({ command: 'match', role: 'role3', guild: 'guild2' })
 
-    const response = await useCase.execute({ filter: 'match' })
+    const response = await useCase.execute({ guild: 'guild1', filter: { command: 'match' } })
 
     assert.strictEqual(response.data.length, 1)
     assert.strictEqual(response.data[0].command, 'match')
+    assert.strictEqual(response.data[0].guild, 'guild1')
     assert.strictEqual(response.total, 1)
   })
 
@@ -67,14 +71,14 @@ describe('SearchCommandPermissionsUseCase - Testes Unitários', () => {
     const useCase = new SearchCommandPermissionsUseCase(repository)
 
     for (let i = 1; i <= 15; i++) {
-      await createUseCase.execute({ command: `cmd${i}`, role: `role${i}`, guild: `guild${i}` })
+      await createUseCase.execute({ command: `cmd${i}`, role: `role${i}`, guild: 'guild1' })
     }
 
-    const responsePage1 = await useCase.execute({ page: 1, per_page: 10 })
+    const responsePage1 = await useCase.execute({ guild: 'guild1', page: 1, per_page: 10 })
     assert.strictEqual(responsePage1.data.length, 10)
     assert.strictEqual(responsePage1.total, 15)
 
-    const responsePage2 = await useCase.execute({ page: 2, per_page: 10 })
+    const responsePage2 = await useCase.execute({ guild: 'guild1', page: 2, per_page: 10 })
     assert.strictEqual(responsePage2.data.length, 5)
     assert.strictEqual(responsePage2.total, 15)
   })
@@ -85,11 +89,11 @@ describe('SearchCommandPermissionsUseCase - Testes Unitários', () => {
     const useCase = new SearchCommandPermissionsUseCase(repository)
 
     for (let i = 1; i <= 15; i++) {
-      await createUseCase.execute({ command: `match${i}`, role: `role${i}`, guild: `guild${i}` })
+      await createUseCase.execute({ command: `match${i}`, role: `role${i}`, guild: 'guild1' })
     }
-    await createUseCase.execute({ command: `other`, role: `role`, guild: `guild` })
+    await createUseCase.execute({ command: `other`, role: `role`, guild: 'guild1' })
 
-    const response = await useCase.execute({ filter: 'match', page: 2, per_page: 10 })
+    const response = await useCase.execute({ guild: 'guild1', filter: { command: 'match' }, page: 2, per_page: 10 })
     assert.strictEqual(response.data.length, 5)
     assert.strictEqual(response.total, 15)
   })
