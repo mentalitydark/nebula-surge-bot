@@ -83,10 +83,20 @@ export class RemoveMessageUseCase {
     const attachmentFiles: AttachmentBuilder[] = [];
 
     for (const [, attachment] of message.attachments) {
-      const response = await fetch(attachment.url);
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const file = new AttachmentBuilder(buffer, { name: attachment.name });
-      attachmentFiles.push(file);
+      try {
+        const response = await fetch(attachment.url);
+
+        if (!response.ok) {
+          continue
+        }
+
+        const buffer = Buffer.from(await response.arrayBuffer());
+        const file = new AttachmentBuilder(buffer, { name: attachment.name });
+
+        attachmentFiles.push(file);
+      } catch (_) {
+        continue
+      }
     }
 
     if (attachmentFiles.length > 0) {
