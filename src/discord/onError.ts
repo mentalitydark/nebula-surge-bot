@@ -14,7 +14,7 @@ export async function onError(error: any, interaction: CommandInteraction<CacheT
     embed.title = error.errorName
     embed.description = error.message
   } else {
-    console.log(error)
+    console.error(error)
   }
 
   Logger.error(String(embed.description))
