@@ -79,6 +79,9 @@
     ],
     "#typeorm": [
       "./build/infrastructure/typeorm/index.js"
+    ],
+    "#infrastructure/*": [
+      "./build/infrastructure/*"
     ]
   },
   "baseVersion": "1.5.5"
