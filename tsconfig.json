@@ -1,8 +1,6 @@
 {
 	"extends": "@constatic/base/tsconfig",
 	"compilerOptions": {
-    "types": ["jest"],
-
 		// Output Options
 		"outDir": "./build",
 		"rootDir": "./src",
@@ -25,8 +23,10 @@
 			"#entities": ["./src/domain/entities/index.ts"],
 			"#errors": ["./src/domain/errors/index.ts"],
 			"#domain/*": ["./src/domain/*"],
+			"#application/*": ["./src/application/*"],
       "#repositories": ["./src/infrastructure/repositories/index.ts"],
       "#typeorm": ["./src/infrastructure/typeorm/index.ts"],
+      "#infrastructure/*": ["./src/infrastructure/*"],
 			"#emojis": ["./emojis.json"],
 		}
 	},

@@ -4,26 +4,26 @@ import { BuildsTypeormRepository } from "#repositories";
 import { ResponderType } from "@constatic/base";
 
 createResponder({
-    customId: "/form/add-build",
-    types: [ResponderType.Modal],
-    cache: "cached",
-    async run(interaction) {
-      const { fields } = interaction
-      
-      const equipament = fields.getTextInputValue("equipament")
-      const content = fields.getTextInputValue("content")
+  customId: "/form/add-build",
+  types: [ResponderType.Modal],
+  cache: "cached",
+  async run(interaction) {
+    const { fields } = interaction
 
-      const repository = new BuildsTypeormRepository()
+    const equipment = fields.getTextInputValue("equipment")
+    const content = fields.getTextInputValue("content")
 
-      const build = repository.create({ equipament, content })
-      
-      await repository.conflitingEquipament(equipament)
+    const repository = new BuildsTypeormRepository()
 
-      const saveResult = await repository.insert(build)
+    const build = repository.create({ equipment, content })
 
-      await interaction.reply({
-        flags: ["Ephemeral"],
-        content: `Build \`${saveResult.equipament}\` criada em ${DiscordUtils.formatTimestamp(saveResult.createdAt)}`
-      })
-    },
+    await repository.conflictingEquipment(equipment)
+
+    const saveResult = await repository.insert(build)
+
+    await interaction.reply({
+      flags: ["Ephemeral"],
+      content: `Build \`${saveResult.equipment}\` criada em ${DiscordUtils.formatTimestamp(saveResult.createdAt)}`
+    })
+  },
 });

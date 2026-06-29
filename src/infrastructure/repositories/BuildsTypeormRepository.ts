@@ -1,74 +1,88 @@
-import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "#domain/repositories/index.js";
-import { Builds, BuildsModel } from "#entities";
+import { Build, BuildModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
 import { ILike, Not, Repository } from "typeorm";
+import { BuildsRepositoryInterface, CreateBuildProps, SearchInput, SearchOutput } from "#application/repositories/index.js";
 
 export class BuildsTypeormRepository implements BuildsRepositoryInterface {
-  private repository: Repository<Builds>
+  private repository: Repository<Build>
 
   public constructor() {
-    this.repository = dataSource.getRepository(Builds)
+    this.repository = dataSource.getRepository(Build)
   }
 
-  public async findByEquipament(equipament: string): Promise<BuildsModel> {
-    const res = await this.repository.findOneBy({ equipament })
+  public async findByEquipment(equipment: string): Promise<BuildModel> {
+    const res = await this.repository.findOneBy({ equipment })
 
     if (!res) {
-      throw new NotFoundError(`Equipamento \`${equipament}\` não encontrado`)
+      throw new NotFoundError(`Equipamento \`${equipment}\` não encontrado`)
     }
 
     return res
   }
 
-  public async conflitingEquipament(equipament: string, id?: number): Promise<void> {
-    const res = await this.repository.findOneBy({ equipament, id: id ? Not(id) : undefined })
-    
+  public async conflictingEquipment(equipment: string, id?: number): Promise<void> {
+    const res = await this.repository.findOneBy({ equipment, id: id ? Not(id) : undefined })
+
     if (res) {
-      throw new ConflictError(`Equipamento \`${equipament}\` já cadastrado`)
+      throw new ConflictError(`Equipamento \`${equipment}\` já cadastrado`)
     }
   }
 
-  public create(data: CreateBuildProps): BuildsModel {
+  public create(data: CreateBuildProps): BuildModel {
     return this.repository.create(data)
   }
 
-  public async insert(model: BuildsModel): Promise<BuildsModel> {
+  public async insert(model: BuildModel): Promise<BuildModel> {
     return this.repository.save(model)
   }
 
-  public async search(props: SearchInput<BuildsModel>): Promise<SearchOutput<BuildsModel>> {
+  public async search(props: SearchInput<BuildModel>): Promise<SearchOutput<BuildModel>> {
     const page = props.page ?? 1
     const per_page = props.per_page ?? 10
     const filter = props.filter ?? null
 
-    const [builds, total] = await this.repository.findAndCount({
+    const where: any = {}
+
+    if (filter) {
+      Object.entries(filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'string') {
+            where[key] = ILike(`%${value}%`)
+          } else {
+            where[key] = value
+          }
+        }
+      })
+    }
+
+    const [data, total] = await this.repository.findAndCount({
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
-      where: filter ? { equipament: ILike(`%${filter}%`) } : undefined,
+      where: Object.keys(where).length > 0 ? where : undefined,
     })
 
     return {
-      data: builds,
+      data,
       current_page: page,
       per_page,
       total
     }
   }
 
-  public findById(id: number): Promise<BuildsModel> {
+  public findById(id: number): Promise<BuildModel> {
     return this._get(id)
   }
 
-  public async update(model: BuildsModel): Promise<BuildsModel> {
+  public async update(model: BuildModel): Promise<BuildModel> {
     const build = await this._get(model.id)
     this.repository.merge(build, model)
     return this.repository.save(build)
   }
 
-  public async deleteByEquipament(equipament: string): Promise<void> {
-    const build = await this.findByEquipament(equipament)
+  public async deleteByEquipment(equipment: string): Promise<void> {
+    const build = await this.findByEquipment(equipment)
 
     await this.repository.remove(build)
   }
@@ -78,7 +92,7 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     await this.repository.remove(build)
   }
 
-  private async _get(id: number): Promise<BuildsModel> {
+  private async _get(id: number): Promise<BuildModel> {
     const build = await this.repository.findOneBy({ id })
 
     if (!build) {
