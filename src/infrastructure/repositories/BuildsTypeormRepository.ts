@@ -56,7 +56,7 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
       })
     }
 
-    const [Build, total] = await this.repository.findAndCount({
+    const [data, total] = await this.repository.findAndCount({
       order: { createdAt: 'DESC' },
       skip: (page - 1) * per_page,
       take: per_page,
@@ -64,7 +64,7 @@ export class BuildsTypeormRepository implements BuildsRepositoryInterface {
     })
 
     return {
-      data: Build,
+      data,
       current_page: page,
       per_page,
       total
