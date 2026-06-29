@@ -6,7 +6,11 @@ type interaction = ChatInputCommandInteraction<"cached">;
 type commandRunner = (i: interaction) => Promise<void>;
 
 const checkPermission = async (i: interaction) => {
-  const commandName = i.command?.name
+  const baseCommandName = i.commandName
+  const subCommandName = i.options.getSubcommand(false)
+
+  const commandName = subCommandName ? `${baseCommandName}/${subCommandName}` : baseCommandName
+
   if (!commandName) {
     throw new NotFoundError('Comando não encontrado')
   }
@@ -17,7 +21,13 @@ const checkPermission = async (i: interaction) => {
 
   const repository = new CommandPermissionTypeormRepository()
 
-  const permissions = await repository.findByCommand(commandName, i.guildId)
+  const permissions = await repository.findByCommand(commandName, i.guildId).catch((err) => {
+    if (err instanceof NotFoundError) {
+      return []
+    }
+
+    throw err
+  })
 
   const memberRoles = i.member.roles.cache
 
