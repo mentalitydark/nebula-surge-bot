@@ -9,7 +9,7 @@ command.subcommand({
   description: 'Remove uma build existente',
   options: [{
     name: 'id',
-    description: 'ID da build a ser atualizada',
+    description: 'ID da build a ser removida',
     type: ApplicationCommandOptionType.Integer,
     required: true
   }],
