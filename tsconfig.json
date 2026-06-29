@@ -26,6 +26,7 @@
 			"#application/*": ["./src/application/*"],
       "#repositories": ["./src/infrastructure/repositories/index.ts"],
       "#typeorm": ["./src/infrastructure/typeorm/index.ts"],
+      "#infrastructure/*": ["./src/infrastructure/*"],
 			"#emojis": ["./emojis.json"],
 		}
 	},

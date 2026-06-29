@@ -3,7 +3,7 @@ import { Logger } from "#functions"
 import { createEmbed } from "@magicyan/discord"
 import { CacheType, CommandInteraction, MessageComponentInteraction, ModalSubmitInteraction } from "discord.js"
 
-export async function onError(error: any, interaction: CommandInteraction<CacheType>|(MessageComponentInteraction | ModalSubmitInteraction)) {
+export async function onError(error: any, interaction: CommandInteraction<CacheType> | (MessageComponentInteraction | ModalSubmitInteraction)) {
   const embed: Parameters<typeof createEmbed>['0'] = {
     title: 'Erro :(',
     description: 'Tivemos um erro inesperado! Por favor, tente novamente mais tarde.',
@@ -18,9 +18,15 @@ export async function onError(error: any, interaction: CommandInteraction<CacheT
   }
 
   Logger.error(String(embed.description))
-  
-  await interaction.reply({
-    flags: ["Ephemeral"],
-    embeds: [createEmbed(embed)]
-  })
+
+  if (interaction.replied || interaction.deferred) {
+    await interaction.editReply({
+      embeds: [createEmbed(embed)]
+    })
+  } else {
+    await interaction.reply({
+      flags: ["Ephemeral"],
+      embeds: [createEmbed(embed)]
+    })
+  }
 }
