@@ -9,6 +9,8 @@
 # Ignored structure
 
 # Folders
+/.git
+/.github
 /.vscode
 /src
 /deprecated

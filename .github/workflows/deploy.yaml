@@ -29,3 +29,12 @@ jobs:
         uses: discloud/deploy-action@v1
         with:
           token: ${{ secrets.DISCLOUD_TOKEN }}
+<<<<<<< HEAD
+=======
+          glob: |
+            build/**
+            package.json
+            package-lock.json
+            discloud.config
+            constants.json
+>>>>>>> origin/master

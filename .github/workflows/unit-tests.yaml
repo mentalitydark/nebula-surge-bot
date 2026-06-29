@@ -31,4 +31,8 @@ jobs:
           echo "NODE_ENV=test" >> .env.test
 
       - name: Run unit tests
+<<<<<<< HEAD
         run: npm run test:github
+=======
+        run: npm run test
+>>>>>>> origin/master
