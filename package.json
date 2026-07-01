@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "tsx --env-file=.env.dev ./src/index.ts",
     "watch": "tsx watch --include \"./src/**/*.ts\" --env-file=.env.dev ./src/index.ts",
-    "start": "node --env-file=.env",
+    "start": "node --env-file=.env ./build/index.js",
     "typeorm": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js",
     "typeorm:up": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:run -d ./src/infrastructure/typeorm/index.ts",
     "typeorm:down": "tsx --env-file=.env.dev ./node_modules/typeorm/cli.js migration:revert -d ./src/infrastructure/typeorm/index.ts",
