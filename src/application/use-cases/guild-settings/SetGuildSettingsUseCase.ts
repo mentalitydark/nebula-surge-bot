@@ -2,7 +2,7 @@ import { GuildSettingsRepositoryInterface } from "#application/repositories/Guil
 import { GuildSettings, GuildSettingsKeys, Settings } from "#entities";
 import { NotFoundError } from "#errors";
 
-type SetGuildSettingsProps = { [key in GuildSettingsKeys]?: string };
+type SetGuildSettingsProps = { [key in GuildSettingsKeys]?: string | null };
 
 export class SetGuildSettingsUseCase {
   public constructor(
