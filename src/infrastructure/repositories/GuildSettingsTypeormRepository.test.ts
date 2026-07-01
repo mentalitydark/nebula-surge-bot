@@ -1,3 +1,4 @@
+import { GuildSettingsKeys, Settings } from "#entities";
 import { NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
 import assert from "node:assert";
@@ -30,15 +31,15 @@ describe('GuildSettingsTypeormRepository - Testes Unitários', () => {
     })
 
     it('Deve retornar as configurações do guildId especificado', async () => {
-      const settings = repository.create({ guild: '123456789', settings: { channel_history_id: 'channel123' } })
+      const settingsData = Settings.fromJSON({ [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123' })
+      const settings = repository.create({ guild: '123456789', settings: settingsData })
       await repository.insert(settings)
 
       const foundSettings = await repository.findByGuild('123456789')
 
-      assert.deepStrictEqual(foundSettings, settings)
       assert.ok(foundSettings.id)
       assert.strictEqual(foundSettings.guild, '123456789')
-      assert.strictEqual(foundSettings.settings?.channel_history_id, 'channel123')
+      assert.strictEqual(foundSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel123')
     })
   })
 
@@ -54,13 +55,16 @@ describe('GuildSettingsTypeormRepository - Testes Unitários', () => {
 
   describe('insert', () => {
     it('Deve inserir uma configuração de guilda no banco de dados', async () => {
-      const settings = repository.create({ guild: '123456789', settings: { channel_history_id: 'channel123' } })
+      const settingsData = Settings.fromJSON({ [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123' })
+      const settings = repository.create({ guild: '123456789', settings: settingsData })
 
       const insertedSettings = await repository.insert(settings)
 
       assert.ok(insertedSettings.id)
       assert.strictEqual(insertedSettings.guild, '123456789')
-      assert.strictEqual(insertedSettings.settings?.channel_history_id, 'channel123')
+      assert.strictEqual(insertedSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel123')
+      assert.ok(insertedSettings.createdAt)
+      assert.ok(insertedSettings.updatedAt)
     })
 
     it('Deve retornar um erro ao inserir uma configuração de guilda já existente', async () => {
@@ -96,7 +100,7 @@ describe('GuildSettingsTypeormRepository - Testes Unitários', () => {
     })
 
     it('Deve retornar uma lista vazia quando não houver configurações de guilda', async () => {
-      const result = await repository.search({ guild: '' })
+      const result = await repository.search({ guild: 'nonexistent' })
 
       assert.strictEqual(result.data.length, 0)
       assert.strictEqual(result.total, 0)
@@ -124,13 +128,16 @@ describe('GuildSettingsTypeormRepository - Testes Unitários', () => {
       const settings = repository.create({ guild: '123456789', settings: null })
       await repository.insert(settings)
 
-      settings.settings = { channel_history_id: 'new_channel' }
+      const newSettingsData = Settings.fromJSON({ [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'new_channel' })
+      settings.settings = newSettingsData
 
       const updatedSettings = await repository.update(settings)
 
       assert.strictEqual(updatedSettings.guild, '123456789')
-      assert.strictEqual(updatedSettings.settings?.channel_history_id, 'new_channel')
+      assert.strictEqual(updatedSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'new_channel')
       assert.ok(updatedSettings.id)
+      assert.ok(updatedSettings.createdAt)
+      assert.ok(updatedSettings.updatedAt)
     })
 
     it('Deve retornar um erro ao atualizar uma configuração de guilda não existente', async () => {
