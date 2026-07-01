@@ -3,13 +3,13 @@ export enum GuildSettingsKeys {
 }
 
 export class Settings {
-  private values: Record<GuildSettingsKeys, string | undefined> = {} as Record<GuildSettingsKeys, string | undefined>
+  private values: Record<GuildSettingsKeys, string | null> = {} as Record<GuildSettingsKeys, string | null>
 
-  public get(key: GuildSettingsKeys): string | undefined {
+  public get(key: GuildSettingsKeys): string | null {
     return this.values[key]
   }
 
-  public set(key: GuildSettingsKeys, value: string): Settings {
+  public set(key: GuildSettingsKeys, value: string | null): Settings {
     this.values[key] = value
 
     return this
