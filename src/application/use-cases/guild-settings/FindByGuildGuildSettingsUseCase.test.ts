@@ -1,3 +1,4 @@
+import { GuildSettingsKeys, Settings } from "#entities";
 import { NotFoundError } from "#errors";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
@@ -25,15 +26,15 @@ describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
   it('Deve encontrar uma guild_settings pelo ID da guild', async () => {
     const repository = new GuildSettingsTypeormRepository()
     const useCase = new FindByGuildGuildSettingsUseCase(repository)
-    
-    const settings = repository.create({ guild: '123456789', settings: { channel_history_id: 'channel123' } })
+
+    const settings = repository.create({ guild: '123456789', settings: Settings.fromJSON({ [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123' }) })
     await repository.insert(settings)
 
     const foundSettings = await useCase.execute('123456789')
 
     assert.ok(foundSettings.id)
     assert.strictEqual(foundSettings.guild, '123456789')
-    assert.strictEqual(foundSettings.settings?.channel_history_id, 'channel123')
+    assert.strictEqual(foundSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel123')
   })
 
   it('Deve retornar um erro quando a guild_settings não existir', async () => {
