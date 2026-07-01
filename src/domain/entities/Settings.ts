@@ -3,7 +3,9 @@ export enum GuildSettingsKeys {
 }
 
 export class Settings {
-  private values: Record<GuildSettingsKeys, string | null> = {} as Record<GuildSettingsKeys, string | null>
+  private values: Record<GuildSettingsKeys, string | null> = {
+    [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: null
+  }
 
   public get(key: GuildSettingsKeys): string | null {
     return this.values[key]
@@ -18,7 +20,7 @@ export class Settings {
   public static fromJSON(json: Record<string, any>): Settings {
     const settings = new Settings()
 
-    settings.set(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, json[GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED])
+    settings.set(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, json[GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED] ?? null)
 
     return settings
   }
