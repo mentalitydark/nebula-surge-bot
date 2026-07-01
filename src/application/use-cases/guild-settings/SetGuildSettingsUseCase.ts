@@ -33,9 +33,11 @@ export class SetGuildSettingsUseCase {
   }
 
   private async updateGuildSettings(guildSettings: GuildSettings, props: SetGuildSettingsProps): Promise<GuildSettings> {
+    guildSettings.settings ??= new Settings()
+
     for (const [key, value] of Object.entries(props)) {
       if (value !== undefined) {
-        guildSettings.settings?.set(key as GuildSettingsKeys, value)
+        guildSettings.settings.set(key as GuildSettingsKeys, value)
       }
     }
 
