@@ -1,8 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-
-export interface Settings {
-  channel_history_id?: string
-}
+import { Settings } from "./Settings.js";
 
 export interface GuildSettingsModel {
   id: number;
@@ -19,7 +16,7 @@ export class GuildSettings implements GuildSettingsModel {
   @Column({ type: "varchar", unique: true })
   guild: string;
 
-  @Column({ type: "simple-json", nullable: true })
+  @Column({ type: "simple-json", nullable: true, transformer: { to: (value: Settings | null) => value?.toJSON() || null, from: (value: Record<string, any> | null) => value ? Settings.fromJSON(value) : null } })
   settings: Settings | null;
 
   @CreateDateColumn({ name: "created_at", default: () => "CURRENT_TIMESTAMP" })
