@@ -11,5 +11,6 @@ export type SearchGuildSettingsInput = SearchInput<GuildSettings> & {
 }
 
 export interface GuildSettingsRepositoryInterface extends RepositoryInterface<GuildSettings, CreateGuildSettingsProps> {
+  /** @throws {Error} */
   findByGuild(guild: string): Promise<GuildSettings>
 }
