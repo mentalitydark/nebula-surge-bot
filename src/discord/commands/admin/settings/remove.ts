@@ -1,5 +1,5 @@
 import { SetGuildSettingsUseCase } from "#application/use-cases/guild-settings/SetGuildSettingsUseCase.js"
-import { GuildSettingsKeys, Settings } from "#domain/entities/Settings.js"
+import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
 import { GuildSettingsTypeormRepository } from "#repositories"
 import { createEmbed } from "@magicyan/discord"

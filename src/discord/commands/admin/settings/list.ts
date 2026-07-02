@@ -1,5 +1,5 @@
 import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js"
-import { GuildSettingsKeys, Settings } from "#domain/entities/Settings.js"
+import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
 import { GuildSettingsTypeormRepository } from "#repositories"
 import { createEmbed } from "@magicyan/discord"
@@ -54,7 +54,7 @@ command.subcommand({
       embed = createEmbed({
         title: "Configurações do Servidor",
         description: Object.entries(guildSettings.settings.toJSON())
-          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: <#${v ?? "N/A"}>`)
+          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? `<#${v}>` : "N/A"}`)
           .join("\n"),
         color: constants.colors.azoxo,
       })
