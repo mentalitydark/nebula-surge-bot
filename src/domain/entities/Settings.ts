@@ -26,7 +26,7 @@ export class Settings {
   }
 
   public toJSON(): Record<string, any> {
-    return this.values
+    return { ...this.values }
   }
 
   public static isValidKey(key: string): key is GuildSettingsKeys {
