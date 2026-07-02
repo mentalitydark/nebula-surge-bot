@@ -1,12 +1,13 @@
+import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js";
 import { RemoveMessageUseCase } from "#application/use-cases/message/RemoveMessageUseCase.js";
 import { createCommand } from "#base";
+import { GuildSettingsKeys, Settings } from "#entities";
 import { BadRequestError, NotFoundError } from "#errors";
 import { requirePermissionDecorator } from "#functions";
 import { ChannelMessageIdLocatorStrategy, MessageIdLocatorStrategy, MessageLocatorContext } from "#infrastructure/strategies/index.js";
+import { GuildSettingsTypeormRepository } from "#repositories";
 import { createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
-
-const CHANNEL_HISTORY_ID = process.env.CHANNEL_HISTORY_ID;
 
 createCommand({
   name: "remove-message",
@@ -21,20 +22,26 @@ createCommand({
   run: requirePermissionDecorator(async (interaction) => {
     await interaction.deferReply({ flags: ['Ephemeral'] });
 
-    if (!CHANNEL_HISTORY_ID) {
-      throw new NotFoundError("`CHANNEL_HISTORY_ID` não está definido");
-    }
-
     const messageIdentifier = interaction.options.getString("message-id", true).trim();
-
     if (!messageIdentifier) {
       throw new BadRequestError("ID de mensagem não pode ser vazio");
     }
 
     const { guild, user } = interaction;
-
     if (!guild) {
       throw new BadRequestError("Guild não encontrada");
+    }
+
+    const findByGuildGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository());
+
+    const guildSettings = await findByGuildGuildSettingsUseCase.execute(guild.id);
+    if (!guildSettings.settings) {
+      throw new NotFoundError("Configurações do guild não encontradas");
+    }
+
+    const channelMessagesRemoved = guildSettings.settings.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED);
+    if (!channelMessagesRemoved) {
+      throw new NotFoundError(`\`${Settings.getDescription(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED)}\` não está definido`);
     }
 
     const messageLocatorContext = new MessageLocatorContext([
@@ -48,7 +55,7 @@ createCommand({
       messageIdentifier,
       guild,
       removedBy: user,
-      historyChannelId: CHANNEL_HISTORY_ID
+      historyChannelId: channelMessagesRemoved
     });
 
     await interaction.editReply({
