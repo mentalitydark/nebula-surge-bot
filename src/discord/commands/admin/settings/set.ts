@@ -14,7 +14,10 @@ command.subcommand({
     description: 'Configuração que deseja alterar',
     type: ApplicationCommandOptionType.String,
     required: true,
-    autocomplete: true
+    choices: Object.values(GuildSettingsKeys).map((key) => ({
+      name: Settings.getDescription(key),
+      value: key,
+    }))
   }, {
     name: 'channel',
     description: 'Canal que deseja definir como valor da configuração',
