@@ -36,8 +36,8 @@ export class SetGuildSettingsUseCase {
     guildSettings.settings ??= new Settings()
 
     for (const [key, value] of Object.entries(props)) {
-      if (value !== undefined) {
-        guildSettings.settings.set(key as GuildSettingsKeys, value)
+      if (value !== undefined && Settings.isValidKey(key)) {
+        guildSettings.settings.set(key, value)
       }
     }
 
