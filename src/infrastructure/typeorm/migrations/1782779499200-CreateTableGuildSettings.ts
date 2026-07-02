@@ -17,7 +17,7 @@ export class CreateTableGuildSettings1782779499200 implements MigrationInterface
                 isNullable: false
             }, {
                 name: "settings",
-                type: "jsonb",
+                type: "text",
                 isNullable: true
             }, {
                 name: "created_at",
