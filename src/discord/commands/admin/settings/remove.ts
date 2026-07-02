@@ -14,7 +14,10 @@ command.subcommand({
     description: 'Configuração que deseja remover',
     type: ApplicationCommandOptionType.String,
     required: true,
-    autocomplete: true
+    choices: Object.values(GuildSettingsKeys).map((key) => ({
+      name: Settings.getDescription(key),
+      value: key,
+    }))
   }],
   async run(interaction) {
     await interaction.deferReply({ ephemeral: true })
