@@ -22,12 +22,12 @@ export class CreateTableGuildSettings1782779499200 implements MigrationInterface
             }, {
                 name: "created_at",
                 type: "timestamp",
-                default: "now()"
+                default: "CURRENT_TIMESTAMP"
             }, {
                 name: "updated_at",
                 type: "timestamp",
-                default: "now()",
-                onUpdate: "now()"
+                default: "CURRENT_TIMESTAMP",
+                onUpdate: "CURRENT_TIMESTAMP"
             }],
             indices: [{
                 name: "IDX_GUILD_SETTINGS_GUILD",
