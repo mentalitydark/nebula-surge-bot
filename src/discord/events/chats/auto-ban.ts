@@ -159,7 +159,7 @@ createEvent({
       }
     }
 
-    const requiredVotes = 1
+    const requiredVotes = 4
 
     const memberIdMatch = voteMessage.embeds[0]?.footer?.text?.match(/ID do membro: (\d+)/)
 
