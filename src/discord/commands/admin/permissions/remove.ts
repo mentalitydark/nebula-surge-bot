@@ -1,5 +1,6 @@
 import { DeleteCommandPermissionUseCase } from "#application/use-cases/command-permission/DeleteCommandPermissionUseCase.js";
 import { SearchCommandPermissionsUseCase } from "#application/use-cases/command-permission/SearchCommandPermissionsUseCase.js";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType } from "discord.js";
@@ -28,9 +29,12 @@ command.subcommand({
     const commandName = interaction.options.getString('command', true)
     const guild = interaction.guildId
 
+    const cache = InMemoryCacheProvider.getInstance<'command-permissions:id'>('command-permissions:id')
+    const cacheArray = InMemoryCacheProvider.getInstance<'command-permissions:array'>('command-permissions:array')
+
     const repository = new CommandPermissionTypeormRepository()
-    const searchUseCase = new SearchCommandPermissionsUseCase(repository)
-    const deleteUseCase = new DeleteCommandPermissionUseCase(repository)
+    const searchUseCase = new SearchCommandPermissionsUseCase(repository, cacheArray)
+    const deleteUseCase = new DeleteCommandPermissionUseCase(repository, cache, cacheArray)
 
     const searchResult = await searchUseCase.execute({
       guild,
