@@ -1,5 +1,6 @@
-import { GuildSettingsKeys, Settings } from "#entities";
+import { GuildSettings, GuildSettingsKeys, Settings } from "#entities";
 import { NotFoundError } from "#errors";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
 import assert from "node:assert";
@@ -7,13 +8,23 @@ import { after, before, beforeEach, describe, it } from "node:test";
 import { FindByGuildGuildSettingsUseCase } from "./FindByGuildGuildSettingsUseCase.js";
 
 describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
+  let repository: GuildSettingsTypeormRepository
+  let useCase: FindByGuildGuildSettingsUseCase
+  let cache: InMemoryCacheProvider<GuildSettings>
+
   before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
+
+    cache = InMemoryCacheProvider.getInstance('guild-settings:id')
+
+    repository = new GuildSettingsTypeormRepository()
+    useCase = new FindByGuildGuildSettingsUseCase(repository, cache)
   })
 
   beforeEach(async () => {
     await dataSource.createQueryBuilder().delete().from('guild_settings').execute()
+    cache.clear()
   })
 
   after(async () => {
@@ -24,9 +35,6 @@ describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve encontrar uma guild_settings pelo ID da guild', async () => {
-    const repository = new GuildSettingsTypeormRepository()
-    const useCase = new FindByGuildGuildSettingsUseCase(repository)
-
     const settings = repository.create({ guild: '123456789', settings: Settings.fromJSON({ [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123' }) })
     await repository.insert(settings)
 
@@ -38,9 +46,6 @@ describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve retornar um erro quando a guild_settings não existir', async () => {
-    const repository = new GuildSettingsTypeormRepository()
-    const useCase = new FindByGuildGuildSettingsUseCase(repository)
-
     await assert.rejects(useCase.execute('not-exist'), NotFoundError)
   })
 })
