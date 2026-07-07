@@ -1,6 +1,7 @@
 import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js";
 import { createEvent } from "#base";
 import { GuildSettingsKeys } from "#entities";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { createEmbed } from "@magicyan/discord";
 
@@ -24,8 +25,10 @@ createEvent({
       return
     }
 
-    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository())
-    const guildSettings = await findGuildSettingsUseCase.execute(guild.id)
+    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id');
+
+    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
+    const guildSettings = await findGuildSettingsUseCase.execute(guild.id);
 
     if (!guildSettings || !guildSettings.settings) {
       return
@@ -117,8 +120,10 @@ createEvent({
       return
     }
 
-    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository())
-    const guildSettings = await findGuildSettingsUseCase.execute(message.guild.id)
+    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id');
+
+    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
+    const guildSettings = await findGuildSettingsUseCase.execute(message.guild.id);
 
     if (!guildSettings || !guildSettings.settings) {
       return
