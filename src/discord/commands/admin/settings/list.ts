@@ -1,6 +1,7 @@
 import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js"
 import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js"
 import { GuildSettingsTypeormRepository } from "#repositories"
 import { createEmbed } from "@magicyan/discord"
 import { ApplicationCommandOptionType } from "discord.js"
@@ -28,8 +29,10 @@ command.subcommand({
       throw new BadRequestError(`A configuração "${key}" não é válida.`)
     }
 
+    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id')
+
     const repository = new GuildSettingsTypeormRepository()
-    const useCase = new FindByGuildGuildSettingsUseCase(repository)
+    const useCase = new FindByGuildGuildSettingsUseCase(repository, cache)
 
     const guildSettings = await useCase.execute(interaction.guildId)
 
