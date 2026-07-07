@@ -1,15 +1,17 @@
+import { CacheRegistry } from "#application/providers/CacheRegistry.js";
 import { CacheProviderInterface, CacheValueInterface } from "#application/providers/index.js";
 import { CacheValue } from "./CacheValue.js";
 
-type CacheNamespace = 'global' | 'guild-settings' | 'command-permissions';
+type CacheNamespace = keyof CacheRegistry;
 
 export class InMemoryCacheProvider<T> implements CacheProviderInterface<T> {
-  private cache: Map<string | number, CacheValueInterface<T>> = new Map();
-  private static instances: Map<CacheNamespace, InMemoryCacheProvider<any>> = new Map();
+  private static instances: Map<CacheNamespace, InMemoryCacheProvider<keyof CacheRegistry>> = new Map();
 
-  public static getInstance<T>(namespace: CacheNamespace = 'global'): InMemoryCacheProvider<T> {
+  private cache: Map<string | number, CacheValueInterface<T>> = new Map();
+
+  public static getInstance<K extends keyof CacheRegistry>(namespace: CacheNamespace = 'global'): InMemoryCacheProvider<CacheRegistry[K]> {
     if (!InMemoryCacheProvider.instances.has(namespace)) {
-      InMemoryCacheProvider.instances.set(namespace, new InMemoryCacheProvider<T>());
+      InMemoryCacheProvider.instances.set(namespace, new InMemoryCacheProvider<CacheRegistry[K]>());
     }
 
     return InMemoryCacheProvider.instances.get(namespace)!;
