@@ -4,6 +4,7 @@ import { createCommand } from "#base";
 import { GuildSettingsKeys, Settings } from "#entities";
 import { BadRequestError, NotFoundError } from "#errors";
 import { requirePermissionDecorator } from "#functions";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { ChannelMessageIdLocatorStrategy, MessageIdLocatorStrategy, MessageLocatorContext } from "#infrastructure/strategies/index.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { createEmbed } from "@magicyan/discord";
@@ -32,7 +33,9 @@ createCommand({
       throw new BadRequestError("Guild não encontrada");
     }
 
-    const findByGuildGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository());
+    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id');
+
+    const findByGuildGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
 
     const guildSettings = await findByGuildGuildSettingsUseCase.execute(guild.id);
     if (!guildSettings.settings) {
