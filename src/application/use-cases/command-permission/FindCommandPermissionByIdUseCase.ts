@@ -17,9 +17,7 @@ export class FindCommandPermissionByIdUseCase {
 
     const permission = await this.repository.findById(id);
 
-    if (permission) {
-      this.cache.set(id, permission, 3600);
-    }
+    this.cache.set(id, permission, 3600);
 
     return permission;
   }
