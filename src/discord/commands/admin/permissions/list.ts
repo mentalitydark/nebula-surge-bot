@@ -22,6 +22,7 @@ command.subcommand({
     const { options } = interaction
     const commandFilter = options.getString("command", false)
     const guild = interaction.guildId
+
     const repository = new CommandPermissionTypeormRepository()
     const searchUseCase = new SearchCommandPermissionsUseCase(repository)
 

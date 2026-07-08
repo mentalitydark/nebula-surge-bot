@@ -42,13 +42,13 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
   }
 
   public async conflictingPermission(command: string, role: string, guild: string, id?: number): Promise<void> {
-    const res = await this.repository.findOneBy({ 
-      command, 
-      role, 
-      guild, 
+    const res = await this.repository.findOneBy({
+      command,
+      role,
+      guild,
       id: id ? Not(id) : undefined
     })
-    
+
     if (res) {
       throw new ConflictError(`Já foi cadastrada a permissão para o cargo <@&${role}> para executar o comando \`${command}\``)
     }
@@ -69,7 +69,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     const guild = props.guild
 
     const where: any = { guild }
-    
+
     if (filter) {
       Object.entries(filter).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {

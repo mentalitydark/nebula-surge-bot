@@ -5,6 +5,8 @@ export interface GuildSettingsModel {
   id: number;
   guild: string;
   settings: Settings | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 @Entity({ name: "guild_settings" })

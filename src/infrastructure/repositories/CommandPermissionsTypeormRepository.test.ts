@@ -155,7 +155,7 @@ describe('CommandPermissionTypeormRepository - Testes Unitários', () => {
 
     it('Deve retornar uma lista vazia quando não houver permissões para o guild', async () => {
       await repository.insert(repository.create({ command: 'cmd1', role: 'r1', guild: 'g1' }))
-      
+
       const result = await repository.search({ guild: 'g2' })
 
       assert.strictEqual(result.data.length, 0)

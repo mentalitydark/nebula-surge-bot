@@ -1,16 +1,18 @@
+import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
 import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
-import { GuildSettings, GuildSettingsKeys, Settings } from "#entities";
+import { GuildSettingsKeys, GuildSettingsModel, Settings } from "#entities";
 import { NotFoundError } from "#errors";
 
 type SetGuildSettingsProps = { [key in GuildSettingsKeys]?: string | null };
 
 export class SetGuildSettingsUseCase {
   public constructor(
-    private readonly repository: GuildSettingsRepositoryInterface
+    private readonly repository: GuildSettingsRepositoryInterface,
+    private readonly cache: CacheProviderInterface<GuildSettingsModel>
   ) { }
 
   /** @throws {Error} */
-  public async execute(guildId: string, props: SetGuildSettingsProps): Promise<GuildSettings> {
+  public async execute(guildId: string, props: SetGuildSettingsProps): Promise<GuildSettingsModel> {
     try {
       const guildSettings = await this.repository.findByGuild(guildId)
 
@@ -24,15 +26,17 @@ export class SetGuildSettingsUseCase {
     }
   }
 
-  private async insertGuildSettings(guildId: string, props: SetGuildSettingsProps): Promise<GuildSettings> {
+  private async insertGuildSettings(guildId: string, props: SetGuildSettingsProps): Promise<GuildSettingsModel> {
     const guildSettings = this.repository.create({ guild: guildId, settings: Settings.fromJSON(props) })
 
     const insertedGuildSettings = await this.repository.insert(guildSettings)
 
+    this.cache.set(guildId, insertedGuildSettings)
+
     return insertedGuildSettings
   }
 
-  private async updateGuildSettings(guildSettings: GuildSettings, props: SetGuildSettingsProps): Promise<GuildSettings> {
+  private async updateGuildSettings(guildSettings: GuildSettingsModel, props: SetGuildSettingsProps): Promise<GuildSettingsModel> {
     guildSettings.settings ??= new Settings()
 
     for (const [key, value] of Object.entries(props)) {
@@ -41,7 +45,11 @@ export class SetGuildSettingsUseCase {
       }
     }
 
-    return this.repository.update(guildSettings)
+    const updatedGuildSettings = await this.repository.update(guildSettings)
+
+    this.cache.set(guildSettings.guild, updatedGuildSettings)
+
+    return updatedGuildSettings
   }
 
 }

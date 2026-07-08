@@ -1,5 +1,6 @@
 import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
-import { GuildSettingsKeys } from "#entities";
+import { GuildSettingsKeys, GuildSettingsModel } from "#entities";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
 import assert from "node:assert";
@@ -8,15 +9,22 @@ import { SetGuildSettingsUseCase } from "./SetGuildSettingsUseCase.js";
 
 describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   let repository: GuildSettingsRepositoryInterface
+  let useCase: SetGuildSettingsUseCase
+  let cache: InMemoryCacheProvider<GuildSettingsModel>
 
   before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
+
+    cache = InMemoryCacheProvider.getInstance('guild-settings:id')
+
     repository = new GuildSettingsTypeormRepository()
+    useCase = new SetGuildSettingsUseCase(repository, cache)
   })
 
   beforeEach(async () => {
     await dataSource.createQueryBuilder().delete().from('guild_settings').execute()
+    cache.clear()
   })
 
   after(async () => {
@@ -27,7 +35,6 @@ describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve criar uma configuração de guild quando não existir', async () => {
-    const useCase = new SetGuildSettingsUseCase(repository)
     const guildId = '123456789'
 
     const settings = await useCase.execute(guildId, {
@@ -42,7 +49,6 @@ describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve atualizar uma configuração de guild existente', async () => {
-    const useCase = new SetGuildSettingsUseCase(repository)
     const guildId = '123456789'
 
     // Criar configuração inicial
@@ -61,7 +67,6 @@ describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve criar uma configuração sem valores definidos', async () => {
-    const useCase = new SetGuildSettingsUseCase(repository)
     const guildId = '987654321'
 
     const settings = await useCase.execute(guildId, {})
@@ -72,7 +77,6 @@ describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve atualizar parcialmente uma configuração existente', async () => {
-    const useCase = new SetGuildSettingsUseCase(repository)
     const guildId = '123456789'
 
     // Criar configuração inicial
@@ -92,7 +96,6 @@ describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve manter o mesmo ID ao atualizar', async () => {
-    const useCase = new SetGuildSettingsUseCase(repository)
     const guildId = '123456789'
 
     const firstCall = await useCase.execute(guildId, {
@@ -108,7 +111,6 @@ describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   })
 
   it('Deve criar configurações separadas para guilds diferentes', async () => {
-    const useCase = new SetGuildSettingsUseCase(repository)
     const guildId1 = '111111111'
     const guildId2 = '222222222'
 
