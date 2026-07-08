@@ -5,16 +5,18 @@ import { CacheValue } from "./CacheValue.js";
 type CacheNamespace = keyof CacheRegistry;
 
 export class InMemoryCacheProvider<T> implements CacheProviderInterface<T> {
-  private static instances: Map<CacheNamespace, InMemoryCacheProvider<keyof CacheRegistry>> = new Map();
+  private static instances: Map<CacheNamespace, InMemoryCacheProvider<any>> = new Map();
 
   private cache: Map<string | number, CacheValueInterface<T>> = new Map();
 
-  public static getInstance<K extends keyof CacheRegistry>(namespace: CacheNamespace = 'global'): InMemoryCacheProvider<CacheRegistry[K]> {
+  public static getInstance(): InMemoryCacheProvider<CacheRegistry['global']>;
+  public static getInstance<K extends CacheNamespace>(namespace: K): InMemoryCacheProvider<CacheRegistry[K]>;
+  public static getInstance<K extends CacheNamespace>(namespace: K = 'global' as K): InMemoryCacheProvider<CacheRegistry[K]> {
     if (!InMemoryCacheProvider.instances.has(namespace)) {
       InMemoryCacheProvider.instances.set(namespace, new InMemoryCacheProvider<CacheRegistry[K]>());
     }
 
-    return InMemoryCacheProvider.instances.get(namespace)!;
+    return InMemoryCacheProvider.instances.get(namespace)! as InMemoryCacheProvider<CacheRegistry[K]>;
   }
 
   public get(key: string | number): T | null {

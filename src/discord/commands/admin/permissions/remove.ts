@@ -29,8 +29,8 @@ command.subcommand({
     const commandName = interaction.options.getString('command', true)
     const guild = interaction.guildId
 
-    const cache = InMemoryCacheProvider.getInstance<'command-permissions:id'>('command-permissions:id')
-    const cacheArray = InMemoryCacheProvider.getInstance<'command-permissions:array'>('command-permissions:array')
+    const cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    const cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
 
     const repository = new CommandPermissionTypeormRepository()
     const searchUseCase = new SearchCommandPermissionsUseCase(repository)

@@ -35,7 +35,7 @@ command.subcommand({
       throw new BadRequestError('Configuração inválida')
     }
 
-    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id')
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id')
 
     const repository = new GuildSettingsTypeormRepository()
     const useCase = new SetGuildSettingsUseCase(repository, cache)

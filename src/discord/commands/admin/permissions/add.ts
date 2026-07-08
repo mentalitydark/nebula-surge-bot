@@ -43,7 +43,7 @@ command.subcommand({
       return
     }
 
-    const cache = InMemoryCacheProvider.getInstance<'command-permissions:id'>('command-permissions:id')
+    const cache = InMemoryCacheProvider.getInstance('command-permissions:id')
 
     const repository = new CommandPermissionTypeormRepository()
     const createUseCase = new CreateCommandPermissionUseCase(repository, cache)

@@ -29,7 +29,7 @@ command.subcommand({
       throw new BadRequestError(`A configuração "${key}" não é válida.`)
     }
 
-    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id')
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id')
 
     const repository = new GuildSettingsTypeormRepository()
     const useCase = new FindByGuildGuildSettingsUseCase(repository, cache)

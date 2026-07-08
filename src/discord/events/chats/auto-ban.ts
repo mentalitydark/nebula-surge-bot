@@ -25,7 +25,7 @@ createEvent({
       return
     }
 
-    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id');
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id');
 
     const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
     const guildSettings = await findGuildSettingsUseCase.execute(guild.id);
@@ -120,7 +120,7 @@ createEvent({
       return
     }
 
-    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id');
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id');
 
     const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
     const guildSettings = await findGuildSettingsUseCase.execute(message.guild.id);

@@ -33,7 +33,7 @@ createCommand({
       throw new BadRequestError("Guild não encontrada");
     }
 
-    const cache = InMemoryCacheProvider.getInstance<'guild-settings:id'>('guild-settings:id');
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id');
 
     const findByGuildGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
 
