@@ -1,4 +1,4 @@
-import { GuildSettings, GuildSettingsKeys, Settings } from "#entities";
+import { GuildSettingsKeys, GuildSettingsModel, Settings } from "#entities";
 import { NotFoundError } from "#errors";
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
@@ -10,7 +10,7 @@ import { FindByGuildGuildSettingsUseCase } from "./FindByGuildGuildSettingsUseCa
 describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
   let repository: GuildSettingsTypeormRepository
   let useCase: FindByGuildGuildSettingsUseCase
-  let cache: InMemoryCacheProvider<GuildSettings>
+  let cache: InMemoryCacheProvider<GuildSettingsModel>
 
   before(async () => {
     await dataSource.initialize()

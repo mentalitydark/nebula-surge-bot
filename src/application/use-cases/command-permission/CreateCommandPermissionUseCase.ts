@@ -1,11 +1,11 @@
 import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
 import { CommandPermissionRepositoryInterface, CreateCommandPermissionProps } from "#application/repositories/CommandPermissionRepositoryInterface.js";
-import { CommandPermission } from "#entities";
+import { CommandPermissionModel } from "#entities";
 
 export class CreateCommandPermissionUseCase {
   public constructor(
     private readonly repository: CommandPermissionRepositoryInterface,
-    private readonly cache: CacheProviderInterface<CommandPermission>
+    private readonly cache: CacheProviderInterface<CommandPermissionModel>
   ) { }
 
   public async execute(data: CreateCommandPermissionProps) {

@@ -1,5 +1,5 @@
 import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
-import { GuildSettings, GuildSettingsKeys } from "#entities";
+import { GuildSettingsKeys, GuildSettingsModel } from "#entities";
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
@@ -10,7 +10,7 @@ import { SetGuildSettingsUseCase } from "./SetGuildSettingsUseCase.js";
 describe('SetGuildSettingsUseCase - Testes Unitários', () => {
   let repository: GuildSettingsRepositoryInterface
   let useCase: SetGuildSettingsUseCase
-  let cache: InMemoryCacheProvider<GuildSettings>
+  let cache: InMemoryCacheProvider<GuildSettingsModel>
 
   before(async () => {
     await dataSource.initialize()
