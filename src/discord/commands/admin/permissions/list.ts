@@ -1,7 +1,6 @@
 import { SearchCommandPermissionsUseCase } from "#application/use-cases/command-permission/SearchCommandPermissionsUseCase.js";
 import { CommandPermissionModel } from "#entities";
 import { GenerateButtonPrevNext } from "#functions";
-import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed, createRow } from "@magicyan/discord";
 import { ApplicationCommandOptionType, ButtonInteraction, ChatInputCommandInteraction, InteractionCollector } from "discord.js";
@@ -24,10 +23,8 @@ command.subcommand({
     const commandFilter = options.getString("command", false)
     const guild = interaction.guildId
 
-    const cache = InMemoryCacheProvider.getInstance<'command-permissions:array'>('command-permissions:array')
-
     const repository = new CommandPermissionTypeormRepository()
-    const searchUseCase = new SearchCommandPermissionsUseCase(repository, cache)
+    const searchUseCase = new SearchCommandPermissionsUseCase(repository)
 
     let currentPage = 1;
 

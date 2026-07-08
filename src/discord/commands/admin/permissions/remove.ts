@@ -33,7 +33,7 @@ command.subcommand({
     const cacheArray = InMemoryCacheProvider.getInstance<'command-permissions:array'>('command-permissions:array')
 
     const repository = new CommandPermissionTypeormRepository()
-    const searchUseCase = new SearchCommandPermissionsUseCase(repository, cacheArray)
+    const searchUseCase = new SearchCommandPermissionsUseCase(repository)
     const deleteUseCase = new DeleteCommandPermissionUseCase(repository, cache, cacheArray)
 
     const searchResult = await searchUseCase.execute({
