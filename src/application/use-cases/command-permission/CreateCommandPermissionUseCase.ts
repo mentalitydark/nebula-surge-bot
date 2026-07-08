@@ -15,7 +15,7 @@ export class CreateCommandPermissionUseCase {
 
     const permission = await this.repository.insert(model)
 
-    this.cache.set(permission.id, permission)
+    this.cache.set(permission.id, permission, 10 * 60)
 
     return permission
   }
