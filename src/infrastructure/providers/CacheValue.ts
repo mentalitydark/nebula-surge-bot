@@ -16,6 +16,6 @@ export class CacheValue<T> implements CacheValueInterface<T> {
   }
 
   generateExpiresAt(): number {
-    return this.ttl ? Date.now() + this.ttl : Infinity;
+    return this.ttl !== undefined ? Date.now() + (this.ttl * 1000) : Infinity;
   }
 }
