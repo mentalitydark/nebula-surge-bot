@@ -49,7 +49,7 @@ command.subcommand({
 
       embed = createEmbed({
         title: `Configuração: ${key}`,
-        description: `Valor: <#${value}>`,
+        description: `Valor: ${Array.isArray(value) ? value.map(id => `<#${id}>`).join(", ") : `<#${value}>`}`,
         color: constants.colors.azoxo,
       })
 
@@ -57,8 +57,8 @@ command.subcommand({
       embed = createEmbed({
         title: "Configurações do Servidor",
         description: Object.entries(guildSettings.settings.toJSON())
-          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? `<#${v}>` : "N/A"}`)
-          .join("\n"),
+          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? (Array.isArray(v) ? v.map(id => `<#${id}>`).join(", ") : `<#${v}>`) : "N/A"}`)
+          .join("\n\n"),
         color: constants.colors.azoxo,
       })
 
