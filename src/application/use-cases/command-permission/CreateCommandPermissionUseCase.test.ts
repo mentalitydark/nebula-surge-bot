@@ -11,6 +11,7 @@ import { CreateCommandPermissionUseCase } from "./CreateCommandPermissionUseCase
 describe('CreateCommandPermissionUseCase - Testes Unitários', () => {
   let repository: CommandPermissionTypeormRepository;
   let cache: CacheProviderInterface<CommandPermissionModel>;
+  let cacheArray: CacheProviderInterface<CommandPermissionModel[]>;
   let useCase: CreateCommandPermissionUseCase;
 
   before(async () => {
@@ -18,14 +19,16 @@ describe('CreateCommandPermissionUseCase - Testes Unitários', () => {
     await dataSource.synchronize()
 
     cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
 
     repository = new CommandPermissionTypeormRepository()
-    useCase = new CreateCommandPermissionUseCase(repository, cache)
+    useCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
   })
 
   beforeEach(async () => {
     await dataSource.createQueryBuilder().delete().from('command_permissions').execute()
     cache.clear()
+    cacheArray.clear()
   })
 
   after(async () => {

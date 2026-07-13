@@ -24,7 +24,7 @@ describe('DeleteCommandPermissionUseCase - Testes Unitários', () => {
     cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
 
     repository = new CommandPermissionTypeormRepository()
-    createUseCase = new CreateCommandPermissionUseCase(repository, cache)
+    createUseCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
     deleteUseCase = new DeleteCommandPermissionUseCase(repository, cache, cacheArray)
   })
 

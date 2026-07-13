@@ -5,7 +5,8 @@ import { CommandPermissionModel } from "#entities";
 export class CreateCommandPermissionUseCase {
   public constructor(
     private readonly repository: CommandPermissionRepositoryInterface,
-    private readonly cache: CacheProviderInterface<CommandPermissionModel>
+    private readonly cache: CacheProviderInterface<CommandPermissionModel>,
+    private readonly cacheArray: CacheProviderInterface<CommandPermissionModel[]>,
   ) { }
 
   public async execute(data: CreateCommandPermissionProps) {
@@ -16,6 +17,7 @@ export class CreateCommandPermissionUseCase {
     const permission = await this.repository.insert(model)
 
     this.cache.set(permission.id, permission, 10 * 60)
+    this.cacheArray.clear()
 
     return permission
   }

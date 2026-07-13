@@ -14,15 +14,17 @@ describe('FindCommandPermissionByIdUseCase - Testes Unitários', () => {
   let createUseCase: CreateCommandPermissionUseCase;
   let findUseCase: FindCommandPermissionByIdUseCase;
   let cache: CacheProviderInterface<CommandPermissionModel>;
+  let cacheArray: CacheProviderInterface<CommandPermissionModel[]>;
 
   before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
 
     cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
 
     repository = new CommandPermissionTypeormRepository()
-    createUseCase = new CreateCommandPermissionUseCase(repository, cache)
+    createUseCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
     findUseCase = new FindCommandPermissionByIdUseCase(repository, cache)
   })
 
