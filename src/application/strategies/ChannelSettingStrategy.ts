@@ -122,11 +122,7 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     try {
       const channel = await this.guild.channels.fetch(this.sanitizeChannelId(channelId));
 
-      if (channel && channel.isTextBased()) {
-        return true;
-      }
-
-      return !!channel;
+      return !!channel && channel.isTextBased();
     } catch {
       return false;
     }
