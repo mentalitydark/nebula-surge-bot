@@ -1,9 +1,10 @@
 import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
 import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
+import { SettingStrategyRegistry } from "#application/strategies/SettingStrategyRegistry.js";
+import { SettingStrategy } from "#domain/strategies/SettingStrategy.js";
 import { GuildSettingsKeys, GuildSettingsModel, Settings } from "#entities";
 import { NotFoundError } from "#errors";
-
-type SetGuildSettingsProps = { [key in GuildSettingsKeys]?: string | null };
+import { Guild } from "discord.js";
 
 export class SetGuildSettingsUseCase {
   public constructor(
@@ -12,44 +13,50 @@ export class SetGuildSettingsUseCase {
   ) { }
 
   /** @throws {Error} */
-  public async execute(guildId: string, props: SetGuildSettingsProps): Promise<GuildSettingsModel> {
-    try {
-      const guildSettings = await this.repository.findByGuild(guildId)
+  public async execute(key: GuildSettingsKeys, value: string | string[] | null, guild: Guild): Promise<GuildSettingsModel> {
+    const strategy = SettingStrategyRegistry.get(key, guild)
 
-      return this.updateGuildSettings(guildSettings, props)
-    } catch (error) {
+    const validatedValue = await strategy.validate(value)
+
+    const guildSettings = await this.repository.findByGuild(guild.id).catch((error) => {
       if (error instanceof NotFoundError) {
-        return this.insertGuildSettings(guildId, props)
+        return null
       }
 
       throw error
+    })
+
+    let guildSettingsModel: GuildSettingsModel
+
+    if (guildSettings) {
+      guildSettingsModel = await this.updateGuildSettings(guildSettings, validatedValue, strategy, guild)
+    } else {
+      guildSettingsModel = await this.insertGuildSettings(validatedValue, strategy, guild)
     }
+
+    this.cache.set(guild.id, guildSettingsModel)
+
+    return guildSettingsModel
   }
 
-  private async insertGuildSettings(guildId: string, props: SetGuildSettingsProps): Promise<GuildSettingsModel> {
-    const guildSettings = this.repository.create({ guild: guildId, settings: Settings.fromJSON(props) })
+  private async insertGuildSettings(value: string | string[] | null, strategy: SettingStrategy, guild: Guild): Promise<GuildSettingsModel> {
+    const model = this.repository.create({ guild: guild.id, settings: null })
 
-    const insertedGuildSettings = await this.repository.insert(guildSettings)
+    const settings = new Settings()
 
-    this.cache.set(guildId, insertedGuildSettings)
+    strategy.apply(settings, value)
 
-    return insertedGuildSettings
+    model.settings = settings
+
+    return await this.repository.insert(model)
   }
 
-  private async updateGuildSettings(guildSettings: GuildSettingsModel, props: SetGuildSettingsProps): Promise<GuildSettingsModel> {
+  private async updateGuildSettings(guildSettings: GuildSettingsModel, value: string | string[] | null, strategy: SettingStrategy, guild: Guild): Promise<GuildSettingsModel> {
     guildSettings.settings ??= new Settings()
 
-    for (const [key, value] of Object.entries(props)) {
-      if (value !== undefined && Settings.isValidKey(key)) {
-        guildSettings.settings.set(key, value)
-      }
-    }
+    strategy.apply(guildSettings.settings, value)
 
-    const updatedGuildSettings = await this.repository.update(guildSettings)
-
-    this.cache.set(guildSettings.guild, updatedGuildSettings)
-
-    return updatedGuildSettings
+    return await this.repository.update(guildSettings)
   }
 
 }
