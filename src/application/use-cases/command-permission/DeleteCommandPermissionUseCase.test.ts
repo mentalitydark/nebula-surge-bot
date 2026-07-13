@@ -1,4 +1,7 @@
+import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
+import { CommandPermissionModel } from "#entities";
 import { NotFoundError } from "#errors";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
 import assert from "node:assert";
@@ -7,13 +10,28 @@ import { CreateCommandPermissionUseCase } from "./CreateCommandPermissionUseCase
 import { DeleteCommandPermissionUseCase } from "./DeleteCommandPermissionUseCase.js";
 
 describe('DeleteCommandPermissionUseCase - Testes Unitários', () => {
+  let repository: CommandPermissionTypeormRepository;
+  let createUseCase: CreateCommandPermissionUseCase;
+  let deleteUseCase: DeleteCommandPermissionUseCase;
+  let cache: CacheProviderInterface<CommandPermissionModel>;
+  let cacheArray: CacheProviderInterface<CommandPermissionModel[]>;
+
   before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
+
+    cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
+
+    repository = new CommandPermissionTypeormRepository()
+    createUseCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
+    deleteUseCase = new DeleteCommandPermissionUseCase(repository, cache, cacheArray)
   })
 
   beforeEach(async () => {
     await dataSource.createQueryBuilder().delete().from('command_permissions').execute()
+    cache.clear()
+    cacheArray.clear()
   })
 
   after(async () => {
@@ -24,10 +42,6 @@ describe('DeleteCommandPermissionUseCase - Testes Unitários', () => {
   })
 
   it('Deve remover uma permissão', async () => {
-    const repository = new CommandPermissionTypeormRepository()
-    const createUseCase = new CreateCommandPermissionUseCase(repository)
-    const deleteUseCase = new DeleteCommandPermissionUseCase(repository)
-
     const permission = await createUseCase.execute({
       command: 'test-command',
       role: 'test-role',
@@ -40,9 +54,6 @@ describe('DeleteCommandPermissionUseCase - Testes Unitários', () => {
   })
 
   it('Deve retornar um erro quando a permissão não existir', async () => {
-    const repository = new CommandPermissionTypeormRepository()
-    const deleteUseCase = new DeleteCommandPermissionUseCase(repository)
-
     await assert.rejects(deleteUseCase.execute(999), NotFoundError)
   })
 })

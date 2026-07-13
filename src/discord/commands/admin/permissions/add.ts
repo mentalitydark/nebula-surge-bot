@@ -1,5 +1,6 @@
 import { CreateCommandPermissionUseCase } from "#application/use-cases/command-permission/CreateCommandPermissionUseCase.js";
 import { registeredCommands } from "#base";
+import { InMemoryCacheProvider } from "#infrastructure/providers/index.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType } from "discord.js";
@@ -42,8 +43,11 @@ command.subcommand({
       return
     }
 
+    const cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    const cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
+
     const repository = new CommandPermissionTypeormRepository()
-    const createUseCase = new CreateCommandPermissionUseCase(repository)
+    const createUseCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
 
     await createUseCase.execute({ role, command: commandName, guild })
 

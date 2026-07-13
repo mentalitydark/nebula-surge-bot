@@ -1,6 +1,7 @@
 import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js"
 import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js"
 import { GuildSettingsTypeormRepository } from "#repositories"
 import { createEmbed } from "@magicyan/discord"
 import { ApplicationCommandOptionType } from "discord.js"
@@ -28,8 +29,10 @@ command.subcommand({
       throw new BadRequestError(`A configuração "${key}" não é válida.`)
     }
 
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id')
+
     const repository = new GuildSettingsTypeormRepository()
-    const useCase = new FindByGuildGuildSettingsUseCase(repository)
+    const useCase = new FindByGuildGuildSettingsUseCase(repository, cache)
 
     const guildSettings = await useCase.execute(interaction.guildId)
 
@@ -46,7 +49,7 @@ command.subcommand({
 
       embed = createEmbed({
         title: `Configuração: ${key}`,
-        description: `Valor: <#${value}>`,
+        description: `Valor: ${Array.isArray(value) ? value.map(id => `<#${id}>`).join(", ") : `<#${value}>`}`,
         color: constants.colors.azoxo,
       })
 
@@ -54,8 +57,8 @@ command.subcommand({
       embed = createEmbed({
         title: "Configurações do Servidor",
         description: Object.entries(guildSettings.settings.toJSON())
-          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? `<#${v}>` : "N/A"}`)
-          .join("\n"),
+          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? (Array.isArray(v) ? v.map(id => `<#${id}>`).join(", ") : `<#${v}>`) : "N/A"}`)
+          .join("\n\n"),
         color: constants.colors.azoxo,
       })
 

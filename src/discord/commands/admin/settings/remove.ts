@@ -1,6 +1,7 @@
 import { SetGuildSettingsUseCase } from "#application/use-cases/guild-settings/SetGuildSettingsUseCase.js"
 import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js"
 import { GuildSettingsTypeormRepository } from "#repositories"
 import { createEmbed } from "@magicyan/discord"
 import { ApplicationCommandOptionType } from "discord.js"
@@ -34,10 +35,12 @@ command.subcommand({
       throw new BadRequestError('Configuração inválida')
     }
 
-    const repository = new GuildSettingsTypeormRepository()
-    const useCase = new SetGuildSettingsUseCase(repository)
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id')
 
-    await useCase.execute(guild.id, { [settingOption]: null })
+    const repository = new GuildSettingsTypeormRepository()
+    const useCase = new SetGuildSettingsUseCase(repository, cache)
+
+    await useCase.execute(settingOption, null, guild)
 
     await interaction.editReply({
       embeds: [

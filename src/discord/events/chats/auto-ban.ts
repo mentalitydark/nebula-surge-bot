@@ -1,8 +1,10 @@
 import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js";
 import { createEvent } from "#base";
 import { GuildSettingsKeys } from "#entities";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
 import { createEmbed } from "@magicyan/discord";
+import { channelMention, roleMention, time, TimestampStyles, userMention } from "discord.js";
 
 const ROLE_ID_TO_USER_BANNED = process.env.ROLE_ID_TO_USER_BANNED || "";
 
@@ -24,57 +26,72 @@ createEvent({
       return
     }
 
-    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository())
-    const guildSettings = await findGuildSettingsUseCase.execute(guild.id)
+    const cache = InMemoryCacheProvider.getInstance('guild-settings:id');
+
+    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
+    const guildSettings = await findGuildSettingsUseCase.execute(guild.id);
 
     if (!guildSettings || !guildSettings.settings) {
       return
     }
 
-    const autoBanChannelId = guildSettings.settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN)
-    const autoBanVoteChannelId = guildSettings.settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE)
-    const logChannelId = guildSettings.settings.get(GuildSettingsKeys.CHANNEL_LOGS)
+    const { settings } = guildSettings
 
-    if (!autoBanChannelId || !autoBanVoteChannelId || !logChannelId) {
+    const autoBanChannelIds = settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN)
+    const autoBanVoteChannelId = settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE)
+
+    if (!autoBanChannelIds || !autoBanVoteChannelId) {
       return
     }
 
-    if (channel.id !== autoBanChannelId) {
+    const autoBanChannelIdList = Array.isArray(autoBanChannelIds) ? autoBanChannelIds : [autoBanChannelIds]
+
+    if (!autoBanChannelIdList.includes(channel.id)) {
       return
     }
 
-    const autoBanChannel = guild.channels.cache.get(autoBanChannelId)
-    const autoBanVoteChannel = guild.channels.cache.get(autoBanVoteChannelId)
-    const logChannel = guild.channels.cache.get(logChannelId)
-
-    if (!autoBanChannel || !autoBanVoteChannel || !logChannel || !autoBanChannel.isTextBased() || !autoBanVoteChannel.isTextBased() || !logChannel.isTextBased()) {
+    const autoBanVoteChannel = await guild.channels.fetch(autoBanVoteChannelId)
+    if (!autoBanVoteChannel || !autoBanVoteChannel.isTextBased()) {
       return
+    }
+
+    const textChannels = []
+
+    const channels = await guild.channels.fetch()
+    for (const c of channels.values()) {
+      if (c && c.isTextBased() && c.permissionsFor(member)?.has('SendMessages')) {
+        textChannels.push(c)
+      }
+    }
+
+    let messagesToDeleteCount = 0
+
+    const chunkSize = 5
+    for (let i = 0; i < textChannels.length; i += chunkSize) {
+      const chunk = textChannels.slice(i, i + chunkSize)
+
+      await Promise.allSettled(
+        chunk.map(async (c) => {
+          if (!c.permissionsFor(member)?.has('SendMessages')) return
+
+          const messages = await c.messages.fetch({ limit: 10 })
+          const messagesToDelete = messages.filter(msg => msg.author.id === member.id)
+
+          if (messagesToDelete.size > 0) {
+            await c.bulkDelete(messagesToDelete, true).catch(() => null)
+            messagesToDeleteCount += messagesToDelete.size
+          }
+        })
+      ).catch(() => null)
     }
 
     await member.roles.add(ROLE_ID_TO_USER_BANNED, "Auto-ban")
 
-    await logChannel.send(`<@${member.id}> foi pré banido automaticamente.`)
-
-    const channels = await guild.channels.fetch().catch(() => null)
-
-    if (!channels) {
-      return
-    }
-
-    for (const [, channel] of channels) {
-      try {
-        if (!channel || !channel.isTextBased()) {
-          continue
-        }
-
-        const messages = await channel.messages.fetch({ limit: 50 })
-        const messagesToDelete = messages.filter(msg => msg.author.id === member.id)
-
-        if (messagesToDelete.size > 0) {
-          await channel.bulkDelete(messagesToDelete, true).catch(() => null)
-        }
-      } catch {
-        continue
+    if (settings.has(GuildSettingsKeys.CHANNEL_LOGS)) {
+      const logChannelId = settings.get(GuildSettingsKeys.CHANNEL_LOGS)
+      const logChannel = await guild.channels.fetch(logChannelId!)
+      if (logChannel && logChannel.isTextBased()) {
+        await logChannel.send(`${userMention(member.id)} foi pré banido automaticamente e teve \`${messagesToDeleteCount}\` mensagens deletadas do servidor.`)
       }
     }
 
@@ -82,15 +99,15 @@ createEvent({
       color: constants.colors.danger,
       title: "⚠️ Votação de Ban",
       description: [
-        `O membro <@${member.id}> enviou uma mensagem no canal <#${message.channelId}> e recebeu o cargo **pré ban**.`,
+        `O membro ${userMention(member.id)} enviou uma mensagem no canal ${channelMention(message.channelId)} e recebeu o cargo ${roleMention(ROLE_ID_TO_USER_BANNED)}.`,
         ``,
         `**Como votar:**`,
-        `✅ — Votar pelo **ban** do membro. Com ${4} votos de conselheiros, o membro será banido do servidor.`,
-        `❌ — Votar pelo **cancelamento**. Com ${4} votos de conselheiros, o cargo pré ban será removido e o processo será encerrado.`,
+        `✅ — Votar pelo **ban** do membro. Com ${2} votos de conselheiros, o membro será banido do servidor.`,
+        `❌ — Votar pelo **cancelamento**. Com ${2} votos de conselheiros, o cargo pré ban será removido e o processo será encerrado.`,
       ].join("\n"),
       fields: [
-        { name: "👤 Membro", value: `<@${member.id}> (${member.user.username})`, inline: true },
-        { name: "📅 Horário da mensagem", value: `<t:${Math.floor(message.createdTimestamp / 1000)}:F>`, inline: true },
+        { name: "👤 Membro", value: userMention(member.id), inline: true },
+        { name: "📅 Horário da mensagem", value: time(message.createdTimestamp, TimestampStyles.ShortDateMediumTime), inline: true },
         { name: "💬 Mensagem enviada", value: message.content || "*[sem texto]*", inline: false },
       ],
       footer: `ID do membro: ${member.id}`,
@@ -100,91 +117,6 @@ createEvent({
     const voteMessage = await autoBanVoteChannel.send({ embeds: [embed] })
     await voteMessage.react("✅")
     await voteMessage.react("❌")
-  }
-})
 
-createEvent({
-  name: "auto-ban-vote",
-  event: "messageReactionAdd",
-  async run(reaction, user) {
-    if (user.bot || !ROLE_ID_TO_USER_BANNED) {
-      return
-    }
-
-    const { message } = reaction
-
-    if (!message.guild || !message.member || !message.channel) {
-      return
-    }
-
-    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository())
-    const guildSettings = await findGuildSettingsUseCase.execute(message.guild.id)
-
-    if (!guildSettings || !guildSettings.settings) {
-      return
-    }
-
-    const autoBanVoteChannelId = guildSettings.settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE)
-
-    if (!autoBanVoteChannelId) {
-      return
-    }
-
-    if (message.channel.id !== autoBanVoteChannelId) {
-      return
-    }
-
-    const autoBanVoteChannel = message.guild.channels.cache.get(autoBanVoteChannelId)
-
-    if (!autoBanVoteChannel || !autoBanVoteChannel.isTextBased()) {
-      return
-    }
-
-    const voteMessage = await autoBanVoteChannel.messages.fetch(message.id).catch(() => null)
-
-    if (!voteMessage) {
-      return
-    }
-
-    const voteCount = {
-      yes: 0,
-      no: 0
-    }
-
-    for (const reaction of voteMessage.reactions.cache.values()) {
-      if (reaction.emoji.name === "✅") {
-        voteCount.yes = reaction.count - 1
-      } else if (reaction.emoji.name === "❌") {
-        voteCount.no = reaction.count - 1
-      }
-    }
-
-    const requiredVotes = 4
-
-    const memberIdMatch = voteMessage.embeds[0]?.footer?.text?.match(/ID do membro: (\d+)/)
-
-    const memberId = memberIdMatch ? memberIdMatch[1] : null
-
-    if (!memberId) {
-      return
-    }
-
-    const member = await message.guild.members.fetch(memberId).catch(() => null)
-
-    if (!member) {
-      return
-    }
-
-    if (voteCount.yes >= requiredVotes) {
-      await member.ban({ reason: "Votação de banimento" }).catch(() => null)
-      await voteMessage.reply(`O membro <@${member.id}> foi banido do servidor.`)
-
-      await voteMessage.delete().catch(() => null)
-    } else if (voteCount.no >= requiredVotes) {
-      await member.roles.remove(ROLE_ID_TO_USER_BANNED, "Votação de banimento cancelada").catch(() => null)
-      await voteMessage.reply(`A votação para banir o membro <@${member.id}> foi cancelada.`)
-
-      await voteMessage.delete().catch(() => null)
-    }
   }
 })

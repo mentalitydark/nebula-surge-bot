@@ -1,4 +1,7 @@
+import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
+import { CommandPermissionModel } from "#entities";
 import { NotFoundError } from "#errors";
+import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
 import assert from "node:assert";
@@ -7,13 +10,27 @@ import { CreateCommandPermissionUseCase } from "./CreateCommandPermissionUseCase
 import { FindCommandPermissionByIdUseCase } from "./FindCommandPermissionByIdUseCase.js";
 
 describe('FindCommandPermissionByIdUseCase - Testes Unitários', () => {
+  let repository: CommandPermissionTypeormRepository;
+  let createUseCase: CreateCommandPermissionUseCase;
+  let findUseCase: FindCommandPermissionByIdUseCase;
+  let cache: CacheProviderInterface<CommandPermissionModel>;
+  let cacheArray: CacheProviderInterface<CommandPermissionModel[]>;
+
   before(async () => {
     await dataSource.initialize()
     await dataSource.synchronize()
+
+    cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
+
+    repository = new CommandPermissionTypeormRepository()
+    createUseCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
+    findUseCase = new FindCommandPermissionByIdUseCase(repository, cache)
   })
 
   beforeEach(async () => {
     await dataSource.createQueryBuilder().delete().from('command_permissions').execute()
+    cache.clear()
   })
 
   after(async () => {
@@ -24,9 +41,6 @@ describe('FindCommandPermissionByIdUseCase - Testes Unitários', () => {
   })
 
   it('Deve retornar uma permissão quando existir', async () => {
-    const repository = new CommandPermissionTypeormRepository()
-    const createUseCase = new CreateCommandPermissionUseCase(repository)
-
     const permission = await createUseCase.execute({
       command: 'test-command',
       role: 'test-role',
@@ -35,7 +49,6 @@ describe('FindCommandPermissionByIdUseCase - Testes Unitários', () => {
 
     assert.ok(permission.id)
 
-    const findUseCase = new FindCommandPermissionByIdUseCase(repository)
     const response = await findUseCase.execute(permission.id)
 
     assert.strictEqual(response.id, permission.id)
@@ -47,9 +60,6 @@ describe('FindCommandPermissionByIdUseCase - Testes Unitários', () => {
   })
 
   it('Deve retornar um erro quando a permissão não existir', async () => {
-    const repository = new CommandPermissionTypeormRepository()
-    const findUseCase = new FindCommandPermissionByIdUseCase(repository)
-
     await assert.rejects(findUseCase.execute(999), NotFoundError)
   })
 })
