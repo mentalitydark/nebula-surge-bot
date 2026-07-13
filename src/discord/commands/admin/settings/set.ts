@@ -20,16 +20,16 @@ command.subcommand({
       value: key,
     }))
   }, {
-    name: 'channel',
-    description: 'Canal que deseja definir como valor da configuração',
-    type: ApplicationCommandOptionType.Channel,
+    name: 'value',
+    description: 'Canal, Cargo ou Valor que deseja definir para a configuração.',
+    type: ApplicationCommandOptionType.String,
     required: true
   }],
   async run(interaction) {
     await interaction.deferReply({ ephemeral: true })
 
     const settingOption = interaction.options.getString('setting', true) as GuildSettingsKeys
-    const channelSelected = interaction.options.getChannel('channel', true)
+    const value = interaction.options.getString('value', true)
 
     const guild = interaction.guild
 
@@ -46,16 +46,23 @@ command.subcommand({
     const repository = new GuildSettingsTypeormRepository()
     const useCase = new SetGuildSettingsUseCase(repository, cache)
 
-    await useCase.execute(guild.id, { [settingOption]: channelSelected.id })
+    const mentions = parseMentions(value)
+    const parsedValue: string | string[] = mentions.length ? mentions : value
+
+    await useCase.execute(settingOption, parsedValue, guild)
 
     await interaction.editReply({
-      embeds: [
-        createEmbed({
-          title: 'Configuração alterada',
-          description: `A configuração **${Settings.getDescription(settingOption)}** foi alterada para o canal <#${channelSelected.id}>`,
-          color: constants.colors.success
-        })
-      ]
+      embeds: [createEmbed({
+        title: 'Configuração alterada',
+        description: `A configuração **${Settings.getDescription(settingOption)}** foi alterada para "${value}".`,
+        color: constants.colors.success
+      })]
     })
   }
 })
+
+function parseMentions(value: string): string[] {
+  const mentionRegex = /<[#@][&!]?\d+>/g
+
+  return value.match(mentionRegex) ?? []
+}
