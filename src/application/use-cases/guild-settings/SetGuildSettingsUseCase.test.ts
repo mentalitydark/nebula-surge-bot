@@ -1,131 +1,185 @@
-import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
-import { GuildSettingsKeys, GuildSettingsModel } from "#entities";
-import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
-import { GuildSettingsTypeormRepository } from "#repositories";
-import { dataSource } from "#typeorm";
+import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
+import { CreateGuildSettingsProps, GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
+import { SearchInput, SearchOutput } from "#application/repositories/RepositoryInterface.js";
+import { SettingStrategyRegistry } from "#application/strategies/SettingStrategyRegistry.js";
+import { GuildSettings, GuildSettingsKeys, GuildSettingsModel, Settings } from "#entities";
+import { NotFoundError } from "#errors";
+import { Guild } from "discord.js";
 import assert from "node:assert";
-import { after, before, beforeEach, describe, it } from "node:test";
+import { beforeEach, describe, it } from "node:test";
 import { SetGuildSettingsUseCase } from "./SetGuildSettingsUseCase.js";
 
-describe('SetGuildSettingsUseCase - Testes Unitários', () => {
-  let repository: GuildSettingsRepositoryInterface
-  let useCase: SetGuildSettingsUseCase
-  let cache: InMemoryCacheProvider<GuildSettingsModel>
+// ── Mocks ──────────────────────────────────────────────────────────────────────
 
-  before(async () => {
-    await dataSource.initialize()
-    await dataSource.synchronize()
+class InMemoryGuildSettingsRepository implements GuildSettingsRepositoryInterface {
+  private store: GuildSettings[] = [];
+  private nextId = 1;
 
-    cache = InMemoryCacheProvider.getInstance('guild-settings:id')
+  create(data: CreateGuildSettingsProps): GuildSettings {
+    const model = new GuildSettings();
+    model.guild = data.guild;
+    model.settings = data.settings;
+    return model;
+  }
 
-    repository = new GuildSettingsTypeormRepository()
-    useCase = new SetGuildSettingsUseCase(repository, cache)
-  })
+  async insert(model: GuildSettings): Promise<GuildSettings> {
+    model.id = this.nextId++;
+    model.createdAt = new Date();
+    model.updatedAt = new Date();
+    this.store.push(model);
+    return model;
+  }
 
-  beforeEach(async () => {
-    await dataSource.createQueryBuilder().delete().from('guild_settings').execute()
-    cache.clear()
-  })
+  async findByGuild(guild: string): Promise<GuildSettings> {
+    const found = this.store.find((s) => s.guild === guild);
+    if (!found) throw new NotFoundError('GuildSettings não encontrado');
+    return found;
+  }
 
-  after(async () => {
-    if (dataSource.isInitialized) {
-      await dataSource.createQueryBuilder().delete().from('guild_settings').execute()
-      await dataSource.destroy()
-    }
-  })
+  async update(model: GuildSettings): Promise<GuildSettings> {
+    const index = this.store.findIndex((s) => s.id === model.id);
+    model.updatedAt = new Date();
+    this.store[index] = model;
+    return model;
+  }
 
-  it('Deve criar uma configuração de guild quando não existir', async () => {
-    const guildId = '123456789'
+  async search(_props: SearchInput<GuildSettings>): Promise<SearchOutput<GuildSettings>> {
+    return { data: this.store, current_page: 1, per_page: 10, total: this.store.length };
+  }
 
-    const settings = await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123'
-    })
+  async findById(id: number): Promise<GuildSettings> {
+    const found = this.store.find((s) => s.id === id);
+    if (!found) throw new NotFoundError('Não encontrado');
+    return found;
+  }
 
-    assert.ok(settings.id)
-    assert.strictEqual(settings.guild, guildId)
-    assert.strictEqual(settings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel123')
-    assert.ok(settings.createdAt)
-    assert.ok(settings.updatedAt)
-  })
+  async delete(_id: number): Promise<void> { }
+}
 
-  it('Deve atualizar uma configuração de guild existente', async () => {
-    const guildId = '123456789'
+class InMemoryCacheMock<T> implements CacheProviderInterface<T> {
+  private store = new Map<string | number, T>();
+  get(key: string | number): T | null { return this.store.get(key) ?? null; }
+  set(key: string | number, value: T): void { this.store.set(key, value); }
+  delete(key: string | number): void { this.store.delete(key); }
+  clear(): void { this.store.clear(); }
+}
 
-    // Criar configuração inicial
-    await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123'
-    })
+function makeMockGuild(id: string): Guild {
+  return { id } as unknown as Guild;
+}
 
-    // Atualizar configuração
-    const updatedSettings = await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel456'
-    })
+function registerPassthroughStrategy(key: GuildSettingsKeys): void {
+  SettingStrategyRegistry.register(key, (guild) => ({
+    key,
+    description: 'Mock strategy',
+    guild,
+    validate: async (v) => { return v; },
+    apply: (settings: Settings, value: string | string[] | null): Settings => {
+      settings.set(key, Array.isArray(value) ? value[0] : value);
+      return settings;
+    },
+  }));
+}
 
-    assert.ok(updatedSettings.id)
-    assert.strictEqual(updatedSettings.guild, guildId)
-    assert.strictEqual(updatedSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel456')
-  })
+// ── Tests ──────────────────────────────────────────────────────────────────────
 
-  it('Deve criar uma configuração sem valores definidos', async () => {
-    const guildId = '987654321'
+describe('SetGuildSettingsUseCase', () => {
+  let repository: InMemoryGuildSettingsRepository;
+  let cache: InMemoryCacheMock<GuildSettingsModel>;
+  let useCase: SetGuildSettingsUseCase;
 
-    const settings = await useCase.execute(guildId, {})
+  beforeEach(() => {
+    SettingStrategyRegistry.clear();
+    registerPassthroughStrategy(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED);
+    registerPassthroughStrategy(GuildSettingsKeys.CHANNEL_AUTO_BAN);
 
-    assert.ok(settings.id)
-    assert.strictEqual(settings.guild, guildId)
-    assert.ok(settings.settings)
-  })
+    repository = new InMemoryGuildSettingsRepository();
+    cache = new InMemoryCacheMock();
+    useCase = new SetGuildSettingsUseCase(repository, cache);
+  });
 
-  it('Deve atualizar parcialmente uma configuração existente', async () => {
-    const guildId = '123456789'
+  it('Deve criar configuração quando a guild não tiver nenhuma', async () => {
+    const guild = makeMockGuild('guild-001');
 
-    // Criar configuração inicial
-    const initialSettings = await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel123'
-    })
+    const result = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-abc', guild);
 
-    assert.strictEqual(initialSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel123')
+    assert.ok(result.id);
+    assert.strictEqual(result.guild, 'guild-001');
+    assert.strictEqual(result.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel-abc');
+    assert.ok(result.createdAt);
+    assert.ok(result.updatedAt);
+  });
 
-    // Atualizar apenas um campo
-    const updatedSettings = await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'new_channel'
-    })
+  it('Deve atualizar configuração existente', async () => {
+    const guild = makeMockGuild('guild-001');
 
-    assert.strictEqual(updatedSettings.id, initialSettings.id)
-    assert.strictEqual(updatedSettings.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'new_channel')
-  })
+    await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-abc', guild);
+    const updated = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-xyz', guild);
+
+    assert.strictEqual(updated.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel-xyz');
+  });
 
   it('Deve manter o mesmo ID ao atualizar', async () => {
-    const guildId = '123456789'
+    const guild = makeMockGuild('guild-001');
 
-    const firstCall = await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel1'
-    })
+    const first = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-1', guild);
+    const second = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-2', guild);
 
-    const secondCall = await useCase.execute(guildId, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel2'
-    })
+    assert.strictEqual(first.id, second.id);
+  });
 
-    assert.strictEqual(firstCall.id, secondCall.id)
-    assert.strictEqual(firstCall.guild, secondCall.guild)
-  })
+  it('Deve atualizar o cache após inserir', async () => {
+    const guild = makeMockGuild('guild-001');
+
+    const result = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-abc', guild);
+
+    assert.deepStrictEqual(cache.get('guild-001'), result);
+  });
+
+  it('Deve atualizar o cache após atualizar', async () => {
+    const guild = makeMockGuild('guild-001');
+
+    await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-1', guild);
+    const updated = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-2', guild);
+
+    assert.deepStrictEqual(cache.get('guild-001'), updated);
+  });
 
   it('Deve criar configurações separadas para guilds diferentes', async () => {
-    const guildId1 = '111111111'
-    const guildId2 = '222222222'
+    const guild1 = makeMockGuild('guild-001');
+    const guild2 = makeMockGuild('guild-002');
 
-    const settings1 = await useCase.execute(guildId1, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel1'
-    })
+    const s1 = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-1', guild1);
+    const s2 = await useCase.execute(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, 'channel-2', guild2);
 
-    const settings2 = await useCase.execute(guildId2, {
-      [GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]: 'channel2'
-    })
+    assert.notStrictEqual(s1.id, s2.id);
+    assert.strictEqual(s1.guild, 'guild-001');
+    assert.strictEqual(s2.guild, 'guild-002');
+  });
 
-    assert.notStrictEqual(settings1.id, settings2.id)
-    assert.strictEqual(settings1.guild, guildId1)
-    assert.strictEqual(settings2.guild, guildId2)
-    assert.strictEqual(settings1.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel1')
-    assert.strictEqual(settings2.settings?.get(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED), 'channel2')
-  })
-})
+  it('Deve lançar erro quando nenhuma estratégia estiver registrada para a chave', async () => {
+    const guild = makeMockGuild('guild-001');
+
+    await assert.rejects(
+      () => useCase.execute(GuildSettingsKeys.CHANNEL_LOGS, 'channel-abc', guild),
+    );
+  });
+
+  it('Deve propagar o erro lançado pela validação da estratégia', async () => {
+    const guild = makeMockGuild('guild-001');
+
+    SettingStrategyRegistry.register(GuildSettingsKeys.CHANNEL_LOGS, (_guild) => ({
+      key: GuildSettingsKeys.CHANNEL_LOGS,
+      description: 'Mock failing strategy',
+      guild: _guild,
+      validate: async () => { throw new Error('Validação falhou'); },
+      apply: (s: Settings) => s,
+    }));
+
+    await assert.rejects(
+      () => useCase.execute(GuildSettingsKeys.CHANNEL_LOGS, 'channel-abc', guild),
+      /Validação falhou/
+    );
+  });
+});
+
