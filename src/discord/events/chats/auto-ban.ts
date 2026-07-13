@@ -44,7 +44,9 @@ createEvent({
       return
     }
 
-    if (typeof autoBanChannelIds === "string" || (Array.isArray(autoBanChannelIds) && !autoBanChannelIds.includes(channel.id))) {
+    const autoBanChannelIdList = Array.isArray(autoBanChannelIds) ? autoBanChannelIds : [autoBanChannelIds]
+
+    if (!autoBanChannelIdList.includes(channel.id)) {
       return
     }
 
