@@ -41,7 +41,7 @@ createEvent({
       return
     }
 
-    const autoBanVoteChannel = message.guild.channels.cache.get(autoBanVoteChannelId)
+    const autoBanVoteChannel = await message.guild.channels.fetch(autoBanVoteChannelId)
 
     if (!autoBanVoteChannel || !autoBanVoteChannel.isTextBased()) {
       return
