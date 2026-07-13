@@ -29,7 +29,7 @@ export class SetGuildSettingsUseCase {
     let guildSettingsModel: GuildSettingsModel
 
     if (guildSettings) {
-      guildSettingsModel = await this.updateGuildSettings(guildSettings, validatedValue, strategy, guild)
+      guildSettingsModel = await this.updateGuildSettings(guildSettings, validatedValue, strategy)
     } else {
       guildSettingsModel = await this.insertGuildSettings(validatedValue, strategy, guild)
     }
@@ -51,7 +51,7 @@ export class SetGuildSettingsUseCase {
     return await this.repository.insert(model)
   }
 
-  private async updateGuildSettings(guildSettings: GuildSettingsModel, value: string | string[] | null, strategy: SettingStrategy, guild: Guild): Promise<GuildSettingsModel> {
+  private async updateGuildSettings(guildSettings: GuildSettingsModel, value: string | string[] | null, strategy: SettingStrategy): Promise<GuildSettingsModel> {
     guildSettings.settings ??= new Settings()
 
     strategy.apply(guildSettings.settings, value)
