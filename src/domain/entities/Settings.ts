@@ -50,10 +50,10 @@ export class Settings {
     const settings = new Settings()
 
     settings
-      .set(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, json[GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED] ?? null)
-      .set(GuildSettingsKeys.CHANNEL_AUTO_BAN, json[GuildSettingsKeys.CHANNEL_AUTO_BAN] ?? null)
-      .set(GuildSettingsKeys.CHANNEL_LOGS, json[GuildSettingsKeys.CHANNEL_LOGS] ?? null)
-      .set(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE, json[GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE] ?? null)
+      .set(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, this.transformToStringOrNull(json[GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED]))
+      .set(GuildSettingsKeys.CHANNEL_AUTO_BAN, this.transformToArrayOrNull(json[GuildSettingsKeys.CHANNEL_AUTO_BAN]))
+      .set(GuildSettingsKeys.CHANNEL_LOGS, this.transformToStringOrNull(json[GuildSettingsKeys.CHANNEL_LOGS]))
+      .set(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE, this.transformToStringOrNull(json[GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE]))
 
     return settings
   }
@@ -79,5 +79,29 @@ export class Settings {
       default:
         return ""
     }
+  }
+
+  private static transformToArrayOrNull(value: string | string[] | null): string[] | null {
+    if (value === null || value === undefined) {
+      return null
+    }
+
+    if (Array.isArray(value)) {
+      return value
+    }
+
+    return [value]
+  }
+
+  private static transformToStringOrNull(value: string | string[] | null): string | null {
+    if (value === null || value === undefined) {
+      return null
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0 ? value[0] : null
+    }
+
+    return value
   }
 }
