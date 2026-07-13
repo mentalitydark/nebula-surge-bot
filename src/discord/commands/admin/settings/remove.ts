@@ -40,7 +40,7 @@ command.subcommand({
     const repository = new GuildSettingsTypeormRepository()
     const useCase = new SetGuildSettingsUseCase(repository, cache)
 
-    await useCase.execute(guild.id, { [settingOption]: null })
+    await useCase.execute(settingOption, null, guild)
 
     await interaction.editReply({
       embeds: [
