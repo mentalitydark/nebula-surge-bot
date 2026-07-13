@@ -44,9 +44,10 @@ command.subcommand({
     }
 
     const cache = InMemoryCacheProvider.getInstance('command-permissions:id')
+    const cacheArray = InMemoryCacheProvider.getInstance('command-permissions:array')
 
     const repository = new CommandPermissionTypeormRepository()
-    const createUseCase = new CreateCommandPermissionUseCase(repository, cache)
+    const createUseCase = new CreateCommandPermissionUseCase(repository, cache, cacheArray)
 
     await createUseCase.execute({ role, command: commandName, guild })
 
