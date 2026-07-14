@@ -1,4 +1,5 @@
 import { SearchCommandPermissionsUseCase } from "#application/use-cases/command-permission/SearchCommandPermissionsUseCase.js";
+import { registeredCommands } from "#base";
 import { CommandPermissionModel } from "#entities";
 import { GenerateButtonPrevNext } from "#functions";
 import { CommandPermissionTypeormRepository } from "#repositories";
@@ -16,7 +17,10 @@ command.subcommand({
     description: 'Filtrar por comando específico',
     type: ApplicationCommandOptionType.String,
     required: false,
-    autocomplete: true
+    choices: Array.from(registeredCommands.entries()).map(([key, value]) => ({
+      name: value,
+      value: key
+    }))
   }],
   async run(interaction) {
     const { options } = interaction

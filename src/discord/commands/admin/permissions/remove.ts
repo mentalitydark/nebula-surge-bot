@@ -1,9 +1,10 @@
 import { DeleteCommandPermissionUseCase } from "#application/use-cases/command-permission/DeleteCommandPermissionUseCase.js";
 import { SearchCommandPermissionsUseCase } from "#application/use-cases/command-permission/SearchCommandPermissionsUseCase.js";
+import { registeredCommands } from "#base";
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed } from "@magicyan/discord";
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, roleMention } from "discord.js";
 import command from "./permissions.js";
 
 command.subcommand({
@@ -21,7 +22,10 @@ command.subcommand({
       description: 'Comando do qual remover a permissão',
       type: ApplicationCommandOptionType.String,
       required: true,
-      autocomplete: true
+      choices: Array.from(registeredCommands.entries()).map(([key, value]) => ({
+        name: value,
+        value: key
+      }))
     }
   ],
   async run(interaction) {
@@ -49,7 +53,7 @@ command.subcommand({
             color: constants.colors.warning,
             description: brBuilder(
               '### Permissão não encontrada',
-              `O cargo <@&${role}> não tem permissão para executar o comando \`${commandName}\``
+              `O cargo ${roleMention(role)} não tem permissão para executar o comando \`${registeredCommands.get(commandName)}\``
             )
           })
         ]
@@ -66,7 +70,7 @@ command.subcommand({
           color: constants.colors.success,
           description: brBuilder(
             '### Permissão removida com sucesso!',
-            `Cargo: <@&${role}>\nComando: \`${commandName}\``
+            `Cargo: ${roleMention(role)}\nComando: \`${registeredCommands.get(commandName)}\``
           )
         })
       ]

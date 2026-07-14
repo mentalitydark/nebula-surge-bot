@@ -3,7 +3,7 @@ import { registeredCommands } from "#base";
 import { InMemoryCacheProvider } from "#infrastructure/providers/index.js";
 import { CommandPermissionTypeormRepository } from "#repositories";
 import { brBuilder, createEmbed } from "@magicyan/discord";
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, roleMention } from "discord.js";
 import command from "./permissions.js";
 
 command.subcommand({
@@ -19,7 +19,10 @@ command.subcommand({
     description: 'Comando que o cargo poderá executar',
     type: ApplicationCommandOptionType.String,
     required: true,
-    autocomplete: true
+    choices: Array.from(registeredCommands.entries()).map(([key, value]) => ({
+      name: value,
+      value: key
+    }))
   }],
   async run(interaction) {
     const { id: role } = interaction.options.getRole('role', true)
@@ -58,7 +61,7 @@ command.subcommand({
           color: constants.colors.success,
           description: brBuilder(
             '### Permissão adicionada com sucesso!',
-            `Cargo: <@&${role}>\nComando: \`${commandName}\``
+            `Cargo: ${roleMention(role)}\nComando: \`${registeredCommands.get(commandName)}\``
           )
         })
       ]
