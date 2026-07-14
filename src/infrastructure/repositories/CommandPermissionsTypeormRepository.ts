@@ -2,6 +2,7 @@ import { CommandPermissionRepositoryInterface, CreateCommandPermissionProps, Sea
 import { CommandPermission, CommandPermissionModel } from "#entities";
 import { ConflictError, NotFoundError } from "#errors";
 import { dataSource } from "#typeorm";
+import { roleMention } from "discord.js";
 import { ILike, Not, Repository } from "typeorm";
 
 export class CommandPermissionTypeormRepository implements CommandPermissionRepositoryInterface {
@@ -25,7 +26,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     const res = await this.repository.findBy({ role, guild })
 
     if (res.length === 0) {
-      throw new NotFoundError(`Permissões para o cargo \`${role}\` na guild \`${guild}\` não encontradas`)
+      throw new NotFoundError(`Permissões para o cargo ${roleMention(role)} na guild \`${guild}\` não encontradas`)
     }
 
     return res
@@ -50,7 +51,7 @@ export class CommandPermissionTypeormRepository implements CommandPermissionRepo
     })
 
     if (res) {
-      throw new ConflictError(`Já foi cadastrada a permissão para o cargo <@&${role}> para executar o comando \`${command}\``)
+      throw new ConflictError(`Já foi cadastrada a permissão para o cargo ${roleMention(role)} para executar o comando \`${command}\``)
     }
   }
 
