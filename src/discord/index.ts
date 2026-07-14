@@ -15,9 +15,9 @@ const createCommand: typeof originalCreateCommand = (commandData) => {
   const withoutDefaultPermissions = !Array.isArray(commandData.defaultMemberPermissions)
 
   if (hasRunFunction && commandData.run!.name === 'requirePermission') {
-    registeredCommands.set(commandData.name, commandData.name)
+    registeredCommands.set(commandData.name, capitalizeFirstLetter(commandData.name))
   } else if (hasRunFunction && withoutDefaultPermissions) {
-    registeredCommands.set(commandData.name, commandData.name)
+    registeredCommands.set(commandData.name, capitalizeFirstLetter(commandData.name))
   }
 
   const command = originalCreateCommand(commandData);
@@ -28,7 +28,7 @@ const createCommand: typeof originalCreateCommand = (commandData) => {
       const hasRunFunction = !!subcommandData.run && typeof subcommandData.run === 'function';
 
       if (hasRunFunction && subcommandData.run!.name === 'requirePermission') {
-        registeredCommands.set(`${commandData.name}/${subcommandData.name}`, `${commandData.name}/${subcommandData.name}`)
+        registeredCommands.set(`${commandData.name}/${subcommandData.name}`, `${capitalizeFirstLetter(commandData.name)} / ${capitalizeFirstLetter(subcommandData.name)}`)
       }
 
       return originalSubcommand.call(this, subcommandData);
@@ -39,4 +39,12 @@ const createCommand: typeof originalCreateCommand = (commandData) => {
 }
 
 export { createCommand, createEvent, createResponder };
+
+function capitalizeFirstLetter(str: string): string {
+  if (!str) {
+    return str;
+  }
+
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
