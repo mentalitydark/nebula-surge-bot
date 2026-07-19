@@ -1,4 +1,4 @@
-import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js";
+import { FindGuildSettingsByGuildIdUseCase } from "#application/use-cases/guild-settings/FindGuildSettingsByGuildIdUseCase.js";
 import { createEvent } from "#base";
 import { GuildSettingsKeys } from "#entities";
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
@@ -28,7 +28,7 @@ createEvent({
 
     const cache = InMemoryCacheProvider.getInstance('guild-settings:id');
 
-    const findGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
+    const findGuildSettingsUseCase = new FindGuildSettingsByGuildIdUseCase(new GuildSettingsTypeormRepository(), cache);
     const guildSettings = await findGuildSettingsUseCase.execute(guild.id);
 
     if (!guildSettings || !guildSettings.settings) {

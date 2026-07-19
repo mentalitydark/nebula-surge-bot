@@ -1,4 +1,4 @@
-import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js"
+import { FindGuildSettingsByGuildIdUseCase } from "#application/use-cases/guild-settings/FindGuildSettingsByGuildIdUseCase.js"
 import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js"
@@ -32,7 +32,7 @@ command.subcommand({
     const cache = InMemoryCacheProvider.getInstance('guild-settings:id')
 
     const repository = new GuildSettingsTypeormRepository()
-    const useCase = new FindByGuildGuildSettingsUseCase(repository, cache)
+    const useCase = new FindGuildSettingsByGuildIdUseCase(repository, cache)
 
     const guildSettings = await useCase.execute(interaction.guildId)
 

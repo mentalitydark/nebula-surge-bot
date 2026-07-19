@@ -1,4 +1,4 @@
-import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js";
+import { FindGuildSettingsByGuildIdUseCase } from "#application/use-cases/guild-settings/FindGuildSettingsByGuildIdUseCase.js";
 import { RemoveMessageUseCase } from "#application/use-cases/message/RemoveMessageUseCase.js";
 import { createCommand } from "#base";
 import { GuildSettingsKeys, Settings } from "#entities";
@@ -35,7 +35,7 @@ createCommand({
 
     const cache = InMemoryCacheProvider.getInstance('guild-settings:id');
 
-    const findByGuildGuildSettingsUseCase = new FindByGuildGuildSettingsUseCase(new GuildSettingsTypeormRepository(), cache);
+    const findByGuildGuildSettingsUseCase = new FindGuildSettingsByGuildIdUseCase(new GuildSettingsTypeormRepository(), cache);
 
     const guildSettings = await findByGuildGuildSettingsUseCase.execute(guild.id);
     if (!guildSettings.settings) {

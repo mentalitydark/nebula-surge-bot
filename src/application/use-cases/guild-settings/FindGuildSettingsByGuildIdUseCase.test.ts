@@ -5,11 +5,11 @@ import { GuildSettingsTypeormRepository } from "#repositories";
 import { dataSource } from "#typeorm";
 import assert from "node:assert";
 import { after, before, beforeEach, describe, it } from "node:test";
-import { FindByGuildGuildSettingsUseCase } from "./FindByGuildGuildSettingsUseCase.js";
+import { FindGuildSettingsByGuildIdUseCase } from "./FindGuildSettingsByGuildIdUseCase.js";
 
-describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
+describe('FindGuildSettingsByGuildIdUseCase - Testes Unitários', () => {
   let repository: GuildSettingsTypeormRepository
-  let useCase: FindByGuildGuildSettingsUseCase
+  let useCase: FindGuildSettingsByGuildIdUseCase
   let cache: InMemoryCacheProvider<GuildSettingsModel>
 
   before(async () => {
@@ -19,7 +19,7 @@ describe('FindByGuildGuildSettingsUseCase - Testes Unitários', () => {
     cache = InMemoryCacheProvider.getInstance('guild-settings:id')
 
     repository = new GuildSettingsTypeormRepository()
-    useCase = new FindByGuildGuildSettingsUseCase(repository, cache)
+    useCase = new FindGuildSettingsByGuildIdUseCase(repository, cache)
   })
 
   beforeEach(async () => {
