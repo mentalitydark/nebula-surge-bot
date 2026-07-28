@@ -1,3 +1,4 @@
+import { suppress } from "#functions";
 import { Guild, GuildMember } from "discord.js";
 
 export class RemoveUserMessagesUseCase {
@@ -24,8 +25,9 @@ export class RemoveUserMessagesUseCase {
           const userMessages = messages.filter(m => m.author.id === userTarget.id)
 
           if (userMessages.size > 0) {
-            await channel.bulkDelete(userMessages, true).catch(() => null)
-            messagesToDeleteCount[channel.id] = userMessages.size
+            const deleted = await suppress(() => channel.bulkDelete(userMessages, true))
+
+            if (deleted) messagesToDeleteCount[channel.id] = userMessages.size
           }
         })
       ).catch(() => null)
