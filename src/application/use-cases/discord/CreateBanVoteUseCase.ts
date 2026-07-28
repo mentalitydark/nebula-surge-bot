@@ -39,8 +39,8 @@ export class CreateBanVoteUseCase {
 
     const message = await channel.send({ embeds: [embed] });
 
-    message.react("✅");
-    message.react("❌");
+    await message.react("✅");
+    await message.react("❌");
   }
 
 }
