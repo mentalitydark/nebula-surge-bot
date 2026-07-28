@@ -4,34 +4,75 @@
 		// Output Options
 		"outDir": "./build",
 		"rootDir": "./src",
-    "strictPropertyInitialization": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-
+		"strictPropertyInitialization": false,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
 		// Path mapping Options
 		"paths": {
-			"#env": ["./src/env.ts"],
-			"#base": ["./src/discord/index.ts"],
-			"#functions": ["./src/functions/index.ts"],
-			"#database": ["./src/database/index.ts"],
-			"#server": ["./src/server/index.ts"],
-			"#menus": ["./src/menus/index.ts"],
-			"#tools": ["./src/tools/index.ts"],
-			"#lib/*": ["./src/lib/*"],
-			"#shared/*": ["./src/shared/*"],
-			"#types/*": ["./src/@types/*"],
-			"#entities": ["./src/domain/entities/index.ts"],
-			"#errors": ["./src/domain/errors/index.ts"],
-			"#domain/*": ["./src/domain/*"],
-			"#application/*": ["./src/application/*"],
-      "#repositories": ["./src/infrastructure/repositories/index.ts"],
-      "#typeorm": ["./src/infrastructure/typeorm/index.ts"],
-      "#infrastructure/*": ["./src/infrastructure/*"],
-			"#emojis": ["./emojis.json"],
+			"#env": [
+				"./src/env.ts"
+			],
+			"#base": [
+				"./src/discord/index.ts"
+			],
+			"#functions": [
+				"./src/functions/index.ts"
+			],
+			"#database": [
+				"./src/database/index.ts"
+			],
+			"#server": [
+				"./src/server/index.ts"
+			],
+			"#menus": [
+				"./src/menus/index.ts"
+			],
+			"#tools": [
+				"./src/tools/index.ts"
+			],
+			"#lib/*": [
+				"./src/lib/*"
+			],
+			"#shared/*": [
+				"./src/shared/*"
+			],
+			"#types/*": [
+				"./src/@types/*"
+			],
+			"#entities": [
+				"./src/domain/entities/index.ts"
+			],
+			"#errors": [
+				"./src/domain/errors/index.ts"
+			],
+			"#domain/*": [
+				"./src/domain/*"
+			],
+			"#application/*": [
+				"./src/application/*"
+			],
+			"#repositories": [
+				"./src/infrastructure/repositories/index.ts"
+			],
+			"#typeorm": [
+				"./src/infrastructure/typeorm/index.ts"
+			],
+			"#infrastructure/*": [
+				"./src/infrastructure/*"
+			],
+			"#mocks/*": [
+				"./src/__mocks__/*"
+			],
+			"#emojis": [
+				"./emojis.json"
+			],
 		}
 	},
-	
 	// Include and Exclude Options
-	"include": ["src"],
-	"exclude": ["node_modules"]
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }
