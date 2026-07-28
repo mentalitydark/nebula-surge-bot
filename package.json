@@ -82,6 +82,9 @@
     ],
     "#infrastructure/*": [
       "./build/infrastructure/*"
+    ],
+    "#mocks/*": [
+      "./src/__mocks__/*"
     ]
   },
   "baseVersion": "1.5.5"

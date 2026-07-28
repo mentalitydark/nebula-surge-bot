@@ -1,10 +1,13 @@
+import { CreateBanVoteUseCase } from "#application/use-cases/discord/CreateBanVoteUseCase.js";
+import { LogActionsUseCase } from "#application/use-cases/discord/LogActionsUseCase.js";
+import { RemoveUserMessagesUseCase } from "#application/use-cases/discord/RemoveUserMessagesUseCase.js";
 import { FindGuildSettingsByGuildIdUseCase } from "#application/use-cases/guild-settings/FindGuildSettingsByGuildIdUseCase.js";
 import { createEvent } from "#base";
 import { GuildSettingsKeys } from "#entities";
+import { suppress } from "#functions";
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js";
 import { GuildSettingsTypeormRepository } from "#repositories";
-import { createEmbed } from "@magicyan/discord";
-import { channelMention, roleMention, time, TimestampStyles, userMention } from "discord.js";
+import { channelMention, roleMention, userMention } from "discord.js";
 
 const ROLE_ID_TO_USER_BANNED = process.env.ROLE_ID_TO_USER_BANNED || "";
 
@@ -18,11 +21,7 @@ createEvent({
 
     const { guild, member, channel } = message
 
-    if (!guild || !member || !channel) {
-      return
-    }
-
-    if (message.author.bot || member.permissions.has("Administrator")) {
+    if (!guild || !member || !channel || !channel.isTextBased() || message.author.bot || member.permissions.has("Administrator")) {
       return
     }
 
@@ -36,6 +35,10 @@ createEvent({
     }
 
     const { settings } = guildSettings
+
+    const logActionsUseCase = new LogActionsUseCase(guild, settings);
+    const createBanVoteUseCase = new CreateBanVoteUseCase(guild, settings);
+    const removeUserMessagesUseCase = new RemoveUserMessagesUseCase(guild);
 
     const autoBanChannelIds = settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN)
     const autoBanVoteChannelId = settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE)
@@ -52,71 +55,23 @@ createEvent({
 
     const autoBanVoteChannel = await guild.channels.fetch(autoBanVoteChannelId)
     if (!autoBanVoteChannel || !autoBanVoteChannel.isTextBased()) {
+      await suppress(() => logActionsUseCase.execute({
+        message: `O canal de votação de banimento configurado (${channelMention(autoBanVoteChannelId)}) não é um canal de texto ou não foi encontrado.`
+      }))
       return
     }
 
-    const textChannels = []
-
-    const channels = await guild.channels.fetch()
-    for (const c of channels.values()) {
-      if (c && c.isTextBased() && c.permissionsFor(member)?.has('SendMessages')) {
-        textChannels.push(c)
-      }
-    }
-
-    let messagesToDeleteCount = 0
-
-    const chunkSize = 5
-    for (let i = 0; i < textChannels.length; i += chunkSize) {
-      const chunk = textChannels.slice(i, i + chunkSize)
-
-      await Promise.allSettled(
-        chunk.map(async (c) => {
-          if (!c.permissionsFor(member)?.has('SendMessages')) return
-
-          const messages = await c.messages.fetch({ limit: 10 })
-          const messagesToDelete = messages.filter(msg => msg.author.id === member.id)
-
-          if (messagesToDelete.size > 0) {
-            await c.bulkDelete(messagesToDelete, true).catch(() => null)
-            messagesToDeleteCount += messagesToDelete.size
-          }
-        })
-      ).catch(() => null)
-    }
+    const messagesToDeleteCount = await removeUserMessagesUseCase.execute(member);
 
     await member.roles.add(ROLE_ID_TO_USER_BANNED, "Auto-ban")
 
-    if (settings.has(GuildSettingsKeys.CHANNEL_LOGS)) {
-      const logChannelId = settings.get(GuildSettingsKeys.CHANNEL_LOGS)
-      const logChannel = await guild.channels.fetch(logChannelId!)
-      if (logChannel && logChannel.isTextBased()) {
-        await logChannel.send(`${userMention(member.id)} foi pré banido automaticamente e teve \`${messagesToDeleteCount}\` mensagens deletadas do servidor.`)
-      }
-    }
+    await suppress(() => logActionsUseCase.execute({
+      message: `${userMention(member.id)} recebeu o cargo ${roleMention(ROLE_ID_TO_USER_BANNED)} automaticamente e teve \`${messagesToDeleteCount}\` mensagens deletadas do servidor.`
+    }))
 
-    const embed = createEmbed({
-      color: constants.colors.danger,
-      title: "⚠️ Votação de Ban",
-      description: [
-        `O membro ${userMention(member.id)} enviou uma mensagem no canal ${channelMention(message.channelId)} e recebeu o cargo ${roleMention(ROLE_ID_TO_USER_BANNED)}.`,
-        ``,
-        `**Como votar:**`,
-        `✅ — Votar pelo **ban** do membro. Com ${2} votos de conselheiros, o membro será banido do servidor.`,
-        `❌ — Votar pelo **cancelamento**. Com ${2} votos de conselheiros, o cargo pré ban será removido e o processo será encerrado.`,
-      ].join("\n"),
-      fields: [
-        { name: "👤 Membro", value: userMention(member.id), inline: true },
-        { name: "📅 Horário da mensagem", value: time(message.createdTimestamp, TimestampStyles.ShortDateMediumTime), inline: true },
-        { name: "💬 Mensagem enviada", value: message.content || "*[sem texto]*", inline: false },
-      ],
-      footer: `ID do membro: ${member.id}`,
-      timestamp: new Date()
-    });
-
-    const voteMessage = await autoBanVoteChannel.send({ embeds: [embed] })
-    await voteMessage.react("✅")
-    await voteMessage.react("❌")
-
+    await createBanVoteUseCase.execute(
+      member,
+      `O membro ${userMention(member.id)} enviou uma mensagem no canal ${channelMention(message.channelId)} e recebeu o cargo ${roleMention(ROLE_ID_TO_USER_BANNED)}.`
+    )
   }
 })
