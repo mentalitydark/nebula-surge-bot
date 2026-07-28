@@ -55,9 +55,9 @@ createEvent({
 
     const autoBanVoteChannel = await guild.channels.fetch(autoBanVoteChannelId)
     if (!autoBanVoteChannel || !autoBanVoteChannel.isTextBased()) {
-      suppress(() => logActionsUseCase.execute(
-        `O canal de votação de banimento configurado (${channelMention(autoBanVoteChannelId)}) não é um canal de texto ou não foi encontrado.`
-      ))
+      await suppress(() => logActionsUseCase.execute({
+        message: `O canal de votação de banimento configurado (${channelMention(autoBanVoteChannelId)}) não é um canal de texto ou não foi encontrado.`
+      }))
       return
     }
 
@@ -65,9 +65,9 @@ createEvent({
 
     await member.roles.add(ROLE_ID_TO_USER_BANNED, "Auto-ban")
 
-    suppress(() => logActionsUseCase.execute(
-      `${userMention(member.id)} recebeu o cargo ${roleMention(ROLE_ID_TO_USER_BANNED)} automaticamente e teve \`${messagesToDeleteCount}\` mensagens deletadas do servidor.`
-    ))
+    await suppress(() => logActionsUseCase.execute({
+      message: `${userMention(member.id)} recebeu o cargo ${roleMention(ROLE_ID_TO_USER_BANNED)} automaticamente e teve \`${messagesToDeleteCount}\` mensagens deletadas do servidor.`
+    }))
 
     await createBanVoteUseCase.execute(
       member,
