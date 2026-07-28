@@ -9,7 +9,7 @@ import { GuildSettingsTypeormRepository } from "#repositories";
 import { Message, userMention } from "discord.js";
 
 const ROLE_ID_TO_USER_BANNED = process.env.ROLE_ID_TO_USER_BANNED || "";
-const REQUIRED_VOTES = 1;
+const REQUIRED_VOTES = 2;
 
 function countVotes(message: Message) {
   let yes = 0;
@@ -24,7 +24,7 @@ function countVotes(message: Message) {
 }
 
 function extractMemberId(message: Message): string | null {
-  const match = message.embeds[0]?.footer?.text?.match(/ID do membro: `(\d+)`/);
+  const match = message.embeds[0]?.footer?.text?.match(/ID do membro:\s*`?(\d+)`?/);
   return match?.[1] ?? null;
 }
 
