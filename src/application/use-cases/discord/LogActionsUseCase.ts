@@ -1,5 +1,14 @@
 import { GuildSettingsKeys, Settings } from "#entities";
+import { createEmbed } from "@magicyan/discord";
 import { Guild } from "discord.js";
+
+export interface LogActionsDto {
+  message: string;
+  title?: string;
+  color?: string;
+}
+
+const DEFAULT_TITLE = "📋 Log de Ações";
 
 export class LogActionsUseCase {
 
@@ -8,7 +17,7 @@ export class LogActionsUseCase {
     private readonly settings: Settings
   ) { }
 
-  public async execute(message: string): Promise<void> {
+  public async execute({ message, title = DEFAULT_TITLE, color = constants.colors.default }: LogActionsDto): Promise<void> {
     const channelId = this.settings.get(GuildSettingsKeys.CHANNEL_LOGS);
 
     if (!channelId) {
@@ -21,7 +30,9 @@ export class LogActionsUseCase {
       throw new Error("O canal de logs não é um canal de texto.");
     }
 
-    await channel.send(message);
+    const embed = createEmbed({ color, title, description: message });
+
+    await channel.send({ embeds: [embed] });
   }
 
 }
