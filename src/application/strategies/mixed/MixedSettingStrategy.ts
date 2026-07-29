@@ -56,10 +56,10 @@ export abstract class MixedSettingStrategy implements SettingStrategy {
   }
 
   protected isStringArray(value: SettingStrategyValue): value is string[] {
-    return Array.isArray(value) && value.every((item) => typeof item === "string");
+    return Array.isArray(value) && value.every((item) => this.isString(item));
   }
 
   protected isNumberArray(value: SettingStrategyValue): value is number[] {
-    return Array.isArray(value) && value.every((item) => typeof item === "number");
+    return Array.isArray(value) && value.every((item) => this.isNumeric(item));
   }
 }
