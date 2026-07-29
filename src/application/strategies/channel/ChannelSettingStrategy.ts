@@ -1,4 +1,4 @@
-import { SettingStrategy } from "#domain/strategies/SettingStrategy.js";
+import { SettingStrategy, SettingStrategyValue } from "#domain/strategies/SettingStrategy.js";
 import { GuildSettingsKeys, Settings } from "#entities";
 import { BadRequestError } from "#errors";
 import { Guild } from "discord.js";
@@ -11,7 +11,7 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     public readonly guild: Guild
   ) { }
 
-  public async validate(value: string | string[] | null): Promise<string | string[] | null> {
+  public async validate(value: SettingStrategyValue): Promise<SettingStrategyValue> {
     if (this.isNullOrEmpty(value)) {
       return null;
     }
@@ -55,7 +55,7 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return this.sanitizeChannelId(value);
   }
 
-  public apply(settings: Settings, value: string | string[] | null): Settings {
+  public apply(settings: Settings, value: SettingStrategyValue): Settings {
     if (this.isNullOrEmpty(value)) {
       settings.delete(this.key);
 
@@ -85,7 +85,7 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return channelId.replace(/[<#>]/g, '');
   }
 
-  protected isNullOrEmpty(value: string | string[] | null): boolean {
+  protected isNullOrEmpty(value: SettingStrategyValue): boolean {
     if (value === null || value === undefined) {
       return true;
     }
@@ -101,11 +101,11 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return false;
   }
 
-  protected isSingleChannel(value: string | string[] | null): value is string {
+  protected isSingleChannel(value: SettingStrategyValue): value is string {
     return typeof value === "string";
   }
 
-  protected isMultipleChannels(value: string | string[] | null): value is string[] {
+  protected isMultipleChannels(value: SettingStrategyValue): value is string[] {
     return Array.isArray(value);
   }
 
