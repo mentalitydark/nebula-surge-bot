@@ -122,6 +122,8 @@ export class Settings {
       return null
     }
 
-    return value
+    const numeric = typeof value === 'number' ? value : Number(value)
+
+    return Number.isFinite(numeric) ? numeric : null
   }
 }
