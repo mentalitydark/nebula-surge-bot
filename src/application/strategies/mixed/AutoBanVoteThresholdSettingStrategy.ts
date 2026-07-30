@@ -12,8 +12,8 @@ export class AutoBanVoteThresholdSettingStrategy extends MixedSettingStrategy {
       return null;
     }
 
-    if (!this.isNumeric(value)) {
-      throw new BadRequestError("O valor deve ser um número válido.");
+    if (!this.isInteger(value)) {
+      throw new BadRequestError("O valor deve ser um número inteiro válido.");
     }
 
     const numericValue = Number(value);
