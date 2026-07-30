@@ -6,6 +6,7 @@ import { Guild } from "discord.js";
 export abstract class ChannelSettingStrategy implements SettingStrategy {
   abstract readonly key: GuildSettingsKeys;
   abstract readonly allowMultipleChannels: boolean;
+  abstract get(settings: Settings): SettingStrategyValue;
 
   public constructor(
     public readonly guild: Guild
@@ -102,11 +103,11 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
   }
 
   protected isSingleChannel(value: SettingStrategyValue): value is string {
-    return typeof value === "string";
+    return typeof value === "string" && this.isValidChannelId(value);
   }
 
   protected isMultipleChannels(value: SettingStrategyValue): value is string[] {
-    return Array.isArray(value);
+    return Array.isArray(value) && this.isValidChannelIdArray(value);
   }
 
   protected isValidChannelId(channelId: string): boolean {
@@ -114,8 +115,8 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return channelRegex.test(channelId);
   }
 
-  protected isValidChannelIdArray(channelIds: string[]): boolean {
-    return channelIds.every(channelId => this.isValidChannelId(channelId));
+  protected isValidChannelIdArray(channelIds: string[] | number[]): boolean {
+    return channelIds.every(channelId => this.isValidChannelId(String(channelId)));
   }
 
   protected async existsChannelInGuild(channelId: string): Promise<boolean> {

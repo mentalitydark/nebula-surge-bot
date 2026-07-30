@@ -5,6 +5,7 @@ import { Guild } from "discord.js";
 export abstract class MixedSettingStrategy implements SettingStrategy {
   abstract readonly key: GuildSettingsKeys;
   abstract readonly allowMultiple: boolean;
+  abstract get(settings: Settings): SettingStrategyValue;
 
   public constructor(
     public readonly guild: Guild

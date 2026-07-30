@@ -32,4 +32,18 @@ export class AutoBanVoteThresholdSettingStrategy extends MixedSettingStrategy {
 
     return settings.set(this.key, Number(value));
   }
+
+  public get(settings: Settings): number | null {
+    const value = settings.get(this.key);
+
+    if (value === undefined || value === null) {
+      return null;
+    }
+
+    if (!this.isInteger(value)) {
+      throw new BadRequestError("O valor armazenado não é um número inteiro válido.");
+    }
+
+    return Number(value);
+  }
 }

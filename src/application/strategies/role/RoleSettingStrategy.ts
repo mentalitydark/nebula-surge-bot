@@ -6,6 +6,7 @@ import { Guild } from "discord.js";
 export abstract class RoleSettingStrategy implements SettingStrategy {
   abstract readonly key: GuildSettingsKeys;
   abstract readonly allowMultipleRoles: boolean;
+  abstract get(settings: Settings): SettingStrategyValue;
 
   public constructor(
     public readonly guild: Guild
