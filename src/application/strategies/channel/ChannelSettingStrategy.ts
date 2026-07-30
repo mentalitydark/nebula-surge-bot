@@ -58,9 +58,7 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
 
   public apply(settings: Settings, value: SettingStrategyValue): Settings {
     if (this.isNullOrEmpty(value)) {
-      settings.delete(this.key);
-
-      return settings;
+      return settings.delete(this.key);
     }
 
     if (this.allowMultipleChannels) {

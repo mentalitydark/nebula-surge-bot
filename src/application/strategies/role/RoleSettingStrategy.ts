@@ -58,7 +58,7 @@ export abstract class RoleSettingStrategy implements SettingStrategy {
 
   public apply(settings: Settings, value: SettingStrategyValue): Settings {
     if (this.isNullOrEmpty(value)) {
-      settings.delete(this.key);
+      return settings.delete(this.key);
     }
 
     if (this.allowMultipleRoles) {
