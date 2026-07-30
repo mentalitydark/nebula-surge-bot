@@ -1,11 +1,13 @@
 import { GuildSettingsKeys, Settings } from "#entities";
 import { Guild } from "discord.js";
 
+export type SettingStrategyValue = string | string[] | number | number[] | null;
+
 export interface SettingStrategy {
   key: GuildSettingsKeys;
   guild: Guild;
 
   /** @throws {Error} */
-  validate(value: string | string[] | null): Promise<string | string[] | null>;
-  apply(settings: Settings, value: string | string[] | null): Settings;
+  validate(value: SettingStrategyValue): Promise<SettingStrategyValue>;
+  apply(settings: Settings, value: SettingStrategyValue): Settings;
 }
