@@ -1,4 +1,5 @@
 import { GuildSettingsKeys, Settings } from "#entities";
+import { BadRequestError } from "#errors";
 import { brBuilder, createEmbed } from "@magicyan/discord";
 import { Guild, GuildMember, userMention } from "discord.js";
 
@@ -14,17 +15,17 @@ export class CreateBanVoteUseCase {
     const autoBanMinimumVotes = this.settings.get(GuildSettingsKeys.AUTO_BAN_VOTE_THRESHOLD)
 
     if (!channelId) {
-      throw new Error("Canal de votação de banimento não configurado.");
+      throw new BadRequestError("Canal de votação de banimento não configurado.");
     }
 
     if (!autoBanMinimumVotes) {
-      throw new Error("Número mínimo de votos para banimento não configurado.");
+      throw new BadRequestError("Número mínimo de votos para banimento não configurado.");
     }
 
     const channel = await this.guild.channels.fetch(channelId);
 
     if (!channel || !channel.isTextBased()) {
-      throw new Error("O canal de votação de banimento não é um canal de texto.");
+      throw new BadRequestError("O canal de votação de banimento não é um canal de texto.");
     }
 
     const embed = createEmbed({
