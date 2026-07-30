@@ -1,4 +1,5 @@
 import { GuildSettingsKeys, Settings } from "#entities";
+import { BadRequestError } from "#errors";
 import { createEmbed } from "@magicyan/discord";
 import { Guild } from "discord.js";
 
@@ -21,13 +22,13 @@ export class LogActionsUseCase {
     const channelId = this.settings.get(GuildSettingsKeys.CHANNEL_LOGS);
 
     if (!channelId) {
-      throw new Error("Canal de logs não configurado.");
+      throw new BadRequestError("Canal de logs não configurado.");
     }
 
     const channel = await this.guild.channels.fetch(channelId);
 
     if (!channel || !channel.isTextBased()) {
-      throw new Error("O canal de logs não é um canal de texto.");
+      throw new BadRequestError("O canal de logs não é um canal de texto.");
     }
 
     const embed = createEmbed({ color, title, description: message });

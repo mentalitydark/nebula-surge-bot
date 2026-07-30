@@ -1,4 +1,4 @@
-import { SettingStrategy } from "#domain/strategies/SettingStrategy.js";
+import { SettingStrategy, SettingStrategyValue } from "#domain/strategies/SettingStrategy.js";
 import { GuildSettingsKeys, Settings } from "#entities";
 import { BadRequestError } from "#errors";
 import { Guild } from "discord.js";
@@ -6,12 +6,13 @@ import { Guild } from "discord.js";
 export abstract class ChannelSettingStrategy implements SettingStrategy {
   abstract readonly key: GuildSettingsKeys;
   abstract readonly allowMultipleChannels: boolean;
+  abstract get(settings: Settings): SettingStrategyValue;
 
   public constructor(
     public readonly guild: Guild
   ) { }
 
-  public async validate(value: string | string[] | null): Promise<string | string[] | null> {
+  public async validate(value: SettingStrategyValue): Promise<SettingStrategyValue> {
     if (this.isNullOrEmpty(value)) {
       return null;
     }
@@ -55,11 +56,9 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return this.sanitizeChannelId(value);
   }
 
-  public apply(settings: Settings, value: string | string[] | null): Settings {
+  public apply(settings: Settings, value: SettingStrategyValue): Settings {
     if (this.isNullOrEmpty(value)) {
-      settings.delete(this.key);
-
-      return settings;
+      return settings.delete(this.key);
     }
 
     if (this.allowMultipleChannels) {
@@ -85,7 +84,7 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return channelId.replace(/[<#>]/g, '');
   }
 
-  protected isNullOrEmpty(value: string | string[] | null): boolean {
+  protected isNullOrEmpty(value: SettingStrategyValue): boolean {
     if (value === null || value === undefined) {
       return true;
     }
@@ -101,12 +100,12 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return false;
   }
 
-  protected isSingleChannel(value: string | string[] | null): value is string {
-    return typeof value === "string";
+  protected isSingleChannel(value: SettingStrategyValue): value is string {
+    return typeof value === "string" && this.isValidChannelId(value);
   }
 
-  protected isMultipleChannels(value: string | string[] | null): value is string[] {
-    return Array.isArray(value);
+  protected isMultipleChannels(value: SettingStrategyValue): value is string[] {
+    return Array.isArray(value) && this.isValidChannelIdArray(value);
   }
 
   protected isValidChannelId(channelId: string): boolean {
@@ -114,8 +113,8 @@ export abstract class ChannelSettingStrategy implements SettingStrategy {
     return channelRegex.test(channelId);
   }
 
-  protected isValidChannelIdArray(channelIds: string[]): boolean {
-    return channelIds.every(channelId => this.isValidChannelId(channelId));
+  protected isValidChannelIdArray(channelIds: string[] | number[]): boolean {
+    return channelIds.every(channelId => this.isValidChannelId(String(channelId)));
   }
 
   protected async existsChannelInGuild(channelId: string): Promise<boolean> {
