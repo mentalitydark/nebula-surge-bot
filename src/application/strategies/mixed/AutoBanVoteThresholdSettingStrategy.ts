@@ -44,6 +44,10 @@ export class AutoBanVoteThresholdSettingStrategy extends MixedSettingStrategy {
       throw new BadRequestError("O valor armazenado não é um número inteiro válido.");
     }
 
+    if (Number(value) <= 0) {
+      throw new BadRequestError("O valor armazenado não é um número inteiro positivo.");
+    }
+
     return Number(value);
   }
 }
