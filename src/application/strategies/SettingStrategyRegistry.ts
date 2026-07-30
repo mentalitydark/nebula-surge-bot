@@ -13,7 +13,7 @@ export class SettingStrategyRegistry {
 
   public static register(key: GuildSettingsKeys, factory: SettingStrategyFactory): void {
     if (this.factories.has(key)) {
-      throw new Error(`Strategy with key "${key}" is already registered.`);
+      throw new BadRequestError(`Strategy with key "${key}" is already registered.`);
     }
 
     this.factories.set(key, factory);
