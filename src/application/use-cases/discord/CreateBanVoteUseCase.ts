@@ -11,9 +11,14 @@ export class CreateBanVoteUseCase {
 
   public async execute(userTarget: GuildMember, reason: string): Promise<void> {
     const channelId = this.settings.get(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE)
+    const autoBanMinimumVotes = this.settings.get(GuildSettingsKeys.AUTO_BAN_VOTE_THRESHOLD)
 
     if (!channelId) {
       throw new Error("Canal de votação de banimento não configurado.");
+    }
+
+    if (!autoBanMinimumVotes) {
+      throw new Error("Número mínimo de votos para banimento não configurado.");
     }
 
     const channel = await this.guild.channels.fetch(channelId);
@@ -29,8 +34,8 @@ export class CreateBanVoteUseCase {
         reason,
         '',
         '**Como votar:**',
-        '✅ — Votar pelo **ban** do membro. Com 2 votos de conselheiros, o membro será banido do servidor.',
-        '❌ — Votar pelo **cancelamento**. Com 2 votos de conselheiros, o cargo pré ban será removido e o processo será encerrado.'
+        `✅ — Votar pelo **ban** do membro. Com ${autoBanMinimumVotes} votos de conselheiros, o membro será banido do servidor.`,
+        `❌ — Votar pelo **cancelamento**. Com ${autoBanMinimumVotes} votos de conselheiros, o cargo pré ban será removido e o processo será encerrado.`
       ),
       fields: [{ name: "👤 Membro", value: userMention(userTarget.id), inline: true }],
       footer: `ID do membro: \`${userTarget.id}\``,
