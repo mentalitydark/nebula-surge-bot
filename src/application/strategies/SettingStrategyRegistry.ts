@@ -2,10 +2,9 @@ import { SettingStrategy } from "#domain/strategies/SettingStrategy.js";
 import { GuildSettingsKeys } from "#entities";
 import { BadRequestError } from "#errors";
 import { Guild } from "discord.js";
-import { ChannelAutoBanStrategy } from "./ChannelAutoBanStrategy.js";
-import { ChannelAutoBanVoteStrategy } from "./ChannelAutoBanVoteStrategy.js";
-import { ChannelLogsStrategy } from "./ChannelLogsStrategy.js";
-import { ChannelMessagesRemovedStrategy } from "./ChannelMessagesRemovedStrategy.js";
+import { ChannelAutoBanStrategy, ChannelAutoBanVoteStrategy, ChannelLogsStrategy, ChannelMessagesRemovedStrategy } from "./channel/index.js";
+import { AutoBanVoteThresholdSettingStrategy } from "./mixed/index.js";
+import { RoleAutoBanStrategy } from "./role/index.js";
 
 type SettingStrategyFactory = (guild: Guild) => SettingStrategy;
 
@@ -40,3 +39,5 @@ SettingStrategyRegistry.register(GuildSettingsKeys.CHANNEL_MESSAGES_REMOVED, (gu
 SettingStrategyRegistry.register(GuildSettingsKeys.CHANNEL_AUTO_BAN, (guild: Guild) => new ChannelAutoBanStrategy(guild));
 SettingStrategyRegistry.register(GuildSettingsKeys.CHANNEL_AUTO_BAN_VOTE, (guild: Guild) => new ChannelAutoBanVoteStrategy(guild));
 SettingStrategyRegistry.register(GuildSettingsKeys.CHANNEL_LOGS, (guild: Guild) => new ChannelLogsStrategy(guild));
+SettingStrategyRegistry.register(GuildSettingsKeys.ROLE_AUTO_BAN, (guild: Guild) => new RoleAutoBanStrategy(guild));
+SettingStrategyRegistry.register(GuildSettingsKeys.AUTO_BAN_VOTE_THRESHOLD, (guild: Guild) => new AutoBanVoteThresholdSettingStrategy(guild));
