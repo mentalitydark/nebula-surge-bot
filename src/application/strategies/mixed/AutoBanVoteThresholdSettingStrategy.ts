@@ -18,8 +18,8 @@ export class AutoBanVoteThresholdSettingStrategy extends MixedSettingStrategy {
 
     const numericValue = Number(value);
 
-    if (numericValue < 0) {
-      throw new BadRequestError("O valor não pode ser negativo.");
+    if (numericValue <= 0) {
+      throw new BadRequestError("O valor deve ser um número inteiro positivo.");
     }
 
     return numericValue;
