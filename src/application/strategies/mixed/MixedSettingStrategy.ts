@@ -55,6 +55,20 @@ export abstract class MixedSettingStrategy implements SettingStrategy {
     return typeof value === "number" && !isNaN(value) && isFinite(value);
   }
 
+  protected isInteger(value: SettingStrategyValue): value is number {
+    if (!this.isNumeric(value)) {
+      return false;
+    }
+
+    const numericValue = typeof value === "string" ? Number(value) : value;
+
+    return Number.isInteger(numericValue);
+  }
+
+  protected isFloat(value: SettingStrategyValue): value is number {
+    return this.isNumeric(value) && !this.isInteger(value);
+  }
+
   protected isStringArray(value: SettingStrategyValue): value is string[] {
     return Array.isArray(value) && value.every((item) => this.isString(item));
   }
