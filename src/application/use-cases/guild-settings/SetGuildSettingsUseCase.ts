@@ -1,7 +1,7 @@
 import { CacheProviderInterface } from "#application/providers/CacheProviderInterface.js";
 import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js";
 import { SettingStrategyRegistry } from "#application/strategies/SettingStrategyRegistry.js";
-import { SettingStrategy } from "#domain/strategies/SettingStrategy.js";
+import { SettingStrategy, SettingStrategyValue } from "#domain/strategies/SettingStrategy.js";
 import { GuildSettingsKeys, GuildSettingsModel, Settings } from "#entities";
 import { NotFoundError } from "#errors";
 import { Guild } from "discord.js";
@@ -13,7 +13,7 @@ export class SetGuildSettingsUseCase {
   ) { }
 
   /** @throws {Error} */
-  public async execute(key: GuildSettingsKeys, value: string | string[] | null, guild: Guild): Promise<GuildSettingsModel> {
+  public async execute(key: GuildSettingsKeys, value: SettingStrategyValue, guild: Guild): Promise<GuildSettingsModel> {
     const strategy = SettingStrategyRegistry.get(key, guild)
 
     const validatedValue = await strategy.validate(value)
@@ -39,7 +39,7 @@ export class SetGuildSettingsUseCase {
     return guildSettingsModel
   }
 
-  private async insertGuildSettings(value: string | string[] | null, strategy: SettingStrategy, guild: Guild): Promise<GuildSettingsModel> {
+  private async insertGuildSettings(value: SettingStrategyValue, strategy: SettingStrategy, guild: Guild): Promise<GuildSettingsModel> {
     const model = this.repository.create({ guild: guild.id, settings: null })
 
     const settings = new Settings()
@@ -51,7 +51,7 @@ export class SetGuildSettingsUseCase {
     return await this.repository.insert(model)
   }
 
-  private async updateGuildSettings(guildSettings: GuildSettingsModel, value: string | string[] | null, strategy: SettingStrategy): Promise<GuildSettingsModel> {
+  private async updateGuildSettings(guildSettings: GuildSettingsModel, value: SettingStrategyValue, strategy: SettingStrategy): Promise<GuildSettingsModel> {
     guildSettings.settings ??= new Settings()
 
     strategy.apply(guildSettings.settings, value)
