@@ -10,4 +10,5 @@ export interface SettingStrategy {
   /** @throws {Error} */
   validate(value: SettingStrategyValue): Promise<SettingStrategyValue>;
   apply(settings: Settings, value: SettingStrategyValue): Settings;
+  get(settings: Settings): SettingStrategyValue;
 }
