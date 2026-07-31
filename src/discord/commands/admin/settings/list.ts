@@ -49,17 +49,19 @@ command.subcommand({
 
       embed = createEmbed({
         title: `Configuração: ${key}`,
-        description: `Valor: ${Array.isArray(value) ? value.map(id => `<#${id}>`).join(", ") : `<#${value}>`}`,
+        description: `Valor: ${transformValue(key, value)}`,
         color: constants.colors.azoxo,
+        timestamp: new Date(),
       })
 
     } else {
       embed = createEmbed({
         title: "Configurações do Servidor",
         description: Object.entries(guildSettings.settings.toJSON())
-          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? (Array.isArray(v) ? v.map(id => `<#${id}>`).join(", ") : `<#${v}>`) : "N/A"}`)
+          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${transformValue(k as GuildSettingsKeys, v)}`)
           .join("\n\n"),
         color: constants.colors.azoxo,
+        timestamp: new Date(),
       })
 
     }
@@ -67,3 +69,27 @@ command.subcommand({
     await interaction.editReply({ embeds: [embed] })
   },
 })
+
+function transformValue(key: GuildSettingsKeys, value: string | string[] | number | number[] | null): string {
+  if (value === null) {
+    return "N/A";
+  }
+
+  if (key.toLowerCase().includes("channel") && Array.isArray(value)) {
+    return value.map(id => `<#${id}>`).join(", ");
+  }
+
+  if (key.toLowerCase().includes("channel")) {
+    return `<#${value}>`;
+  }
+
+  if (key.toLowerCase().includes("role") && Array.isArray(value)) {
+    return value.map(id => `<@&${id}>`).join(", ");
+  }
+
+  if (key.toLowerCase().includes("role")) {
+    return `<@&${value}>`;
+  }
+
+  return String(value);
+}
