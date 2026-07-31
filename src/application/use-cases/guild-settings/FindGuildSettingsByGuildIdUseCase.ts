@@ -2,7 +2,7 @@ import { CacheProviderInterface } from "#application/providers/CacheProviderInte
 import { GuildSettingsRepositoryInterface } from "#application/repositories/GuildSettingsRepositoryInterface.js"
 import { GuildSettingsModel } from "#entities"
 
-export class FindByGuildGuildSettingsUseCase {
+export class FindGuildSettingsByGuildIdUseCase {
   public constructor(
     private readonly repository: GuildSettingsRepositoryInterface,
     private readonly cache: CacheProviderInterface<GuildSettingsModel>

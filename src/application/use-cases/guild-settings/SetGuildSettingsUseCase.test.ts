@@ -78,6 +78,9 @@ function registerPassthroughStrategy(key: GuildSettingsKeys): void {
       settings.set(key, Array.isArray(value) ? value[0] : value);
       return settings;
     },
+    get: (settings: Settings): string | null => {
+      return settings.get(key) as string | null;
+    }
   }));
 }
 
@@ -174,6 +177,7 @@ describe('SetGuildSettingsUseCase', () => {
       guild: _guild,
       validate: async () => { throw new Error('Validação falhou'); },
       apply: (s: Settings) => s,
+      get: (s: Settings) => s.get(GuildSettingsKeys.CHANNEL_LOGS)
     }));
 
     await assert.rejects(

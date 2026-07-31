@@ -1,4 +1,4 @@
-import { FindByGuildGuildSettingsUseCase } from "#application/use-cases/guild-settings/FindByGuildGuildSettingsUseCase.js"
+import { FindGuildSettingsByGuildIdUseCase } from "#application/use-cases/guild-settings/FindGuildSettingsByGuildIdUseCase.js"
 import { GuildSettingsKeys, Settings } from "#entities"
 import { BadRequestError } from "#errors"
 import { InMemoryCacheProvider } from "#infrastructure/providers/InMemoryCacheProvider.js"
@@ -32,7 +32,7 @@ command.subcommand({
     const cache = InMemoryCacheProvider.getInstance('guild-settings:id')
 
     const repository = new GuildSettingsTypeormRepository()
-    const useCase = new FindByGuildGuildSettingsUseCase(repository, cache)
+    const useCase = new FindGuildSettingsByGuildIdUseCase(repository, cache)
 
     const guildSettings = await useCase.execute(interaction.guildId)
 
@@ -49,17 +49,19 @@ command.subcommand({
 
       embed = createEmbed({
         title: `Configuração: ${key}`,
-        description: `Valor: ${Array.isArray(value) ? value.map(id => `<#${id}>`).join(", ") : `<#${value}>`}`,
+        description: `Valor: ${transformValue(key, value)}`,
         color: constants.colors.azoxo,
+        timestamp: new Date(),
       })
 
     } else {
       embed = createEmbed({
         title: "Configurações do Servidor",
         description: Object.entries(guildSettings.settings.toJSON())
-          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${v ? (Array.isArray(v) ? v.map(id => `<#${id}>`).join(", ") : `<#${v}>`) : "N/A"}`)
+          .map(([k, v]) => `**${Settings.getDescription(k as GuildSettingsKeys)}**: ${transformValue(k as GuildSettingsKeys, v)}`)
           .join("\n\n"),
         color: constants.colors.azoxo,
+        timestamp: new Date(),
       })
 
     }
@@ -67,3 +69,27 @@ command.subcommand({
     await interaction.editReply({ embeds: [embed] })
   },
 })
+
+function transformValue(key: GuildSettingsKeys, value: string | string[] | number | number[] | null): string {
+  if (value === null) {
+    return "N/A";
+  }
+
+  if (key.toLowerCase().includes("channel") && Array.isArray(value)) {
+    return value.map(id => `<#${id}>`).join(", ");
+  }
+
+  if (key.toLowerCase().includes("channel")) {
+    return `<#${value}>`;
+  }
+
+  if (key.toLowerCase().includes("role") && Array.isArray(value)) {
+    return value.map(id => `<@&${id}>`).join(", ");
+  }
+
+  if (key.toLowerCase().includes("role")) {
+    return `<@&${value}>`;
+  }
+
+  return String(value);
+}
