@@ -18,7 +18,7 @@ export class ConsoleLoggerProvider implements ILoggerProvider {
 
   public error(message: string): void {
     const tag = this.createTag('error');
-    this.console.log(`${styleText('red', tag)} ${message}`);
+    this.console.error(`${styleText('red', tag)} ${message}`);
   }
 
   public warn(message: string): void {
