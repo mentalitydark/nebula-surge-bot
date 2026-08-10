@@ -1,36 +1,40 @@
-# Awesome Bot Base
+# Discord Bot - Clean Architecture
 
-> [!NOTE] 
-> This project **base** can be generated using the [Constant CLI](https://github.com/rinckodev/constatic/tree/master/tools/cli#readme)
-> See the full documentation for this base by accessing: https://constatic-docs.vercel.app/docs/discord/start
+Bot para Discord desenvolvido com TypeScript e DiscordX, estruturado sob os princípios da Clean Architecture e preparado para execução em containers com Docker.
 
-This is the most complete discord bot base you've ever seen! Developed by [@rinckodev](https://github.com/rinckodev), this project uses typescript in an incredible way to provide complete structures and facilitate the development of your discord bot.
+## Tecnologias
 
-> [!WARNING]
-> [NodeJs](https://nodejs.org/en) version required: 20.12 or higher
+* TypeScript
+* Discord.js
+* DiscordX
+* Docker e Docker Compose
 
-## Scripts
+## Arquitetura
 
-- `dev`: running bot in development
-- `build`: build the project
-- `watch`: running in watch mode
-- `start`: running the compiled bot
+O projeto é dividido em quatro camadas principais:
 
-## Structures
+* `src/domain/`: Regras de negócio e entidades puras.
+* `src/application/`: Casos de uso, interfaces e provedores de orquestração.
+* `src/presentation/`: Comandos Slash, eventos, middlewares e helpers da interface do Discord.
+* `src/infrastructure/`: Inicialização da aplicação (`App.ts`), variáveis de ambiente e serviços externos.
 
-- [Commands](https://constatic-docs.vercel.app/docs/discord/commands)
-- [Responder](https://constatic-docs.vercel.app/docs/discord/responders)
-- [Events](https://constatic-docs.vercel.app/docs/discord/events)
+## Pré-requisitos
 
-## Deployment
+* Docker
+* Docker Compose
 
-This project includes a GitHub Action workflow to automatically deploy to [Discloud](https://discloud.com/) when a push is made to the `master` branch.
+## Como Executar
 
-### Prerequisites
+1. Configure as variáveis de ambiente criando o arquivo `.env` com base nas chaves do seu bot (ex: `BOT_TOKEN`).
+2. Suba o ambiente via Docker Compose:
 
-1.  **Discloud Token:** Obtain your API token via the Discloud Dashboard or the `/api token` command in Discord.
-2.  **GitHub Secret:** Add your token as a repository secret in GitHub:
-    *   Go to **Settings** > **Secrets and variables** > **Actions**.
-    *   Create a new repository secret named `DISCLOUD_TOKEN` and paste your token there.
+```bash
+docker compose up -d
+```
 
-The workflow is located at `.github/workflows/deploy.yaml`. It automatically installs dependencies, builds the project, and performs the deployment.
+3. Para executar localmente fora do container:
+
+```bash
+npm install
+npm run dev
+```
