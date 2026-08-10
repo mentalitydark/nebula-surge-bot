@@ -1,29 +1,29 @@
 {
-  "compilerOptions": {
-    "target": "es2022",
-    "module": "commonjs",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "noImplicitAny": true,
-    "declaration": false,
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "resolveJsonModule": true,
-    "emitDecoratorMetadata": false,
-    "experimentalDecorators": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "removeComments": true,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"target": "es2022",
+		"module": "commonjs",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"noImplicitAny": true,
+		"declaration": false,
+		"skipLibCheck": true,
+		"strictNullChecks": true,
+		"resolveJsonModule": true,
+		"emitDecoratorMetadata": false,
+		"experimentalDecorators": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"removeComments": true,
+		"paths": {
+			"@/*": [
+				"./src/*"
+			]
+		}
+	},
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }
