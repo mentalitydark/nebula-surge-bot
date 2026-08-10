@@ -40,7 +40,7 @@ export const NotBotMiddleware: GuardFunction<
                   argObj instanceof RoleSelectMenuInteraction ||
                   argObj instanceof StringSelectMenuInteraction ||
                   argObj instanceof UserSelectMenuInteraction
-                  ? argObj.member?.user
+                  ? argObj.user
                   : undefined;
 
   if (!user?.bot) {
