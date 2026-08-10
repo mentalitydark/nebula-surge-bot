@@ -33,8 +33,12 @@ client.once(Events.ClientReady, async () => {
   logger.success(`Bot online: ${client.user?.tag}`);
 });
 
-client.on(Events.InteractionCreate, (interaction) => {
-  client.executeInteraction(interaction);
+client.on(Events.InteractionCreate, async (interaction) => {
+  try {
+    await client.executeInteraction(interaction);
+  } catch (error: unknown) {
+    logger.error(error instanceof Error ? error.message : String(error));
+  }
 });
 
 (async () => {
