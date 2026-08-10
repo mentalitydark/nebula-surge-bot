@@ -8,6 +8,6 @@ services:
     env_file:
       - .env
     volumes:
-      - ./apps/bot:/app
+      - .:/app
       - /app/node_modules
     command: npm run dev
