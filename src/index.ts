@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import 'reflect-metadata';
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { Client } from 'discordx';
 import { importx } from '@discordx/importer';
