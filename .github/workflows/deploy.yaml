@@ -1,4 +1,4 @@
-name: Discloud Deploy
+name: Deploy
 
 on:
   push:
@@ -6,32 +6,43 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          target: production
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
   deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: appleboy/ssh-action@v1.0.3
         with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy to Discloud
-        uses: discloud/deploy-action@v1
-        with:
-          token: ${{ secrets.DISCLOUD_TOKEN }}
-          glob: |
-            build/**
-            package.json
-            package-lock.json
-            discloud.config
-            constants.json
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+            docker compose -f ~/apps/nebula-surge/apps/bot/docker-compose.prod.yml up -d bot
+            docker image prune -f
