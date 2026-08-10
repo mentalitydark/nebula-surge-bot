@@ -25,7 +25,7 @@ O projeto é dividido em quatro camadas principais:
 
 ## Como Executar
 
-1. Configure as variáveis de ambiente criando o arquivo `.env` com base nas chaves do seu bot (ex: `DISCORD_TOKEN`).
+1. Configure as variáveis de ambiente criando o arquivo `.env` com base nas chaves do seu bot (ex: `BOT_TOKEN`).
 2. Suba o ambiente via Docker Compose:
 
 ```bash
