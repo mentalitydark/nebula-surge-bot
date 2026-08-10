@@ -39,7 +39,7 @@ export class RemoveMessage {
       content: `Mensagem original de ${userMention(messageTarget.author.id)}:`,
       embeds: [createEmbed({
         title: "Mensagem removida",
-        description: message.content || "*Sem conteúdo de texto*",
+        description: messageTarget.content || "*Sem conteúdo de texto*",
         color: colors.danger,
         timestamp: new Date().toISOString(),
         fields: [
