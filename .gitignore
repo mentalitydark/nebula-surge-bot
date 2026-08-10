@@ -11,6 +11,8 @@
 /.env.test
 /.env.development
 
+AGENTS.md
+
 # Config files
 /firebase.json
 

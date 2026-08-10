@@ -23,12 +23,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create SQLite database and .env.test
-        run: |
-          touch tests.db
-          echo "BOT_TOKEN=bot-token" > .env.test
-          echo "DATABASE_NAME=tests.db" >> .env.test
-          echo "NODE_ENV=test" >> .env.test
-
       - name: Run unit tests
-        run: npm run test:github
+        run: npm run test
