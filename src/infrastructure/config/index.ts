@@ -12,6 +12,14 @@ export const channelsId = {
 export const rolesId = {
   autoBan: isProduction ? '1523052836735156378' : '1523016029020881099',
   executor: isProduction ? '1207386038322995270' : '1482235198736437269',
+  strikesLevels: isProduction ? [
+    { level: 1, roleId: '1333939069390159872' },
+    { level: 2, roleId: '1333939267210313758' }
+  ] : [
+    { level: 1, roleId: '1537096462125629480' },
+    { level: 2, roleId: '1537096502206533785' },
+    { level: 3, roleId: '1537096543843393667' }
+  ]
 }
 
 export const autoBanMinimumVotes = 1;
