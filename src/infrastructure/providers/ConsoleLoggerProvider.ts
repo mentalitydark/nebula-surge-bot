@@ -1,7 +1,7 @@
-import { ILoggerProvider } from "@/application/providers";
+import { LoggerProviderInterface } from "@/application/providers";
 import { styleText } from "node:util";
 
-export class ConsoleLoggerProvider implements ILoggerProvider {
+export class ConsoleLoggerProvider implements LoggerProviderInterface {
   public constructor(
     private readonly console: Console
   ) { }
@@ -16,9 +16,13 @@ export class ConsoleLoggerProvider implements ILoggerProvider {
     this.console.log(`${styleText('gray', tag)} ${message}`);
   }
 
-  public error(message: string): void {
+  public error(message: string | Error): void {
     const tag = this.createTag('error');
-    this.console.error(`${styleText('red', tag)} ${message}`);
+    if (message instanceof Error) {
+      this.console.error(tag, message);
+    } else {
+      this.console.error(`${styleText('red', tag)} ${message}`);
+    }
   }
 
   public warn(message: string): void {

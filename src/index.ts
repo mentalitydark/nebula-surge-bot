@@ -37,7 +37,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
   try {
     await client.executeInteraction(interaction);
   } catch (error: unknown) {
-    logger.error(error instanceof Error ? error.message : String(error));
+    const isError = error instanceof Error;
+    logger.error(isError ? error : String(error));
   }
 });
 
