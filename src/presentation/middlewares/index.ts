@@ -1,2 +1,5 @@
 export * from './LoggerMiddleware'
 export * from './NotBotMiddleware'
+export * from './StaffOnlyMiddleware'
+export * from './OnErrorMiddleware'
+export * from './OnErrorChatInputCommandInteractionMiddleware'
