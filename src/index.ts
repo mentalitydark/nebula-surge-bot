@@ -6,7 +6,7 @@ import { importx } from '@discordx/importer';
 import { env } from '@/infrastructure/env';
 import { ConsoleLoggerProvider } from '@/infrastructure/providers';
 import { Events } from 'discord.js';
-import { LoggerMiddleware } from '@/presentation/middlewares';
+import { OnErrorChatInputCommandInteractionMiddleware, OnErrorMiddleware } from './presentation/middlewares';
 
 const logger = new ConsoleLoggerProvider(console);
 
@@ -25,7 +25,7 @@ const client = new Client({
     Partials.User
   ],
   silent: false,
-  guards: [LoggerMiddleware]
+  guards: [OnErrorMiddleware, OnErrorChatInputCommandInteractionMiddleware]
 });
 
 client.once(Events.ClientReady, async () => {
@@ -34,12 +34,7 @@ client.once(Events.ClientReady, async () => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  try {
-    await client.executeInteraction(interaction);
-  } catch (error: unknown) {
-    const isError = error instanceof Error;
-    logger.error(isError ? error : String(error));
-  }
+  await client.executeInteraction(interaction);
 });
 
 (async () => {
