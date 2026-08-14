@@ -1,15 +1,17 @@
-import { Discord, Slash, SlashOption } from "discordx";
+import { Discord, Guard, Slash, SlashOption } from "discordx";
 import { createEmbed } from "@magicyan/discord";
 import { ApplicationCommandOptionType, CommandInteraction, GuildMember, roleMention, userMention } from "discord.js";
 import { SendAuditLogUseCase, ApplyStrikeUseCase, StrikeAction } from "@/application/use-cases";
 import { channelsId, rolesId } from "@/infrastructure/config";
 import { DiscordLogProvider } from "@/infrastructure/providers";
 import { colors } from "@/presentation/constants";
-import { BadRequestError } from "@/domain/errors";
+import { Exception, NotFoundException } from "@/domain/errors";
+import { LoggerMiddleware, StaffOnlyMiddleware } from "@/presentation/middlewares";
 
 @Discord()
 export class Strike {
   @Slash({ name: "strike", description: "Adiciona/Remove um strike a um usuário" })
+  @Guard(LoggerMiddleware, StaffOnlyMiddleware)
   public async strike(
     @SlashOption({ name: "member", description: "Membro a ser adicionado o strike", type: ApplicationCommandOptionType.User, required: true })
     memberTarget: GuildMember,
@@ -49,7 +51,7 @@ export class Strike {
           break;
       }
     } catch (error) {
-      if (error instanceof BadRequestError) {
+      if (error instanceof Exception) {
         await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: error.message, color: colors.danger })] });
       } else {
         throw error;
@@ -101,7 +103,7 @@ export class Strike {
     const strikeLevelData = strikesLevels.find(level => level.level === strikeLevel);
 
     if (!strikeLevelData) {
-      throw new BadRequestError('Nível de strike inválido');
+      throw new NotFoundException('Nível de strike inválido');
     }
 
     const role = member.roles.cache.get(strikeLevelData.roleId);
@@ -136,7 +138,7 @@ export class Strike {
     const strikeLevel = strikesLevels.find(level => level.level === nextStrikeLevel);
 
     if (!strikeLevel) {
-      throw new BadRequestError('Nível de strike inválido');
+      throw new NotFoundException('Nível de strike inválido');
     }
 
     await this.removeAllStrikes(member, reason);
