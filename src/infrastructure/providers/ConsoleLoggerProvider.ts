@@ -10,34 +10,43 @@ export class ConsoleLoggerProvider implements LoggerProviderInterface {
     return new ConsoleLoggerProvider(console);
   }
 
-  public log(message: string): void {
+  public log(...message: string[]): void {
     const tag = this.createTag('log');
-
-    this.console.log(`${styleText('gray', tag)} ${message}`);
-  }
-
-  public error(message: string | Error): void {
-    const tag = this.createTag('error');
-    if (message instanceof Error) {
-      this.console.error(tag, message);
-    } else {
-      this.console.error(`${styleText('red', tag)} ${message}`);
+    for (const msg of message) {
+      this.console.log(`${styleText('gray', tag)} ${msg}`);
     }
   }
 
-  public warn(message: string): void {
+  public error(...message: (string | Error)[]): void {
+    const tag = this.createTag('error');
+    for (const msg of message) {
+      if (msg instanceof Error) {
+        this.console.error(tag, msg);
+      } else {
+        this.console.error(`${styleText('red', tag)} ${msg}`);
+      }
+    }
+  }
+
+  public warn(...message: string[]): void {
     const tag = this.createTag('warn');
-    this.console.log(`${styleText('yellow', tag)} ${message}`);
+    for (const msg of message) {
+      this.console.log(`${styleText('yellow', tag)} ${msg}`);
+    }
   }
 
-  public info(message: string): void {
+  public info(...message: string[]): void {
     const tag = this.createTag('info');
-    this.console.log(`${styleText('blue', tag)} ${message}`);
+    for (const msg of message) {
+      this.console.log(`${styleText('blue', tag)} ${msg}`);
+    }
   }
 
-  public success(message: string): void {
+  public success(...message: string[]): void {
     const tag = this.createTag('success');
-    this.console.log(`${styleText('green', tag)} ${message}`);
+    for (const msg of message) {
+      this.console.log(`${styleText('green', tag)} ${msg}`);
+    }
   }
 
   private createTag(message: string): string {
