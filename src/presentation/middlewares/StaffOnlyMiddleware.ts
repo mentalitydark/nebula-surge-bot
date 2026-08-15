@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from "discord.js";
 import { GuardFunction } from "discordx";
 import { LogicException, ForbiddenException } from "@/domain/errors";
 
-export const StaffOnlyMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, client, next) => {
+export const StaffOnlyMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, _, next) => {
   if (!(interaction instanceof ChatInputCommandInteraction)) {
     throw new LogicException();
   }

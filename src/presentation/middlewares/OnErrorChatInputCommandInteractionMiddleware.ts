@@ -4,12 +4,12 @@ import { GuardFunction } from "discordx";
 import { colors } from "../constants";
 import { Exception } from "@/domain/errors";
 
-export const OnErrorChatInputCommandInteractionMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, client, next) => {
+export const OnErrorChatInputCommandInteractionMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, _, next) => {
   try {
     await next();
   } catch (error) {
     if (!(interaction instanceof ChatInputCommandInteraction)) {
-      throw error
+      throw error;
     }
 
     const isException = error instanceof Exception;
