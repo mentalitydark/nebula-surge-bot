@@ -1,1 +1,2 @@
-export * from './ILoggerProvider'
+export * from './LoggerProviderInterface'
+export * from './DiscordLogProviderInterface'

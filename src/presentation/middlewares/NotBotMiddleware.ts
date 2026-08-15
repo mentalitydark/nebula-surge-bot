@@ -15,7 +15,7 @@ export const NotBotMiddleware: GuardFunction<
   | StringSelectMenuInteraction
   | UserSelectMenuInteraction
   | SimpleCommandMessage
-> = async (arg, client, next) => {
+> = async (arg, _, next) => {
   const args = arg instanceof Array ? arg : [arg];
   const argObj = args[0];
   const secondary = args[1];

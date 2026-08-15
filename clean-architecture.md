@@ -24,7 +24,7 @@ Guia de referência para a Clean Architecture do projeto, focado na Regra de Dep
 * **O que entra:**
 * `use-cases/`: Ações do sistema (`LoadCommandsUseCase.ts`, `RegisterCommandsUseCase.ts`).
 * `interfaces/`: Interfaces de orquestração (`IUseCase.ts`).
-* `providers/`: Contratos de serviços de suporte (`ILoggerProvider.ts`).
+* `providers/`: Contratos de serviços de suporte (`LoggerProvider.ts`).
 * `repositories/`: Contratos de acesso a dados (`IUserRepository.ts`).
 
 
@@ -86,7 +86,7 @@ src/
 │   │   ├── IUseCase.ts
 │   │   └── index.ts
 │   ├── providers/
-│   │   ├── ILoggerProvider.ts
+│   │   ├── LoggerProvider.ts
 │   │   └── index.ts
 │   └── use-cases/
 │       ├── LoadCommandsUseCase.ts
