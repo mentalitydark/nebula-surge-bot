@@ -1,7 +1,7 @@
 import { rolesId } from "@/infrastructure/config";
-import { ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import { GuardFunction } from "discordx";
-import { Exception, LogicException, ForbiddenException } from "@/domain/errors";
+import { LogicException, ForbiddenException } from "@/domain/errors";
 
 export const StaffOnlyMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, client, next) => {
   if (!(interaction instanceof ChatInputCommandInteraction)) {
