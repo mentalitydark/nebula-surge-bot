@@ -4,17 +4,18 @@ import { GuardFunction } from "discordx";
 import { Exception, LogicException, ForbiddenException } from "@/domain/errors";
 
 export const StaffOnlyMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, client, next) => {
-  const isCommand = interaction instanceof ChatInputCommandInteraction;
-  if (!isCommand) {
+  if (!(interaction instanceof ChatInputCommandInteraction)) {
     throw new LogicException();
   }
 
-  const member = interaction.member;
-  if (!(member instanceof GuildMember)) {
-    throw new Exception('Member is not a GuildMember');
+  if (!interaction.inGuild()) {
+    throw new ForbiddenException();
   }
 
+  const member = await interaction.guild!.members.fetch(interaction.user.id);
+
   const isStaff = member.roles.cache.some(role => role.id === rolesId.executor) || member.permissions.has("Administrator");
+
   if (!isStaff) {
     throw new ForbiddenException();
   }
