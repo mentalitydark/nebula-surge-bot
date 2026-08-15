@@ -14,9 +14,10 @@ export const LoggerMiddleware: GuardFunction<ChatInputCommandInteraction> = asyn
 
   const commandName = interaction.commandName;
   const parameters = parseOptions(interaction.options.data);
+  const guildName = interaction.guild?.name ?? "DM";
 
   logger.info(
-    `Usuário "${interaction.user.tag}" executou o comando "${commandName}" na guilda "${interaction.guild!.name}"`,
+    `Usuário "${interaction.user.tag}" executou o comando "${commandName}" na guilda "${guildName}"`,
     `Parâmetros: ${JSON.stringify(parameters)}`
   );
 
