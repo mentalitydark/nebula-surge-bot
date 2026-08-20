@@ -13,27 +13,28 @@ export class DiscordLogProvider implements DiscordLogProviderInterface {
   ) { }
 
   public async sendLog(dto: AuditLogDTO): Promise<void> {
-    const guild = await this.client.guilds.fetch(dto.guildId);
+    try {
+      const guild = await this.client.guilds.fetch(dto.guildId);
 
-    if (!guild) {
-      return;
+      const channel = await guild.channels.fetch(dto.channelId);
+
+      if (!channel || !channel.isTextBased()) {
+        return;
+      }
+
+      const embed = createEmbed({
+        title: dto.title,
+        description: dto.description,
+        fields: dto.fields,
+        color: dto.color,
+        timestamp: new Date()
+      })
+
+      await channel.send({ embeds: [embed] });
+    } catch (error) {
+      console.error("Failed to send Discord log:", error);
     }
 
-    const channel = await guild.channels.fetch(dto.channelId);
-
-    if (!channel || !channel.isTextBased()) {
-      return;
-    }
-
-    const embed = createEmbed({
-      title: dto.title,
-      description: dto.description,
-      fields: dto.fields,
-      color: dto.color,
-      timestamp: new Date()
-    })
-
-    await channel.send({ embeds: [embed] });
   }
 
 }
