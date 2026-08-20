@@ -26,13 +26,13 @@ export const LoggerMiddleware: GuardFunction<ChatInputCommandInteraction> = asyn
   await next();
 }
 
-function parseOptions(options: readonly CommandInteractionOption[]): Record<string, any> {
-  return options.reduce((acc, option) => {
+function parseOptions(options: readonly CommandInteractionOption[]): Record<string, unknown> {
+  return options.reduce<Record<string, unknown>>((acc, option) => {
     if (option.options && option.options.length > 0) {
       acc[option.name] = parseOptions(option.options);
     } else {
       acc[option.name] = option.value;
     }
     return acc;
-  }, {} as Record<string, any>);
+  }, {});
 }
