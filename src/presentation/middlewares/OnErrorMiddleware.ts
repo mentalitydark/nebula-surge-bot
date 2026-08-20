@@ -7,10 +7,14 @@ export const OnErrorMiddleware: GuardFunction = async (_, __, next) => {
   try {
     await next();
   } catch (error) {
-    const isError = error instanceof Error;
+    try {
+      const isError = error instanceof Error;
 
-    const logger = container.resolve<LoggerProviderInterface>(TOKENS.LoggerProviderInterface);
+      const logger = container.resolve<LoggerProviderInterface>(TOKENS.LoggerProviderInterface);
 
-    logger.error(isError ? error : String(error));
+      logger.error(isError ? error : String(error));
+    } catch {
+      console.error("Failed to log error:", error);
+    }
   }
 }
