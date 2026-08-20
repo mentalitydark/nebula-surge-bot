@@ -1,17 +1,25 @@
-import { AuditLogDTO, DiscordLogProviderInterface } from "@/application/providers";
-import { colors } from "@/presentation/constants";
+import { Client } from "discordx";
+import { inject, injectable } from "tsyringe";
 import { createEmbed } from "@magicyan/discord";
-import { Guild } from "discord.js";
+import { TOKENS } from "@/infrastructure/container/tokens";
+import { AuditLogDTO, DiscordLogProviderInterface } from "@/application/providers";
 
+@injectable()
 export class DiscordLogProvider implements DiscordLogProviderInterface {
 
   public constructor(
-    private readonly guild: Guild,
-    private readonly channelId: string
+    @inject(TOKENS.DiscordClient)
+    private readonly client: Client
   ) { }
 
   public async sendLog(dto: AuditLogDTO): Promise<void> {
-    const channel = await this.guild.channels.fetch(this.channelId);
+    const guild = await this.client.guilds.fetch(dto.guildId);
+
+    if (!guild) {
+      return;
+    }
+
+    const channel = await guild.channels.fetch(dto.channelId);
 
     if (!channel || !channel.isTextBased()) {
       return;
@@ -21,7 +29,7 @@ export class DiscordLogProvider implements DiscordLogProviderInterface {
       title: dto.title,
       description: dto.description,
       fields: dto.fields,
-      color: dto.color ?? colors.default,
+      color: dto.color,
       timestamp: new Date()
     })
 
