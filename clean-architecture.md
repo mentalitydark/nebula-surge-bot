@@ -23,9 +23,9 @@ Guia de referência para a Clean Architecture do projeto, focado na Regra de Dep
 * **O que é:** Orquestração dos fluxos de execução do sistema.
 * **O que entra:**
 * `use-cases/`: Ações do sistema (`LoadCommandsUseCase.ts`, `RegisterCommandsUseCase.ts`).
-* `interfaces/`: Interfaces de orquestração (`IUseCase.ts`).
-* `providers/`: Contratos de serviços de suporte (`LoggerProvider.ts`).
-* `repositories/`: Contratos de acesso a dados (`IUserRepository.ts`).
+* `contracts/`: Interfaces de orquestração (`UseCaseInterface.ts`).
+* `providers/`: Contratos de serviços de suporte (`LoggerProviderInterface.ts`).
+* `repositories/`: Contratos de acesso a dados (`UserRepositoryInterface.ts`).
 
 
 
@@ -33,9 +33,10 @@ Guia de referência para a Clean Architecture do projeto, focado na Regra de Dep
 
 * **O que é:** Porta de entrada do usuário. Traduz dados externos para os Casos de Uso e formata as respostas.
 * **O que entra:**
-* `commands/`: Comandos Slash (`ping.ts`, `hello.ts`) e o contrato `ICommand.ts`.
+* `commands/`: Comandos Slash (`Strike.ts`).
+* `events/`: Eventos do Discord (`AutoBan.ts`).
 * `middlewares/`: Interceptadores de execução (ex: validação de permissões).
-* `helpers/`: Utilitários para a interface (`createCommand.ts`).
+* `constants/`: Constantes relacionadas à apresentações do sistema.
 
 
 
@@ -43,10 +44,9 @@ Guia de referência para a Clean Architecture do projeto, focado na Regra de Dep
 
 * **O que é:** Ferramentas concretas, drivers e serviços de terceiros.
 * **O que entra:**
-* `discord/`: Inicialização da aplicação e cliente (`App.ts`).
+* `config/`: Configurações que envolvem o Discord (canais, cargos).
 * `providers/`: Implementações concretas das interfaces da aplicação (`ConsoleLoggerProvider.ts`).
 * `env/`: Leitura e parsing de ambiente.
-* `database/`: Conexões, esquemas do ORM e repositórios concretos.
 
 
 
@@ -78,40 +78,24 @@ Para decidir em qual pasta criar um arquivo:
 ## 4. Estrutura Final do Projeto
 
 ```text
-src/
-├── @types/
-│   └── discord.d.ts
-├── application/
-│   ├── interfaces/
-│   │   ├── IUseCase.ts
-│   │   └── index.ts
-│   ├── providers/
-│   │   ├── LoggerProvider.ts
-│   │   └── index.ts
-│   └── use-cases/
-│       ├── LoadCommandsUseCase.ts
-│       ├── RegisterCommandsUseCase.ts
-│       └── index.ts
-├── domain/
-├── infrastructure/
-│   ├── discord/
-│   │   ├── App.ts
-│   │   └── index.ts
-│   ├── env/
-│   │   └── index.ts
-│   └── providers/
-│       ├── ConsoleLoggerProvider.ts
-│       └── index.ts
-├── presentation/
-│   ├── commands/
-│   │   ├── ICommand.ts
-│   │   ├── hello.ts
-│   │   ├── ping.ts
-│   │   └── index.ts
-│   └── helpers/
-│       ├── createCommand.ts
-│       └── index.ts
-└── index.ts
+└── src
+    ├── application
+    │   ├── container
+    │   ├── contracts
+    │   ├── providers
+    │   └── use-cases
+    ├── domain
+    │   └── errors
+    ├── infrastructure
+    │   ├── config
+    │   ├── container
+    │   ├── env
+    │   └── providers
+    └── presentation
+        ├── commands
+        ├── constants
+        ├── events
+        └── middlewares
 ```
 
 ---

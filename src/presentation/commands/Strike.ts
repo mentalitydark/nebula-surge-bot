@@ -1,15 +1,25 @@
-import { Discord, Guard, Slash, SlashOption } from "discordx";
+import { inject, injectable } from "tsyringe";
 import { createEmbed } from "@magicyan/discord";
+import { Discord, Guard, Slash, SlashOption } from "discordx";
 import { ApplicationCommandOptionType, CommandInteraction, GuildMember, roleMention, userMention } from "discord.js";
-import { SendAuditLogUseCase, ApplyStrikeUseCase, StrikeAction } from "@/application/use-cases";
-import { channelsId, rolesId } from "@/infrastructure/config";
-import { DiscordLogProvider } from "@/infrastructure/providers";
 import { colors } from "@/presentation/constants";
+import { channelsId, rolesId } from "@/infrastructure/config";
 import { Exception, NotFoundException } from "@/domain/errors";
 import { LoggerMiddleware, StaffOnlyMiddleware } from "@/presentation/middlewares";
+import { SendAuditLogUseCase, ApplyStrikeUseCase, StrikeAction } from "@/application/use-cases";
+import { APPLICATION_TOKENS } from "@/application/container/tokens";
 
 @Discord()
+@injectable()
 export class Strike {
+
+  public constructor(
+    @inject(APPLICATION_TOKENS.SendAuditLogUseCase)
+    private readonly sendAuditLogUseCase: SendAuditLogUseCase,
+    @inject(APPLICATION_TOKENS.ApplyStrikeUseCase)
+    private readonly applyStrikeUseCase: ApplyStrikeUseCase
+  ) { }
+
   @Slash({ name: "strike", description: "Adiciona/Remove um strike a um usuário" })
   @Guard(LoggerMiddleware, StaffOnlyMiddleware)
   public async strike(
@@ -68,8 +78,9 @@ export class Strike {
     if (action === StrikeAction.REMOVE_STRIKE) color = colors.success;
     else if (action === StrikeAction.BAN) color = colors.danger;
 
-    const sendAuditLogUseCase = new SendAuditLogUseCase(new DiscordLogProvider(interaction.guild!, channelsId.logs));
-    await sendAuditLogUseCase.execute({
+    await this.sendAuditLogUseCase.execute({
+      guildId: interaction.guild!.id,
+      channelId: channelsId.logs,
       title, color,
       fields: [{ name: 'Membro', value: userMention(member.id), inline: true },
       { name: 'Dado por', value: userMention(interaction.user.id), inline: true },
@@ -91,7 +102,7 @@ export class Strike {
   private async removeStrike(interaction: CommandInteraction, member: GuildMember, reason: string): Promise<void> {
     const strikeLevel = await this.getMemberCurrentStrikeLevel(member);
 
-    if (strikeLevel < 0) {
+    if (strikeLevel <= 0) {
       await interaction.reply({
         flags: ['Ephemeral'],
         embeds: [createEmbed({ description: 'O usuário não possui strikes', color: colors.danger })]
@@ -156,8 +167,7 @@ export class Strike {
     const strikeMaxLevel = await this.getMaxStrikeLevel();
     const strikeCurrentLevel = await this.getMemberCurrentStrikeLevel(member);
 
-    const applyStrikeUseCase = new ApplyStrikeUseCase();
-    return applyStrikeUseCase.execute({ strikeCurrentLevel, strikeMaxLevel, increment });
+    return this.applyStrikeUseCase.execute({ strikeCurrentLevel, strikeMaxLevel, increment });
   }
 
   private async getMaxStrikeLevel() {
