@@ -102,7 +102,7 @@ export class Strike {
   private async removeStrike(interaction: CommandInteraction, member: GuildMember, reason: string): Promise<void> {
     const strikeLevel = await this.getMemberCurrentStrikeLevel(member);
 
-    if (strikeLevel < 0) {
+    if (strikeLevel <= 0) {
       await interaction.reply({
         flags: ['Ephemeral'],
         embeds: [createEmbed({ description: 'O usuário não possui strikes', color: colors.danger })]
