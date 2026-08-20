@@ -78,51 +78,24 @@ Para decidir em qual pasta criar um arquivo:
 ## 4. Estrutura Final do Projeto
 
 ```text
-src/
-├── application/
-│   ├── contracts/
-│   │   ├── UseCaseInterface.ts
-│   │   └── index.ts
-│   ├── providers/
-│   │   ├── DiscordLogProviderInterface.ts
-│   │   ├── LoggerProviderInterface.ts
-│   │   └── index.ts
-│   └── use-cases/
-│       ├── ApplyStrikeUseCase.ts
-│       ├── SendAuditLogUseCase.ts
-│       └── index.ts
-├── domain/
-│   └── errors/
-│       ├── Exception.ts
-│       ├── ForbiddenException.ts
-│       ├── LogicException.ts
-│       ├── NotFoundException.ts
-│       └── index.ts
-├── index.ts
-├── infrastructure/
-│   ├── config/
-│   │   └── index.ts
-│   ├── env/
-│   │   └── index.ts
-│   └── providers/
-│       ├── ConsoleLoggerProvider.ts
-│       ├── DiscordLogProvider.ts
-│       └── index.ts
-└── presentation/
-    ├── commands/
-    │   └── Strike.ts
-    ├── constants/
-    │   └── index.ts
-    ├── events/
-    │   ├── AutoBan.ts
-    │   └── RemoveMessage.ts
-    └── middlewares/
-        ├── LoggerMiddleware.ts
-        ├── NotBotMiddleware.ts
-        ├── OnErrorChatInputCommandInteractionMiddleware.ts
-        ├── OnErrorMiddleware.ts
-        ├── StaffOnlyMiddleware.ts
-        └── index.ts
+└── src
+    ├── application
+    │   ├── container
+    │   ├── contracts
+    │   ├── providers
+    │   └── use-cases
+    ├── domain
+    │   └── errors
+    ├── infrastructure
+    │   ├── config
+    │   ├── container
+    │   ├── env
+    │   └── providers
+    └── presentation
+        ├── commands
+        ├── constants
+        ├── events
+        └── middlewares
 ```
 
 ---
