@@ -1,14 +1,12 @@
 import { LoggerProviderInterface } from "@/application/providers";
 import { styleText } from "node:util";
+import { injectable } from "tsyringe";
 
+@injectable()
 export class ConsoleLoggerProvider implements LoggerProviderInterface {
   public constructor(
-    private readonly console: Console
+    private readonly console: Console = global.console
   ) { }
-
-  public static create(): ConsoleLoggerProvider {
-    return new ConsoleLoggerProvider(console);
-  }
 
   public log(...message: string[]): void {
     const tag = this.createTag('log');

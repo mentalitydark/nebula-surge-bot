@@ -11,8 +11,9 @@
 		"resolveJsonModule": true,
 		"emitDecoratorMetadata": false,
 		"experimentalDecorators": true,
-		"outDir": "dist",
-		"rootDir": "src",
+		"useDefineForClassFields": false,
+		"outDir": "./dist",
+		"rootDir": "./src",
 		"removeComments": true,
 		"paths": {
 			"@/*": [

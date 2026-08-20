@@ -1,10 +1,12 @@
-version: '3.8'
 services:
   bot:
+    tty: true
     build:
       context: .
       target: development
     restart: unless-stopped
+    environment:
+      - FORCE_COLOR=1
     env_file:
       - .env
     volumes:
