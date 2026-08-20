@@ -1,13 +1,13 @@
 import { inject, injectable } from "tsyringe";
 import { UseCaseInterface } from "@/application/contracts";
 import { AuditLogDTO, DiscordLogProviderInterface } from "@/application/providers";
-import { TOKENS } from "@/infrastructure/container/tokens";
+import { APPLICATION_TOKENS } from "@/application/container/tokens";
 
 @injectable()
 export class SendAuditLogUseCase implements UseCaseInterface<AuditLogDTO, Promise<void>> {
 
   public constructor(
-    @inject(TOKENS.DiscordLogProviderInterface)
+    @inject(APPLICATION_TOKENS.DiscordLogProviderInterface)
     private readonly auditLogProvider: DiscordLogProviderInterface
   ) { }
 

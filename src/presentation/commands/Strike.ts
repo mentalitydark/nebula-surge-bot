@@ -5,18 +5,18 @@ import { ApplicationCommandOptionType, CommandInteraction, GuildMember, roleMent
 import { colors } from "@/presentation/constants";
 import { channelsId, rolesId } from "@/infrastructure/config";
 import { Exception, NotFoundException } from "@/domain/errors";
-import { TOKENS } from "@/infrastructure/container/tokens";
 import { LoggerMiddleware, StaffOnlyMiddleware } from "@/presentation/middlewares";
 import { SendAuditLogUseCase, ApplyStrikeUseCase, StrikeAction } from "@/application/use-cases";
+import { APPLICATION_TOKENS } from "@/application/container/tokens";
 
 @Discord()
 @injectable()
 export class Strike {
 
   public constructor(
-    @inject(TOKENS.SendAuditLogUseCase)
+    @inject(APPLICATION_TOKENS.SendAuditLogUseCase)
     private readonly sendAuditLogUseCase: SendAuditLogUseCase,
-    @inject(TOKENS.ApplyStrikeUseCase)
+    @inject(APPLICATION_TOKENS.ApplyStrikeUseCase)
     private readonly applyStrikeUseCase: ApplyStrikeUseCase
   ) { }
 

@@ -5,10 +5,10 @@ import { container } from 'tsyringe';
 import { importx } from '@discordx/importer';
 import { GatewayIntentBits, Partials, Events } from 'discord.js';
 import { env } from '@/infrastructure/env';
-import { TOKENS } from '@/infrastructure/container/tokens';
 import { setupContainer } from '@/infrastructure/container';
 import { LoggerProviderInterface } from '@/application/providers';
 import { OnErrorChatInputCommandInteractionMiddleware, OnErrorMiddleware } from '@/presentation/middlewares';
+import { APPLICATION_TOKENS } from '@/application/container/tokens';
 
 const client = new Client({
   botGuilds: env.NODE_ENV === 'development' ? [env.GUILD_ID] : undefined,
@@ -33,7 +33,7 @@ setupContainer(client);
 client.once(Events.ClientReady, async () => {
   await client.initApplicationCommands();
 
-  const logger = container.resolve<LoggerProviderInterface>(TOKENS.LoggerProviderInterface);
+  const logger = container.resolve<LoggerProviderInterface>(APPLICATION_TOKENS.LoggerProviderInterface);
   logger.success(`Bot online: ${client.user?.tag}`);
 });
 

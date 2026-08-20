@@ -1,6 +1,6 @@
+import { APPLICATION_TOKENS } from "@/application/container/tokens";
 import { LoggerProviderInterface } from "@/application/providers";
 import { LogicException } from "@/domain/errors";
-import { TOKENS } from "@/infrastructure/container/tokens";
 import { ChatInputCommandInteraction, CommandInteractionOption } from "discord.js";
 import { GuardFunction } from "discordx";
 import { container } from "tsyringe";
@@ -16,7 +16,7 @@ export const LoggerMiddleware: GuardFunction<ChatInputCommandInteraction> = asyn
   const parameters = parseOptions(interaction.options.data);
   const guildName = interaction.guild?.name ?? "DM";
 
-  const logger = container.resolve<LoggerProviderInterface>(TOKENS.LoggerProviderInterface);
+  const logger = container.resolve<LoggerProviderInterface>(APPLICATION_TOKENS.LoggerProviderInterface);
 
   logger.info(
     `Usuário "${interaction.user.tag}" executou o comando "${commandName}" na guilda "${guildName}"`,
