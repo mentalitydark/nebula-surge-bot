@@ -1,7 +1,9 @@
-version: '3.8'
 services:
   bot:
+    tty: true
     image: ghcr.io/mentalitydark/nebula-surge-bot:latest
     restart: always
+    environment:
+      - FORCE_COLOR=1
     env_file:
       - .env
