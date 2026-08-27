@@ -1,13 +1,14 @@
-import { inject, injectable } from "tsyringe";
-import { createEmbed } from "@magicyan/discord";
-import { Discord, Guard, Slash, SlashOption } from "discordx";
-import { ApplicationCommandOptionType, CommandInteraction, GuildMember, roleMention, userMention } from "discord.js";
-import { colors } from "@/presentation/constants";
-import { channelsId, rolesId } from "@/infrastructure/config";
-import { Exception, NotFoundException } from "@/domain/errors";
-import { LoggerMiddleware, StaffOnlyMiddleware } from "@/presentation/middlewares";
-import { SendAuditLogUseCase, ApplyStrikeUseCase, StrikeAction } from "@/application/use-cases";
-import { APPLICATION_TOKENS } from "@/application/container/tokens";
+import { createEmbed } from '@magicyan/discord'
+import { ApplicationCommandOptionType, type CommandInteraction, type GuildMember, roleMention, userMention } from 'discord.js'
+import { Discord, Guard, Slash, SlashOption } from 'discordx'
+import { inject, injectable } from 'tsyringe'
+
+import { APPLICATION_TOKENS } from '@/application/container/tokens'
+import { type SendAuditLogUseCase, type ApplyStrikeUseCase, StrikeAction } from '@/application/use-cases'
+import { Exception, NotFoundException } from '@/domain/errors'
+import { channelsId, rolesId } from '@/infrastructure/config'
+import { colors } from '@/presentation/constants'
+import { LoggerMiddleware, StaffOnlyMiddleware } from '@/presentation/middlewares'
 
 @Discord()
 @injectable()
@@ -20,184 +21,190 @@ export class Strike {
     private readonly applyStrikeUseCase: ApplyStrikeUseCase
   ) { }
 
-  @Slash({ name: "strike", description: "Adiciona/Remove um strike a um usuário" })
+  @Slash({ name: 'strike', description: 'Adiciona/Remove um strike a um usuário' })
   @Guard(LoggerMiddleware, StaffOnlyMiddleware)
   public async strike(
-    @SlashOption({ name: "member", description: "Membro a ser adicionado o strike", type: ApplicationCommandOptionType.User, required: true })
+    @SlashOption({ name: 'member', description: 'Membro a ser adicionado o strike', type: ApplicationCommandOptionType.User, required: true })
     memberTarget: GuildMember,
 
-    @SlashOption({ name: "reason", description: "Motivo do strike", type: ApplicationCommandOptionType.String, required: true })
+    @SlashOption({ name: 'reason', description: 'Motivo do strike', type: ApplicationCommandOptionType.String, required: true })
     reason: string,
 
-    @SlashOption({ name: "increment", description: "Se deve incrementar o strike ou não (padrão: true)", type: ApplicationCommandOptionType.Boolean, required: false })
+    @SlashOption({ name: 'increment', description: 'Se deve incrementar o strike ou não (padrão: true)', type: ApplicationCommandOptionType.Boolean, required: false })
     increment: boolean = true,
 
     interaction: CommandInteraction
   ): Promise<void> {
-    const { guild } = interaction;
+    const { guild } = interaction
 
     if (!guild) {
-      return;
+      return
     }
 
-    const action = await this.getAction(memberTarget, increment);
+    const action = await this.getAction(memberTarget, increment)
 
     try {
       switch (action) {
         case StrikeAction.ADD_STRIKE:
-          await this.addStrike(interaction, memberTarget, reason);
-          break;
+          await this.addStrike(interaction, memberTarget, reason)
+          break
         case StrikeAction.REMOVE_STRIKE:
-          await this.removeStrike(interaction, memberTarget, reason);
-          break;
+          await this.removeStrike(interaction, memberTarget, reason)
+          break
         case StrikeAction.BAN:
-          await this.ban(interaction, memberTarget, reason);
-          break;
+          await this.ban(interaction, memberTarget, reason)
+          break
         case StrikeAction.NOTHING:
-          await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: 'Nenhuma ação realizada', color: colors.warning })] });
-          break;
+          await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: 'Nenhuma ação realizada', color: colors.warning })] })
+          break
         default:
-          await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: 'Ação inválida', color: colors.danger })] });
-          break;
+          await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: 'Ação inválida', color: colors.danger })] })
+          break
       }
     } catch (error) {
       if (error instanceof Exception) {
-        await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: error.message, color: colors.danger })] });
+        await interaction.reply({ flags: ['Ephemeral'], embeds: [createEmbed({ description: error.message, color: colors.danger })] })
       } else {
-        throw error;
+        throw error
       }
     }
   }
 
   private async sendLog(interaction: CommandInteraction, member: GuildMember, reason: string, action: StrikeAction): Promise<void> {
-    let title: string = 'Strike adicionado';
-    if (action === StrikeAction.REMOVE_STRIKE) title = 'Strike removido';
-    else if (action === StrikeAction.BAN) title = 'Usuário banido';
+    const { guild } = interaction
 
-    let color: string = colors.danger;
-    if (action === StrikeAction.REMOVE_STRIKE) color = colors.success;
-    else if (action === StrikeAction.BAN) color = colors.danger;
+    if (!guild) {
+      return
+    }
+
+    let title: string = 'Strike adicionado'
+    if (action === StrikeAction.REMOVE_STRIKE) title = 'Strike removido'
+    else if (action === StrikeAction.BAN) title = 'Usuário banido'
+
+    let color: string = colors.danger
+    if (action === StrikeAction.REMOVE_STRIKE) color = colors.success
+    else if (action === StrikeAction.BAN) color = colors.danger
 
     await this.sendAuditLogUseCase.execute({
-      guildId: interaction.guild!.id,
+      guildId: guild.id,
       channelId: channelsId.logs,
       title, color,
       fields: [{ name: 'Membro', value: userMention(member.id), inline: true },
       { name: 'Dado por', value: userMention(interaction.user.id), inline: true },
       { name: 'Motivo', value: reason }]
-    });
+    })
   }
 
   private async ban(interaction: CommandInteraction, member: GuildMember, reason: string): Promise<void> {
-    await member.ban({ reason });
+    await member.ban({ reason })
 
     await interaction.reply({
       flags: ['Ephemeral'],
       embeds: [createEmbed({ description: 'Usuário banido', color: colors.danger })]
-    });
+    })
 
-    await this.sendLog(interaction, member, reason, StrikeAction.BAN);
+    await this.sendLog(interaction, member, reason, StrikeAction.BAN)
   }
 
   private async removeStrike(interaction: CommandInteraction, member: GuildMember, reason: string): Promise<void> {
-    const strikeLevel = await this.getMemberCurrentStrikeLevel(member);
+    const strikeLevel = await this.getMemberCurrentStrikeLevel(member)
 
     if (strikeLevel <= 0) {
       await interaction.reply({
         flags: ['Ephemeral'],
         embeds: [createEmbed({ description: 'O usuário não possui strikes', color: colors.danger })]
-      });
-      return;
+      })
+      return
     }
 
-    const { strikesLevels } = rolesId;
-    const strikeLevelData = strikesLevels.find(level => level.level === strikeLevel);
+    const { strikesLevels } = rolesId
+    const strikeLevelData = strikesLevels.find(level => level.level === strikeLevel)
 
     if (!strikeLevelData) {
-      throw new NotFoundException('Nível de strike inválido');
+      throw new NotFoundException('Nível de strike inválido')
     }
 
-    const role = member.roles.cache.get(strikeLevelData.roleId);
+    const role = member.roles.cache.get(strikeLevelData.roleId)
 
     if (!role) {
-      return;
+      return
     }
-    const previousStrikeLevelData = strikesLevels.find(level => level.level === strikeLevel - 1);
+    const previousStrikeLevelData = strikesLevels.find(level => level.level === strikeLevel - 1)
 
     if (previousStrikeLevelData) {
       await Promise.allSettled([
         member.roles.remove(role, reason),
         member.roles.add(previousStrikeLevelData.roleId, reason)
-      ]);
+      ])
     } else {
-      await member.roles.remove(role, reason);
+      await member.roles.remove(role, reason)
     }
 
     await interaction.reply({
       flags: ['Ephemeral'],
       embeds: [createEmbed({ description: `${roleMention(role.id)} removido`, color: colors.success })]
-    });
+    })
 
-    await this.sendLog(interaction, member, reason, StrikeAction.REMOVE_STRIKE);
+    await this.sendLog(interaction, member, reason, StrikeAction.REMOVE_STRIKE)
   }
 
   private async addStrike(interaction: CommandInteraction, member: GuildMember, reason: string): Promise<void> {
-    const currentStrikeLevel = await this.getMemberCurrentStrikeLevel(member);
-    const nextStrikeLevel = currentStrikeLevel + 1;
+    const currentStrikeLevel = await this.getMemberCurrentStrikeLevel(member)
+    const nextStrikeLevel = currentStrikeLevel + 1
 
-    const { strikesLevels } = rolesId;
-    const strikeLevel = strikesLevels.find(level => level.level === nextStrikeLevel);
+    const { strikesLevels } = rolesId
+    const strikeLevel = strikesLevels.find(level => level.level === nextStrikeLevel)
 
     if (!strikeLevel) {
-      throw new NotFoundException('Nível de strike inválido');
+      throw new NotFoundException('Nível de strike inválido')
     }
 
-    await this.removeAllStrikes(member, reason);
-    await member.roles.add(strikeLevel.roleId, reason);
+    await this.removeAllStrikes(member, reason)
+    await member.roles.add(strikeLevel.roleId, reason)
 
     await interaction.reply({
       flags: ['Ephemeral'],
       embeds: [createEmbed({ description: `${roleMention(strikeLevel.roleId)} adicionado`, color: colors.danger })]
-    });
+    })
 
-    await this.sendLog(interaction, member, reason, StrikeAction.ADD_STRIKE);
+    await this.sendLog(interaction, member, reason, StrikeAction.ADD_STRIKE)
   }
 
   private async getAction(member: GuildMember, increment: boolean) {
-    const strikeMaxLevel = await this.getMaxStrikeLevel();
-    const strikeCurrentLevel = await this.getMemberCurrentStrikeLevel(member);
+    const strikeMaxLevel = await this.getMaxStrikeLevel()
+    const strikeCurrentLevel = await this.getMemberCurrentStrikeLevel(member)
 
-    return this.applyStrikeUseCase.execute({ strikeCurrentLevel, strikeMaxLevel, increment });
+    return this.applyStrikeUseCase.execute({ strikeCurrentLevel, strikeMaxLevel, increment })
   }
 
   private async getMaxStrikeLevel() {
-    const { strikesLevels } = rolesId;
+    const { strikesLevels } = rolesId
 
-    return strikesLevels.length;
+    return strikesLevels.length
   }
 
   private async removeAllStrikes(member: GuildMember, reason: string) {
-    const { strikesLevels } = rolesId;
-    const roles = member.roles.cache.filter(role => strikesLevels.some(strikeLevel => strikeLevel.roleId === role.id));
+    const { strikesLevels } = rolesId
+    const roles = member.roles.cache.filter(role => strikesLevels.some(strikeLevel => strikeLevel.roleId === role.id))
 
-    await Promise.allSettled(roles.map(role => member.roles.remove(role, reason)));
+    await Promise.allSettled(roles.map(role => member.roles.remove(role, reason)))
   }
 
   private async getMemberCurrentStrikeLevel(member: GuildMember): Promise<number> {
-    const { strikesLevels } = rolesId;
+    const { strikesLevels } = rolesId
 
-    const inverseStrikesLevels = [...strikesLevels].reverse();
+    const inverseStrikesLevels = [...strikesLevels].reverse()
 
-    let greatestStrikeLevel: number | undefined;
+    let greatestStrikeLevel: number | undefined
     for (const strikeLevel of inverseStrikesLevels) {
-      const role = member.roles.cache.get(strikeLevel.roleId);
+      const role = member.roles.cache.get(strikeLevel.roleId)
       if (role) {
-        greatestStrikeLevel = strikeLevel.level;
-        break;
+        greatestStrikeLevel = strikeLevel.level
+        break
       }
     }
 
-    return greatestStrikeLevel ?? 0;
+    return greatestStrikeLevel ?? 0
   }
 
 }
