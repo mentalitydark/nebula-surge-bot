@@ -1,3 +1,3 @@
 export const TOKENS = {
-  DiscordClient: Symbol.for("DiscordClient")
-} as const;
+  DiscordClient: Symbol.for('DiscordClient')
+} as const
