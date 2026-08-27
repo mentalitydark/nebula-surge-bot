@@ -1,7 +1,8 @@
-import { inject, injectable } from "tsyringe";
-import { UseCaseInterface } from "@/application/contracts";
-import { AuditLogDTO, DiscordLogProviderInterface } from "@/application/providers";
-import { APPLICATION_TOKENS } from "@/application/container/tokens";
+import { inject, injectable } from 'tsyringe'
+
+import { APPLICATION_TOKENS } from '@/application/container/tokens'
+import { type UseCaseInterface } from '@/application/contracts'
+import { type AuditLogDTO, type DiscordLogProviderInterface } from '@/application/providers'
 
 @injectable()
 export class SendAuditLogUseCase implements UseCaseInterface<AuditLogDTO, Promise<void>> {
@@ -12,7 +13,7 @@ export class SendAuditLogUseCase implements UseCaseInterface<AuditLogDTO, Promis
   ) { }
 
   public async execute(input: AuditLogDTO): Promise<void> {
-    await this.auditLogProvider.sendLog(input);
+    await this.auditLogProvider.sendLog(input)
   }
 
 }
