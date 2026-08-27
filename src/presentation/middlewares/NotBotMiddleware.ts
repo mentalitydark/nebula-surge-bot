@@ -1,5 +1,5 @@
-import { ButtonInteraction, ChannelSelectMenuInteraction, CommandInteraction, ContextMenuCommandInteraction, MentionableSelectMenuInteraction, ModalSubmitInteraction, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserSelectMenuInteraction, Events, MessageReaction, VoiceState, Message } from "discord.js";
-import { ArgsOf, GuardFunction, SimpleCommandMessage } from "discordx";
+import { ButtonInteraction, ChannelSelectMenuInteraction, CommandInteraction, ContextMenuCommandInteraction, MentionableSelectMenuInteraction, ModalSubmitInteraction, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserSelectMenuInteraction, type Events, MessageReaction, VoiceState, Message } from 'discord.js'
+import { type ArgsOf, type GuardFunction, SimpleCommandMessage } from 'discordx'
 
 export const NotBotMiddleware: GuardFunction<
   | ArgsOf<
@@ -16,11 +16,11 @@ export const NotBotMiddleware: GuardFunction<
   | UserSelectMenuInteraction
   | SimpleCommandMessage
 > = async (arg, _, next) => {
-  const args = arg instanceof Array ? arg : [arg];
-  const argObj = args[0];
-  const secondary = args[1];
+  const args = arg instanceof Array ? arg : [arg]
+  const argObj = args[0]
+  const secondary = args[1]
   const user =
-    typeof secondary === "object" && secondary !== null && "bot" in secondary
+    typeof secondary === 'object' && secondary !== null && 'bot' in secondary
       ? (secondary as { bot: boolean })
       : argObj instanceof CommandInteraction
         ? argObj.user
@@ -41,9 +41,9 @@ export const NotBotMiddleware: GuardFunction<
                   argObj instanceof StringSelectMenuInteraction ||
                   argObj instanceof UserSelectMenuInteraction
                   ? argObj.user
-                  : undefined;
+                  : undefined
 
   if (!user?.bot) {
-    await next();
+    await next()
   }
-};
+}
