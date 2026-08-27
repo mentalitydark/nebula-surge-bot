@@ -22,4 +22,4 @@ export const rolesId = {
   ]
 }
 
-export const autoBanMinimumVotes = 1;
+export const autoBanMinimumVotes = 1
