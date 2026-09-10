@@ -2,11 +2,11 @@ import { createEmbed } from '@magicyan/discord'
 import { type Client } from 'discordx'
 import { inject, injectable } from 'tsyringe'
 
-import { type AuditLogDTO, type DiscordLogProviderInterface } from '@/application/providers'
+import { type AuditLogDTO, type DiscordLogInterface } from '@/application/contracts'
 import { TOKENS } from '@/infrastructure/container/tokens'
 
 @injectable()
-export class DiscordLogProvider implements DiscordLogProviderInterface {
+export class DiscordLogProvider implements DiscordLogInterface {
 
   public constructor(
     @inject(TOKENS.DiscordClient)
