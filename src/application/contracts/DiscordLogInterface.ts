@@ -7,6 +7,6 @@ export interface AuditLogDTO {
   color?: string;
 }
 
-export interface DiscordLogProviderInterface {
+export interface DiscordLogInterface {
   sendLog(dto: AuditLogDTO): Promise<void>;
 }
