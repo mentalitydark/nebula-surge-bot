@@ -1,4 +1,5 @@
 export * from './Exception'
 export * from './LogicException'
 export * from './ForbiddenException'
+export * from './InvalidArgumentException'
 export * from './NotFoundException'
