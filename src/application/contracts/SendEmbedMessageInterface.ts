@@ -7,6 +7,6 @@ export interface SendEmbedMessageDTO {
   attachmentUrl?: string
 }
 
-export interface SendEmbedMessageProviderInterface {
+export interface SendEmbedMessageInterface {
   send(data: SendEmbedMessageDTO): Promise<void>
 }
