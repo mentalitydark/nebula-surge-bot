@@ -1,4 +1,4 @@
-export interface LoggerProviderInterface {
+export interface LoggerInterface {
   log(...message: string[]): void;
   error(...message: (string | Error)[]): void;
   warn(...message: string[]): void;
