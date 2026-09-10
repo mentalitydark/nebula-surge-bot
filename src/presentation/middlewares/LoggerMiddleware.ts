@@ -3,7 +3,7 @@ import { type GuardFunction } from 'discordx'
 import { container } from 'tsyringe'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { type LoggerProviderInterface } from '@/application/providers'
+import { type LoggerInterface } from '@/application/contracts'
 import { LogicException } from '@/domain/errors'
 
 export const LoggerMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, _, next) => {
@@ -17,7 +17,7 @@ export const LoggerMiddleware: GuardFunction<ChatInputCommandInteraction> = asyn
   const parameters = parseOptions(interaction.options.data)
   const guildName = interaction.guild?.name ?? 'DM'
 
-  const logger = container.resolve<LoggerProviderInterface>(APPLICATION_TOKENS.LoggerProviderInterface)
+  const logger = container.resolve<LoggerInterface>(APPLICATION_TOKENS.LoggerInterface)
 
   logger.info(
     `Usuário "${interaction.user.tag}" executou o comando "${commandName}" na guilda "${guildName}"`,
