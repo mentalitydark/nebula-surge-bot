@@ -1,12 +1,5 @@
-export interface AuditLogDTO {
-  guildId: string;
-  channelId: string;
-  title: string;
-  description?: string;
-  fields?: { name: string; value: string; inline?: boolean }[];
-  color?: string;
-}
+import type { DiscordLogDto } from '@/application/dtos'
 
 export interface DiscordLogInterface {
-  sendLog(dto: AuditLogDTO): Promise<void>;
+  sendLog(dto: DiscordLogDto): Promise<void>;
 }
