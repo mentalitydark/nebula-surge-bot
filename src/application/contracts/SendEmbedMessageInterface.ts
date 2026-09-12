@@ -1,12 +1,5 @@
-export interface SendEmbedMessageDTO {
-  guildId: string
-  channelId: string
-  roleNotificationIds: string[]
-  embedColor: string
-  description: string
-  attachmentUrl?: string
-}
+import type { SendEmbedMessageDto } from '@/application/dtos'
 
 export interface SendEmbedMessageInterface {
-  send(data: SendEmbedMessageDTO): Promise<void>
+  send(data: SendEmbedMessageDto): Promise<void>
 }
