@@ -2,7 +2,9 @@ import { createEmbed } from '@magicyan/discord'
 import { type Client } from 'discordx'
 import { inject, injectable } from 'tsyringe'
 
-import { type AuditLogDTO, type DiscordLogInterface } from '@/application/contracts'
+import type { DiscordLogInterface } from '@/application/contracts'
+import type { DiscordLogDto } from '@/application/dtos'
+
 import { TOKENS } from '@/infrastructure/container/tokens'
 
 @injectable()
@@ -13,7 +15,7 @@ export class DiscordLogProvider implements DiscordLogInterface {
     private readonly client: Client
   ) { }
 
-  public async sendLog(dto: AuditLogDTO): Promise<void> {
+  public async sendLog(dto: DiscordLogDto): Promise<void> {
     try {
       const guild = await this.client.guilds.fetch(dto.guildId)
 
