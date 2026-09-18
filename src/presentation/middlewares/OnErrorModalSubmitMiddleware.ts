@@ -28,9 +28,9 @@ export const OnErrorModalSubmitMiddleware: GuardFunction<ModalSubmitInteraction>
       } else {
         await interaction.reply({ flags: [MessageFlags.Ephemeral], embeds: [errorEmbed] })
       }
-    } catch {
-      console.error('Failed to send modal error response:', error)
-      throw error
+    } catch (sendError) {
+      console.error('Failed to send modal error response:', sendError)
+      throw sendError
     }
   }
 }
