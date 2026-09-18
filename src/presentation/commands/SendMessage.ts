@@ -81,7 +81,7 @@ export class SendMessage {
 
     modal.addLabelComponents(roleNotificationInput, channelInput, embedColor, descriptionInput, attachmentInput)
 
-    interaction.showModal(modal)
+    await interaction.showModal(modal)
   }
 
   @ModalComponent({ id: 'SendMessageModal' })
@@ -107,6 +107,8 @@ export class SendMessage {
     const channelId = this.parseChannel(channels)
     this.validateChannelPermissions(channelId, memberInvoker)
 
+    await interaction.deferReply({ flags: ['Ephemeral'] })
+
     await this.sendEmbedMessageProvider.execute(SendEmbedMessageDto.create({
       guildId: guild.id,
       embedColor: this.parseColor(embedColor),
@@ -116,8 +118,7 @@ export class SendMessage {
       description,
     }))
 
-    await interaction.reply({
-      flags: ['Ephemeral'],
+    await interaction.editReply({
       embeds: [createEmbed({
         color: colors.success,
         description: 'Mensagem enviada com sucesso!',
