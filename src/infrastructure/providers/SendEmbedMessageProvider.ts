@@ -36,7 +36,7 @@ export class SendEmbedMessageProvider implements SendEmbedMessageInterface {
     const embed = createEmbed({
       description: description,
       color: data.embedColor.color,
-      image: { url: data.attachment?.url ?? '' }
+      ...(data.attachment ? { image: { url: data.attachment.url } } : {})
     })
 
     await channel.send({ embeds: [embed] })
