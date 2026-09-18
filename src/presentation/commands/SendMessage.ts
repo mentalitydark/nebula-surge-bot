@@ -1,18 +1,23 @@
 import { createEmbed } from '@magicyan/discord'
 import {
   type CommandInteraction, type ModalSubmitInteraction, type Attachment, type ReadonlyCollection, type Role, type TextChannel,
-  ChannelSelectMenuBuilder, ChannelType, FileUploadBuilder, LabelBuilder, ModalBuilder, RoleSelectMenuBuilder, TextInputBuilder, TextInputStyle,
+  ChannelSelectMenuBuilder, ChannelType, FileUploadBuilder, LabelBuilder, ModalBuilder, RoleSelectMenuBuilder, TextInputBuilder, TextInputStyle, GuildMember,
+  userMention,
+  time,
+  TimestampStyles,
+  channelMention
 } from 'discord.js'
 import { Discord, Guard, ModalComponent, Slash } from 'discordx'
 import { inject, injectable } from 'tsyringe'
 
-import type { SendEmbedMessageUseCase } from '@/application/use-cases'
+import type { SendAuditLogUseCase, SendEmbedMessageUseCase } from '@/application/use-cases'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { SendEmbedMessageDto } from '@/application/dtos'
-import { Exception, InvalidArgumentException } from '@/domain/errors'
+import { DiscordLogDto, SendEmbedMessageDto } from '@/application/dtos'
+import { Exception, ForbiddenException, InvalidArgumentException } from '@/domain/errors'
 import { HexColor } from '@/domain/value-objects'
 import { Image } from '@/domain/value-objects/attachment'
+import { channelsId } from '@/infrastructure/config'
 import { colors } from '@/presentation/constants'
 import { StaffOnlyMiddleware, OnErrorModalSubmitMiddleware } from '@/presentation/middlewares'
 
@@ -23,6 +28,8 @@ export class SendMessage {
   public constructor(
     @inject(APPLICATION_TOKENS.SendEmbedMessageUseCase)
     private readonly sendEmbedMessageProvider: SendEmbedMessageUseCase,
+    @inject(APPLICATION_TOKENS.SendAuditLogUseCase)
+    private readonly sendAuditLogProvider: SendAuditLogUseCase
   ) { }
 
   @Slash({ name: 'send-message', description: 'Envia uma mensagem embed em determinado canal' })
@@ -69,6 +76,7 @@ export class SendMessage {
       new FileUploadBuilder()
         .setCustomId('attachment')
         .setMaxValues(1)
+        .setRequired(false)
     )
 
     modal.addLabelComponents(roleNotificationInput, channelInput, embedColor, descriptionInput, attachmentInput)
@@ -86,26 +94,48 @@ export class SendMessage {
     const attachment = interaction.fields.getUploadedFiles('attachment', false)
 
     const guild = interaction.guild
+    const memberInvoker = interaction.member
 
     if (!guild) {
       throw new Exception('Guild não encontrada')
     }
 
+    if (!memberInvoker || !(memberInvoker instanceof GuildMember)) {
+      throw new Exception('Membro que invocou a interação não encontrado')
+    }
+
+    const channelId = this.parseChannel(channels)
+    this.validateChannelPermissions(channelId, memberInvoker)
+
     await this.sendEmbedMessageProvider.execute(SendEmbedMessageDto.create({
       guildId: guild.id,
       embedColor: this.parseColor(embedColor),
-      channelId: this.parseChannel(channels),
+      channelId: channelId.id,
       roleNotificationIds: this.parseRoles(rolesNotification),
       attachment: this.parseAttachment(attachment),
       description,
     }))
 
     await interaction.reply({
+      flags: ['Ephemeral'],
       embeds: [createEmbed({
         color: colors.success,
         description: 'Mensagem enviada com sucesso!',
       })]
     })
+
+    await this.sendAuditLogProvider.execute(DiscordLogDto.create({
+      guildId: guild.id,
+      channelId: channelsId.logs,
+      title: 'Mensagem Embed Enviada',
+      description: 'Uma mensagem embed foi enviada com sucesso',
+      color: colors.default,
+      fields: [
+        { name: 'Canal', value: channelMention(channelId.id) },
+        { name: 'Enviado Por', value: userMention(memberInvoker.id) },
+        { name: 'Data', value: time(new Date(), TimestampStyles.ShortDateShortTime) }
+      ]
+    }))
   }
 
   private parseAttachment(attachment: ReadonlyCollection<string, Attachment> | null): Image | undefined {
@@ -129,17 +159,27 @@ export class SendMessage {
     return roles.map(role => (role as Role).id)
   }
 
-  private parseChannel(channel: ReadonlyCollection<string, TextChannel>): string {
+  private parseChannel(channel: ReadonlyCollection<string, TextChannel>): TextChannel {
     const firstChannel = channel.first()
     if (!firstChannel) {
       throw new InvalidArgumentException('Nenhum canal foi selecionado para envio da mensagem')
     }
 
-    return firstChannel.id
+    if (!firstChannel.isTextBased()) {
+      throw new InvalidArgumentException('O canal selecionado não é um canal de texto')
+    }
+
+    return firstChannel
   }
 
   private parseColor(embedColor: string): HexColor {
     return new HexColor(embedColor)
+  }
+
+  private validateChannelPermissions(channel: TextChannel, memberInvoker: GuildMember): void {
+    if (!channel.permissionsFor(memberInvoker)?.has('SendMessages')) {
+      throw new ForbiddenException('O usuário não tem permissão para enviar mensagens neste canal')
+    }
   }
 
 }
