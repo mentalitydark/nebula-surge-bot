@@ -1,25 +1,28 @@
-import { Client } from "discordx";
-import { inject, injectable } from "tsyringe";
-import { createEmbed } from "@magicyan/discord";
-import { TOKENS } from "@/infrastructure/container/tokens";
-import { AuditLogDTO, DiscordLogProviderInterface } from "@/application/providers";
+import { createEmbed } from '@magicyan/discord'
+import { type Client } from 'discordx'
+import { inject, injectable } from 'tsyringe'
+
+import type { DiscordLogInterface } from '@/application/contracts'
+import type { DiscordLogDto } from '@/application/dtos'
+
+import { TOKENS } from '@/infrastructure/container/tokens'
 
 @injectable()
-export class DiscordLogProvider implements DiscordLogProviderInterface {
+export class DiscordLogProvider implements DiscordLogInterface {
 
   public constructor(
     @inject(TOKENS.DiscordClient)
     private readonly client: Client
   ) { }
 
-  public async sendLog(dto: AuditLogDTO): Promise<void> {
+  public async sendLog(dto: DiscordLogDto): Promise<void> {
     try {
-      const guild = await this.client.guilds.fetch(dto.guildId);
+      const guild = await this.client.guilds.fetch(dto.guildId)
 
-      const channel = await guild.channels.fetch(dto.channelId);
+      const channel = await guild.channels.fetch(dto.channelId)
 
       if (!channel || !channel.isTextBased()) {
-        return;
+        return
       }
 
       const embed = createEmbed({
@@ -30,9 +33,9 @@ export class DiscordLogProvider implements DiscordLogProviderInterface {
         timestamp: new Date()
       })
 
-      await channel.send({ embeds: [embed] });
+      await channel.send({ embeds: [embed] })
     } catch (error) {
-      console.error("Failed to send Discord log:", error);
+      console.error('Failed to send Discord log:', error)
     }
 
   }

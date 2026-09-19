@@ -9,6 +9,14 @@ Bot para Discord desenvolvido com TypeScript e DiscordX, estruturado sob os prin
 * DiscordX
 * Docker e Docker Compose
 
+## Documentação
+
+A documentação detalhada do projeto está disponível na pasta `docs/`:
+- [Visão geral da arquitetura limpa](./docs/architecture.md)
+- [Detalhamento de cada camada](./docs/) (domain, application, infrastructure, presentation)
+- [Princípios SOLID aplicados](./docs/solid-principles.md)
+- [Fluxo de trabalho Git e versionamento](./docs/git-workflow.md)
+
 ## Arquitetura
 
 O projeto é dividido em quatro camadas principais:

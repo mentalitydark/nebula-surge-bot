@@ -1,42 +1,44 @@
-import { createEmbed } from "@magicyan/discord";
-import { ChatInputCommandInteraction } from "discord.js";
-import { GuardFunction } from "discordx";
-import { colors } from "../constants";
-import { Exception } from "@/domain/errors";
+import { createEmbed } from '@magicyan/discord'
+import { ChatInputCommandInteraction, MessageFlags } from 'discord.js'
+import { type GuardFunction } from 'discordx'
+
+import { Exception } from '@/domain/errors'
+import { colors } from '@/presentation/constants'
 
 export const OnErrorChatInputCommandInteractionMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, _, next) => {
   try {
-    await next();
+    await next()
   } catch (error) {
     if (!(interaction instanceof ChatInputCommandInteraction)) {
-      throw error;
+      throw error
     }
 
-    const isException = error instanceof Exception;
-    const isReplyOrDeferred = interaction.replied || interaction.deferred;
-    const method = isReplyOrDeferred ? "followUp" : "reply";
+    const isException = error instanceof Exception
+    const errorEmbed = createEmbed({
+      title: 'Erro',
+      description: isException ? error.message : 'Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.',
+      color: colors.danger
+    })
 
-    if (isException) {
-      await interaction[method]({
-        flags: ['Ephemeral'],
-        embeds: [createEmbed({
-          title: "Erro",
-          description: error.message,
-          color: colors.danger
-        })]
-      });
-      return;
+    try {
+      if (interaction.deferred) {
+        await interaction.editReply({
+          embeds: [errorEmbed]
+        })
+      } else if (interaction.replied) {
+        await interaction.followUp({
+          flags: [MessageFlags.Ephemeral],
+          embeds: [errorEmbed]
+        })
+      } else {
+        await interaction.reply({
+          flags: [MessageFlags.Ephemeral],
+          embeds: [errorEmbed]
+        })
+      }
+    } catch (responseError) {
+      console.error('Failed to send error response:', responseError)
+      throw error
     }
-
-    await interaction[method]({
-      flags: ['Ephemeral'],
-      embeds: [createEmbed({
-        title: "Erro",
-        description: "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.",
-        color: colors.danger
-      })]
-    });
-
-    throw error;
   }
 }
