@@ -44,7 +44,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: "docker-compose.prod.yml"
-          target: "~/apps/nebula-surge/apps/bot/docker-compose.prod.yml"
+          target: "~/apps/nebula-surge/apps/bot"
+          overwrite: true
 
       - uses: appleboy/ssh-action@v1.0.3
         with:
