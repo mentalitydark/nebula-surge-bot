@@ -2,7 +2,7 @@ import { type GuardFunction } from 'discordx'
 import { container } from 'tsyringe'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { type LoggerProviderInterface } from '@/application/providers'
+import { type LoggerInterface } from '@/application/contracts'
 
 export const OnErrorMiddleware: GuardFunction = async (_, __, next) => {
   try {
@@ -11,7 +11,7 @@ export const OnErrorMiddleware: GuardFunction = async (_, __, next) => {
     try {
       const isError = error instanceof Error
 
-      const logger = container.resolve<LoggerProviderInterface>(APPLICATION_TOKENS.LoggerProviderInterface)
+      const logger = container.resolve<LoggerInterface>(APPLICATION_TOKENS.LoggerInterface)
 
       logger.error(isError ? error : String(error))
     } catch {

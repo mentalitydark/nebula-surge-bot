@@ -2,10 +2,10 @@ import { styleText } from 'node:util'
 
 import { injectable } from 'tsyringe'
 
-import { type LoggerProviderInterface } from '@/application/providers'
+import { type LoggerInterface } from '@/application/contracts'
 
 @injectable()
-export class ConsoleLoggerProvider implements LoggerProviderInterface {
+export class ConsoleLoggerProvider implements LoggerInterface {
   public constructor(
     private readonly console: Console = global.console
   ) { }

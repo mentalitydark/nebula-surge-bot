@@ -6,7 +6,7 @@ import { Client } from 'discordx'
 import { container } from 'tsyringe'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { type LoggerProviderInterface } from '@/application/providers'
+import { type LoggerInterface } from '@/application/contracts'
 import { setupContainer } from '@/infrastructure/container'
 import { env } from '@/infrastructure/env'
 import { OnErrorChatInputCommandInteractionMiddleware, OnErrorMiddleware } from '@/presentation/middlewares'
@@ -34,7 +34,7 @@ setupContainer(client)
 client.once(Events.ClientReady, async () => {
   await client.initApplicationCommands()
 
-  const logger = container.resolve<LoggerProviderInterface>(APPLICATION_TOKENS.LoggerProviderInterface)
+  const logger = container.resolve<LoggerInterface>(APPLICATION_TOKENS.LoggerInterface)
   logger.success(`Bot online: ${client.user?.tag}`)
 })
 

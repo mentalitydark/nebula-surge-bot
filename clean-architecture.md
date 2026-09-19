@@ -24,7 +24,7 @@ Guia de referência para a Clean Architecture do projeto, focado na Regra de Dep
 * **O que entra:**
 * `use-cases/`: Ações do sistema (`LoadCommandsUseCase.ts`, `RegisterCommandsUseCase.ts`).
 * `contracts/`: Interfaces de orquestração (`UseCaseInterface.ts`).
-* `providers/`: Contratos de serviços de suporte (`LoggerProviderInterface.ts`).
+* `contracts/`: Contratos de serviços de suporte (`LoggerInterface.ts`).
 * `repositories/`: Contratos de acesso a dados (`UserRepositoryInterface.ts`).
 
 
