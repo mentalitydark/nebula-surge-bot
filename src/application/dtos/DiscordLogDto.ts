@@ -1,3 +1,5 @@
+import type { Image } from '@/domain/value-objects/attachment'
+
 export interface DiscordLogDtoInput {
   guildId: string;
   channelId: string;
@@ -5,6 +7,7 @@ export interface DiscordLogDtoInput {
   description?: string;
   fields?: { name: string; value: string; inline?: boolean }[];
   color?: string;
+  attachments?: Image[]
 }
 
 export class DiscordLogDto {
@@ -14,7 +17,8 @@ export class DiscordLogDto {
     public readonly title: string,
     public readonly description?: string,
     public readonly fields?: { name: string; value: string; inline?: boolean }[],
-    public readonly color?: string
+    public readonly color?: string,
+    public readonly attachments?: Image[]
   ) { }
 
   public static create(data: DiscordLogDtoInput): DiscordLogDto {
@@ -24,7 +28,8 @@ export class DiscordLogDto {
       data.title,
       data.description,
       data.fields,
-      data.color
+      data.color,
+      data.attachments
     )
   }
 }
