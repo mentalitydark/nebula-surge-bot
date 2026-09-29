@@ -33,7 +33,7 @@ export class DiscordLogProvider implements DiscordLogInterface {
         timestamp: new Date()
       })
 
-      await channel.send({ embeds: [embed] })
+      await channel.send({ embeds: [embed], files: dto.attachments?.map(att => ({ attachment: att.url, name: att.name })) })
     } catch (error) {
       console.error('Failed to send Discord log:', error)
     }
