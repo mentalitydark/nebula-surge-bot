@@ -4,54 +4,45 @@ import {
   FileUploadBuilder,
   GuildMember,
   LabelBuilder,
-  MentionableSelectMenuBuilder,
   ModalBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextInputBuilder,
   TextInputStyle,
-  userMention,
   UserSelectMenuBuilder,
   type CommandInteraction,
   type ModalSubmitInteraction,
 } from 'discord.js'
-import { Discord, Guard, ModalComponent, SelectMenuComponent, Slash } from 'discordx'
+import { Discord, Guard, ModalComponent, Slash } from 'discordx'
 import { injectable, inject } from 'tsyringe'
 import { z } from 'zod'
 
-import type { BanUserUseCase, SendAuditLogUseCase } from '@/application/use-cases'
+import type { BanUserUseCase } from '@/application/use-cases'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { BanUserDto, DiscordLogDto } from '@/application/dtos'
-import { Time } from '@/domain/enums'
-import { Exception } from '@/domain/errors'
+import { Exception, ForbiddenException } from '@/domain/errors'
+import { BanPeriod } from '@/domain/value-objects'
 import { Image } from '@/domain/value-objects/attachment'
-import { channelsId } from '@/infrastructure/config'
+import { isStaff } from '@/infrastructure/helpers'
 import { colors } from '@/presentation/constants'
-import { isBot, isStaff, secondsToTime } from '@/presentation/helpers'
 import { OnErrorModalSubmitMiddleware, StaffOnlyMiddleware } from '@/presentation/middlewares'
-
 
 @Discord()
 @injectable()
 export class BanUser {
 
   private readonly modalSchema = z.object({
-    reason: z.string().trim().min(1, 'Motivo do banimento não fornecido'),
-    deleteMessageSeconds: z.preprocess((val: string) => parseInt(val), z.enum(Time, { message: 'Tempo de exclusão de mensagens inválido' })),
-    user: z.custom<GuildMember>((val) => val instanceof GuildMember, 'Usuário inválido')
-      .refine((val) => !isStaff(val), 'Não é possível banir um membro da equipe')
-      .refine((val) => !isBot(val), 'Não é possível banir um bot'),
+    reason: z.string().trim().min(1, 'Motivo do banimento não fornecido').max(256, 'Motivo do banimento muito longo'),
+    deleteMessageSeconds: z.coerce.number(),
+    targetMember: z.custom<GuildMember>((val) => val instanceof GuildMember, 'Usuário não selecionado ou inválido'),
     attachment: z.custom<Attachment>((val) => val instanceof Attachment, 'Anexo inválido')
       .optional()
-      .transform((val) => val ? new Image(val.url, val.contentType ?? '', val.size) : undefined)
+      .transform((val) => val ? new Image(val.url, val.contentType ?? '', val.size, val.name) : undefined)
   })
 
   public constructor(
     @inject(APPLICATION_TOKENS.BanUserUseCase)
-    private readonly banUserUseCase: BanUserUseCase,
-    @inject(APPLICATION_TOKENS.SendAuditLogUseCase)
-    private readonly sendAuditLogUseCase: SendAuditLogUseCase
+    private readonly banUserUseCase: BanUserUseCase
   ) { }
 
   @Slash({ name: 'ban', description: 'Bane um usuário do servidor' })
@@ -82,14 +73,15 @@ export class BanUser {
         .setCustomId('deleteMessageSeconds')
         .setPlaceholder('Selecione o tempo para excluir mensagens')
         .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel('1 hora').setValue(String(Time.HOUR)).setDefault(true),
-          new StringSelectMenuOptionBuilder().setLabel('1 dia').setValue(String(Time.DAY)),
-          new StringSelectMenuOptionBuilder().setLabel('1 semana').setValue(String(Time.WEEK))
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.NONE.label).setValue(String(BanPeriod.NONE.value)).setDefault(true),
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.MINUTES.label).setValue(String(BanPeriod.MINUTES.value)),
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.HOURS.label).setValue(String(BanPeriod.HOURS.value)),
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.DAYS.label).setValue(String(BanPeriod.DAYS.value))
         )
         .setRequired(true)
     )
 
-    const attachment = new LabelBuilder().setLabel('Anexo (image)').setFileUploadComponent(
+    const attachment = new LabelBuilder().setLabel('Image de prova (opcional)').setFileUploadComponent(
       new FileUploadBuilder()
         .setCustomId('attachment')
         .setMaxValues(1)
@@ -104,56 +96,42 @@ export class BanUser {
   @ModalComponent({ id: 'BanUserModal' })
   @Guard(OnErrorModalSubmitMiddleware)
   public async modalSubmit(interaction: ModalSubmitInteraction) {
-    const userInput = interaction.fields.getSelectedMembers('user')
-    const reasonInput = interaction.fields.getTextInputValue('reason')
-    const deleteMessageSecondsInput = interaction.fields.getStringSelectValues('deleteMessageSeconds')
-    const attachmentInput = interaction.fields.getUploadedFiles('attachment', false)
-
     const guild = interaction.guild
     const memberInvoker = interaction.member
 
     if (!guild) throw new Exception('Guild não encontrada')
     if (!memberInvoker || !(memberInvoker instanceof GuildMember)) throw new Exception('Membro que executou o comando não encontrado')
-
-    const validationData = {
-      user: userInput?.first(),
-      reason: reasonInput,
-      deleteMessageSeconds: deleteMessageSecondsInput[0],
-      attachment: attachmentInput?.first()
-    }
-
-    const result = this.modalSchema.safeParse(validationData)
-
-    if (!result.success) {
-      const errorMessage = result.error.issues.map(e => e.message).join('\n')
-      throw new Exception(errorMessage)
-    }
-
-    const { user, reason, deleteMessageSeconds, attachment } = result.data
+    if (!isStaff(memberInvoker)) throw new ForbiddenException()
 
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    await this.banUserUseCase.execute(BanUserDto.create({
-      guildId: guild.id,
-      userId: user.id,
-      reason,
-      deleteMessageSeconds
-    }))
+    const userInput = interaction.fields.getSelectedMembers('user')
+    const reasonInput = interaction.fields.getTextInputValue('reason')
+    const deleteMessageSecondsInput = interaction.fields.getStringSelectValues('deleteMessageSeconds')
+    const attachmentInput = interaction.fields.getUploadedFiles('attachment', false)
 
-    await this.sendAuditLogUseCase.execute(DiscordLogDto.create({
+    const validationResult = this.modalSchema.safeParse({
+      targetMember: userInput?.first(),
+      reason: reasonInput,
+      deleteMessageSeconds: deleteMessageSecondsInput[0],
+      attachment: attachmentInput?.first()
+    })
+
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.issues.map(e => e.message).join('\n')
+      throw new Exception(errorMessage)
+    }
+
+    const { targetMember, reason, deleteMessageSeconds, attachment } = validationResult.data
+
+    await this.banUserUseCase.execute({
       guildId: guild.id,
-      channelId: channelsId.logs,
-      title: 'Usuário banido',
-      fields: [
-        { name: 'Usuário', value: userMention(user.user.id), inline: true },
-        { name: 'Excluir mensagens nos últimos', value: secondsToTime(Number(deleteMessageSeconds)), inline: true },
-        { name: 'Por quem', value: userMention(memberInvoker.user.id), inline: true },
-        { name: 'Anexo', value: attachment ? 'Sim' : 'Não', inline: true },
-        { name: 'Motivo', value: reason, inline: false }
-      ],
-      color: colors.default,
-      attachments: attachment ? [attachment] : []
-    }))
+      executorId: memberInvoker.id,
+      targetUserId: targetMember.id,
+      reason,
+      deleteMessagePeriod: BanPeriod.fromSeconds(Number(deleteMessageSeconds)),
+      attachment
+    })
 
     await interaction.editReply({
       embeds: [createEmbed({
