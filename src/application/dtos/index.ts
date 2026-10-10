@@ -1,3 +1,5 @@
 export * from './DiscordLogDto'
 export * from './SendEmbedMessageDto'
 export * from './BanUserDto'
+export * from './TargetMemberInfoDto'
+export * from './BanAuditLogDto'
