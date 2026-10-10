@@ -1,10 +1,12 @@
-import { APPLICATION_TOKENS } from "@/application/container/tokens";
-import { BanAuditLogInterface, DiscordLogInterface } from "@/application/contracts";
-import { BanAuditLogDto, DiscordLogDto } from "@/application/dtos";
-import { inject, injectable } from "tsyringe";
-import { channelsId } from "../config";
-import { userMention } from "discord.js";
-import { colors } from "@/presentation/constants";
+import { userMention } from 'discord.js'
+import { inject, injectable } from 'tsyringe'
+
+import type { BanAuditLogInterface, DiscordLogInterface } from '@/application/contracts'
+
+import { APPLICATION_TOKENS } from '@/application/container/tokens'
+import { type BanAuditLogDto, DiscordLogDto } from '@/application/dtos'
+import { channelsId } from '@/infrastructure/config'
+import { colors } from '@/presentation/constants'
 
 @injectable()
 export class BanAuditLogProvider implements BanAuditLogInterface {
@@ -28,6 +30,6 @@ export class BanAuditLogProvider implements BanAuditLogInterface {
       ],
       color: colors.default,
       attachments: dto.attachment ? [dto.attachment] : []
-    }));
+    }))
   }
 }

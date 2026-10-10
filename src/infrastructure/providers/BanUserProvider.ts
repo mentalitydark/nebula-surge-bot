@@ -1,13 +1,13 @@
+import { DiscordAPIError, RESTJSONErrorCodes } from 'discord.js'
 import { inject, injectable } from 'tsyringe'
 
 import type { BanUserInterface } from '@/application/contracts'
-import { BanUserDto, TargetMemberInfoDto } from '@/application/dtos'
 import type { Client } from 'discordx'
 
+import { type BanUserDto, TargetMemberInfoDto } from '@/application/dtos'
+import { ForbiddenException } from '@/domain/errors'
 import { TOKENS } from '@/infrastructure/container/tokens'
 import { isBot, isStaff } from '@/infrastructure/helpers'
-import { DiscordAPIError, RESTJSONErrorCodes } from 'discord.js'
-import { ForbiddenException } from '@/domain/errors'
 
 @injectable()
 export class BanUserProvider implements BanUserInterface {

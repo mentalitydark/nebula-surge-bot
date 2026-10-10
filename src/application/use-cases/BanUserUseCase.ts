@@ -1,12 +1,12 @@
 import { inject, injectable } from 'tsyringe'
 
 import type { UseCaseInterface, BanUserInterface, BanAuditLogInterface } from '@/application/contracts'
+import type { Image } from '@/domain/value-objects/attachment'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { Exception, ForbiddenException } from '@/domain/errors'
-import { BanPeriod, UserId } from '@/domain/value-objects'
-import { Image } from '@/domain/value-objects/attachment'
 import { BanAuditLogDto } from '@/application/dtos'
+import { Exception, ForbiddenException } from '@/domain/errors'
+import { type BanPeriod, UserId } from '@/domain/value-objects'
 
 export interface BanUserInput {
   guildId: string

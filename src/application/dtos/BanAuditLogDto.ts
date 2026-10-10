@@ -1,6 +1,6 @@
-import { GuildId } from "@/domain/types";
-import { type BanPeriod, UserId } from "@/domain/value-objects";
-import { Image } from "@/domain/value-objects/attachment";
+import type { GuildId } from '@/domain/types'
+import type { UserId, BanPeriod } from '@/domain/value-objects'
+import type { Image } from '@/domain/value-objects/attachment'
 
 export interface BanAuditLogDtoProps {
   guildId: GuildId;
@@ -29,6 +29,6 @@ export class BanAuditLogDto {
       props.reason,
       props.deleteMessageBanPeriodLabel,
       props.attachment
-    );
+    )
   }
 }

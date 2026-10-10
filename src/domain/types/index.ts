@@ -1,1 +1,1 @@
-export * from './GuildId';
+export * from './GuildId'
