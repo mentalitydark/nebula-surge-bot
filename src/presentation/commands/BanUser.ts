@@ -4,6 +4,7 @@ import {
   FileUploadBuilder,
   GuildMember,
   LabelBuilder,
+  MentionableSelectMenuBuilder,
   ModalBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -14,7 +15,7 @@ import {
   type CommandInteraction,
   type ModalSubmitInteraction,
 } from 'discord.js'
-import { Discord, Guard, ModalComponent, Slash } from 'discordx'
+import { Discord, Guard, ModalComponent, SelectMenuComponent, Slash } from 'discordx'
 import { injectable, inject } from 'tsyringe'
 import { z } from 'zod'
 
@@ -114,8 +115,6 @@ export class BanUser {
     if (!guild) throw new Exception('Guild não encontrada')
     if (!memberInvoker || !(memberInvoker instanceof GuildMember)) throw new Exception('Membro que executou o comando não encontrado')
 
-    await interaction.deferReply({ flags: ['Ephemeral'] })
-
     const validationData = {
       user: userInput?.first(),
       reason: reasonInput,
@@ -131,6 +130,8 @@ export class BanUser {
     }
 
     const { user, reason, deleteMessageSeconds, attachment } = result.data
+
+    await interaction.deferReply({ flags: ['Ephemeral'] })
 
     await this.banUserUseCase.execute(BanUserDto.create({
       guildId: guild.id,
