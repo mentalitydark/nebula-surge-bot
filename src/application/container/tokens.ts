@@ -7,5 +7,6 @@ export const APPLICATION_TOKENS = {
   LoggerInterface: Symbol.for('LoggerInterface'),
   DiscordLogInterface: Symbol.for('DiscordLogInterface'),
   SendEmbedMessageInterface: Symbol.for('SendEmbedMessageInterface'),
-  BanUserInterface: Symbol.for('BanUserInterface')
+  BanUserInterface: Symbol.for('BanUserInterface'),
+  BanAuditLogInterface: Symbol.for('BanAuditLogInterface'),
 } as const
