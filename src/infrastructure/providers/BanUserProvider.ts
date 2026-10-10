@@ -1,10 +1,11 @@
 import { inject, injectable } from 'tsyringe'
 
 import type { BanUserInterface } from '@/application/contracts'
-import type { BanUserDto } from '@/application/dtos'
+import { BanUserDto, TargetMemberInfoDto } from '@/application/dtos'
 import type { Client } from 'discordx'
 
 import { TOKENS } from '@/infrastructure/container/tokens'
+import { isBot, isStaff } from '@/infrastructure/helpers'
 
 @injectable()
 export class BanUserProvider implements BanUserInterface {
@@ -17,9 +18,26 @@ export class BanUserProvider implements BanUserInterface {
   public async ban(data: BanUserDto): Promise<void> {
     const guild = await this.client.guilds.fetch(data.guildId)
 
-    const member = await guild.members.fetch(data.userId)
+    await guild.bans.create(data.userId, {
+      reason: data.reason,
+      deleteMessageSeconds: data.deleteMessageSeconds
+    })
+  }
 
-    await member.ban({ reason: data.reason, deleteMessageSeconds: data.deleteMessageSeconds })
+  public async getMemberInfo(guildId: string, memberId: string): Promise<TargetMemberInfoDto | null> {
+    const guild = await this.client.guilds.fetch(guildId)
+
+    try {
+      const member = await guild.members.fetch(memberId)
+      return TargetMemberInfoDto.create({
+        id: member.id,
+        username: member.user.username,
+        isStaff: isStaff(member),
+        isBot: isBot(member)
+      })
+    } catch {
+      return null
+    }
   }
 
 }
