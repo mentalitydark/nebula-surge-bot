@@ -1,10 +1,9 @@
 import { userMention } from 'discord.js'
 import { inject, injectable } from 'tsyringe'
 
-import type { BanAuditLogInterface, DiscordLogInterface } from '@/application/contracts'
+import type { BanAuditLogDto, BanAuditLogInterface, DiscordLogInterface } from '@/application/contracts'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { type BanAuditLogDto, DiscordLogDto } from '@/application/dtos'
 import { channelsId } from '@/infrastructure/config'
 import { colors } from '@/presentation/constants'
 
@@ -17,7 +16,7 @@ export class BanAuditLogProvider implements BanAuditLogInterface {
   ) { }
 
   public async log(dto: BanAuditLogDto): Promise<void> {
-    await this.discordLogProvider.sendLog(DiscordLogDto.create({
+    await this.discordLogProvider.sendLog({
       guildId: dto.guildId,
       channelId: channelsId.logs,
       title: 'Usuário Banido',
@@ -30,6 +29,6 @@ export class BanAuditLogProvider implements BanAuditLogInterface {
       ],
       color: colors.default,
       attachments: dto.attachment ? [dto.attachment] : []
-    }))
+    })
   }
 }

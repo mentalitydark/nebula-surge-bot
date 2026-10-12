@@ -4,7 +4,6 @@ import { Discord, Guard, Slash, SlashOption } from 'discordx'
 import { inject, injectable } from 'tsyringe'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { DiscordLogDto } from '@/application/dtos'
 import { type SendAuditLogUseCase, type ApplyStrikeUseCase, StrikeAction } from '@/application/use-cases'
 import { Exception, NotFoundException } from '@/domain/errors'
 import { channelsId, rolesId } from '@/infrastructure/config'
@@ -86,12 +85,17 @@ export class Strike {
     if (action === StrikeAction.REMOVE_STRIKE) color = colors.success
     else if (action === StrikeAction.BAN) color = colors.danger
 
-    await this.sendAuditLogUseCase.execute(DiscordLogDto.create({
-      guildId: guild.id, channelId: channelsId.logs, title, color,
-      fields: [{ name: 'Membro', value: userMention(member.id), inline: true },
-      { name: 'Dado por', value: userMention(interaction.user.id), inline: true },
-      { name: 'Motivo', value: reason }],
-    }))
+    await this.sendAuditLogUseCase.execute({
+      guildId: guild.id,
+      channelId: channelsId.logs,
+      title,
+      color,
+      fields: [
+        { name: 'Membro', value: userMention(member.id), inline: true },
+        { name: 'Dado por', value: userMention(interaction.user.id), inline: true },
+        { name: 'Motivo', value: reason }
+      ],
+    })
   }
 
   private async ban(interaction: CommandInteraction, member: GuildMember, reason: string): Promise<void> {

@@ -4,17 +4,16 @@ import type { UseCaseInterface, BanUserInterface, BanAuditLogInterface } from '@
 import type { Image } from '@/domain/value-objects/attachment'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { BanAuditLogDto } from '@/application/dtos'
 import { Exception, ForbiddenException } from '@/domain/errors'
 import { type BanPeriod, UserId } from '@/domain/value-objects'
 
 export interface BanUserInput {
-  guildId: string
-  executorId: string
-  targetUserId: string
-  reason: string
-  deleteMessagePeriod: BanPeriod
-  attachment?: Image
+  readonly guildId: string
+  readonly executorId: string
+  readonly targetUserId: string
+  readonly reason: string
+  readonly deleteMessagePeriod: BanPeriod
+  readonly attachment?: Image
 }
 
 @injectable()
@@ -42,14 +41,14 @@ export class BanUserUseCase implements UseCaseInterface<BanUserInput, void> {
       deleteMessageSeconds: data.deleteMessagePeriod.value,
     })
 
-    await this.banAuditLogProvider.log(BanAuditLogDto.create({
+    await this.banAuditLogProvider.log({
       guildId: data.guildId,
       executorId: UserId.create(data.executorId),
       targetUserId: UserId.create(data.targetUserId),
       reason: data.reason,
       deleteMessageBanPeriodLabel: data.deleteMessagePeriod.label,
       attachment: data.attachment
-    }))
+    })
   }
 
 }

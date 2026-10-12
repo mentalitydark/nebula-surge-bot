@@ -1,10 +1,9 @@
 import { DiscordAPIError, RESTJSONErrorCodes } from 'discord.js'
 import { inject, injectable } from 'tsyringe'
 
-import type { BanUserInterface } from '@/application/contracts'
+import type { BanUserDto, BanUserInterface, TargetMemberInfoDto } from '@/application/contracts'
 import type { Client } from 'discordx'
 
-import { type BanUserDto, TargetMemberInfoDto } from '@/application/dtos'
 import { ForbiddenException } from '@/domain/errors'
 import { TOKENS } from '@/infrastructure/container/tokens'
 import { isBot, isStaff } from '@/infrastructure/helpers'
@@ -43,12 +42,12 @@ export class BanUserProvider implements BanUserInterface {
 
     try {
       const member = await guild.members.fetch(memberId)
-      return TargetMemberInfoDto.create({
+      return {
         id: member.id,
         username: member.user.username,
         isStaff: isStaff(member),
         isBot: isBot(member)
-      })
+      }
     } catch (error: unknown) {
       if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMember) {
         return null

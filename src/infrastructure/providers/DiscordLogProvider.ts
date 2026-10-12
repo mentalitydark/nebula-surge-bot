@@ -2,8 +2,7 @@ import { createEmbed } from '@magicyan/discord'
 import { type Client } from 'discordx'
 import { inject, injectable } from 'tsyringe'
 
-import type { DiscordLogInterface } from '@/application/contracts'
-import type { DiscordLogDto } from '@/application/dtos'
+import type { DiscordLogDto, DiscordLogInterface } from '@/application/contracts'
 
 import { TOKENS } from '@/infrastructure/container/tokens'
 

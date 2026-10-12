@@ -2,8 +2,7 @@ import { brBuilder, createEmbed } from '@magicyan/discord'
 import { roleMention } from 'discord.js'
 import { inject, injectable } from 'tsyringe'
 
-import type { SendEmbedMessageInterface } from '@/application/contracts'
-import type { SendEmbedMessageDto } from '@/application/dtos'
+import type { SendEmbedMessageDto, SendEmbedMessageInterface } from '@/application/contracts'
 import type { Client } from 'discordx'
 
 
