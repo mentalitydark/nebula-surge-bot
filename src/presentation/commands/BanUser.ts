@@ -74,9 +74,9 @@ export class BanUser {
         .setPlaceholder('Selecione o tempo para excluir mensagens')
         .addOptions(
           new StringSelectMenuOptionBuilder().setLabel(BanPeriod.NONE.label).setValue(String(BanPeriod.NONE.value)).setDefault(true),
-          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.MINUTES.label).setValue(String(BanPeriod.MINUTES.value)),
-          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.HOURS.label).setValue(String(BanPeriod.HOURS.value)),
-          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.DAYS.label).setValue(String(BanPeriod.DAYS.value))
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.ONE_HOUR.label).setValue(String(BanPeriod.ONE_HOUR.value)),
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.ONE_DAY.label).setValue(String(BanPeriod.ONE_DAY.value)),
+          new StringSelectMenuOptionBuilder().setLabel(BanPeriod.ONE_WEEK.label).setValue(String(BanPeriod.ONE_WEEK.value))
         )
         .setRequired(true)
     )
