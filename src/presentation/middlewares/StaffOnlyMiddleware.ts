@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js'
 import { type GuardFunction } from 'discordx'
 
 import { LogicException, ForbiddenException } from '@/domain/errors'
-import { rolesId } from '@/infrastructure/config'
+import { isStaff } from '@/infrastructure/helpers'
 
 export const StaffOnlyMiddleware: GuardFunction<ChatInputCommandInteraction> = async (interaction, _, next) => {
   const { guild } = interaction
@@ -17,9 +17,7 @@ export const StaffOnlyMiddleware: GuardFunction<ChatInputCommandInteraction> = a
 
   const member = await guild.members.fetch(interaction.user.id)
 
-  const isStaff = member.roles.cache.some(role => role.id === rolesId.executor) || member.permissions.has('Administrator')
-
-  if (!isStaff) {
+  if (!isStaff(member)) {
     throw new ForbiddenException()
   }
 

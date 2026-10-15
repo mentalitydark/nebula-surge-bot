@@ -3,7 +3,7 @@ const importPlugin = require('eslint-plugin-import');
 
 module.exports = tseslint.config(
   {
-    ignores: ['dist/', 'node_modules/', '.eslintcache'],
+    ignores: ['dist/', 'node_modules/', '.eslintcache', '**/*.spec.ts'],
   },
   {
     files: ['src/**/*.ts'],
@@ -38,7 +38,7 @@ module.exports = tseslint.config(
       'space-before-blocks': ['error', 'always'],
       'object-curly-spacing': ['error', 'always'],
       'eol-last': ['error', 'always'],
-      
+
       // TypeScript specific rules
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
@@ -51,7 +51,7 @@ module.exports = tseslint.config(
           destructuredArrayIgnorePattern: '^_'
         }
       ],
-      
+
       // Import rules
       'no-duplicate-imports': 'error',
       'import/order': [

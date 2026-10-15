@@ -2,8 +2,7 @@ import { createEmbed } from '@magicyan/discord'
 import { type Client } from 'discordx'
 import { inject, injectable } from 'tsyringe'
 
-import type { DiscordLogInterface } from '@/application/contracts'
-import type { DiscordLogDto } from '@/application/dtos'
+import type { DiscordLogDto, DiscordLogInterface } from '@/application/contracts'
 
 import { TOKENS } from '@/infrastructure/container/tokens'
 
@@ -33,7 +32,7 @@ export class DiscordLogProvider implements DiscordLogInterface {
         timestamp: new Date()
       })
 
-      await channel.send({ embeds: [embed] })
+      await channel.send({ embeds: [embed], files: dto.attachments?.map(att => ({ attachment: att.url, name: att.name })) })
     } catch (error) {
       console.error('Failed to send Discord log:', error)
     }

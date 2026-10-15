@@ -1,8 +1,6 @@
 import { inject, injectable } from 'tsyringe'
 
-import type { UseCaseInterface } from '@/application/contracts'
-import type { SendEmbedMessageInterface } from '@/application/contracts/SendEmbedMessageInterface'
-import type { SendEmbedMessageDto } from '@/application/dtos'
+import type { SendEmbedMessageDto, SendEmbedMessageInterface, UseCaseInterface } from '@/application/contracts'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
 

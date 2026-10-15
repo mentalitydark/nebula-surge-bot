@@ -20,6 +20,10 @@ export const OnErrorChatInputCommandInteractionMiddleware: GuardFunction<ChatInp
       color: colors.danger
     })
 
+    if (!isException) {
+      console.error('Unexpected error occurred:', error)
+    }
+
     try {
       if (interaction.deferred) {
         await interaction.editReply({

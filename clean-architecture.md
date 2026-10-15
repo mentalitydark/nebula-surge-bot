@@ -82,7 +82,6 @@ Para decidir em qual pasta criar um arquivo:
     ├── application
     │   ├── container
     │   ├── contracts
-    │   ├── providers
     │   └── use-cases
     ├── domain
     │   └── errors

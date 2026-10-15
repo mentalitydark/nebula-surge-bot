@@ -1,7 +1,6 @@
 import { inject, injectable } from 'tsyringe'
 
-import type { DiscordLogInterface, UseCaseInterface } from '@/application/contracts'
-import type { DiscordLogDto } from '@/application/dtos'
+import type { DiscordLogDto, DiscordLogInterface, UseCaseInterface } from '@/application/contracts'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
 

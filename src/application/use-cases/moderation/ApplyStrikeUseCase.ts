@@ -7,10 +7,10 @@ export enum StrikeAction {
   NOTHING
 }
 
-interface ApplyStrikeUseCaseInput {
-  strikeCurrentLevel: number;
-  strikeMaxLevel: number;
-  increment: boolean;
+export interface ApplyStrikeUseCaseInput {
+  readonly strikeCurrentLevel: number
+  readonly strikeMaxLevel: number
+  readonly increment: boolean
 }
 
 export class ApplyStrikeUseCase implements UseCaseInterface<ApplyStrikeUseCaseInput, StrikeAction> {

@@ -20,6 +20,10 @@ export const OnErrorModalSubmitMiddleware: GuardFunction<ModalSubmitInteraction>
       color: colors.danger,
     })
 
+    if (!isException) {
+      console.error('Unexpected error occurred:', error)
+    }
+
     try {
       if (interaction.deferred) {
         await interaction.editReply({ embeds: [errorEmbed] })

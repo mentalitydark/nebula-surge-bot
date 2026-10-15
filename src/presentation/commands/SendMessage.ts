@@ -13,10 +13,8 @@ import { inject, injectable } from 'tsyringe'
 import type { SendAuditLogUseCase, SendEmbedMessageUseCase } from '@/application/use-cases'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
-import { DiscordLogDto, SendEmbedMessageDto } from '@/application/dtos'
 import { Exception, ForbiddenException, InvalidArgumentException } from '@/domain/errors'
-import { HexColor } from '@/domain/value-objects'
-import { Image } from '@/domain/value-objects/attachment'
+import { HexColor, Image } from '@/domain/value-objects'
 import { channelsId } from '@/infrastructure/config'
 import { colors } from '@/presentation/constants'
 import { StaffOnlyMiddleware, OnErrorModalSubmitMiddleware } from '@/presentation/middlewares'
@@ -109,14 +107,14 @@ export class SendMessage {
 
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    await this.sendEmbedMessageProvider.execute(SendEmbedMessageDto.create({
+    await this.sendEmbedMessageProvider.execute({
       guildId: guild.id,
       embedColor: this.parseColor(embedColor),
       channelId: channelId.id,
       roleNotificationIds: this.parseRoles(rolesNotification),
       attachment: this.parseAttachment(attachment),
       description,
-    }))
+    })
 
     await interaction.editReply({
       embeds: [createEmbed({
@@ -125,7 +123,7 @@ export class SendMessage {
       })]
     })
 
-    await this.sendAuditLogProvider.execute(DiscordLogDto.create({
+    await this.sendAuditLogProvider.execute({
       guildId: guild.id,
       channelId: channelsId.logs,
       title: 'Mensagem Embed Enviada',
@@ -136,7 +134,7 @@ export class SendMessage {
         { name: 'Enviado Por', value: userMention(memberInvoker.id) },
         { name: 'Data', value: time(new Date(), TimestampStyles.ShortDateShortTime) }
       ]
-    }))
+    })
   }
 
   private parseAttachment(attachment: ReadonlyCollection<string, Attachment> | null): Image | undefined {
