@@ -1,5 +1,4 @@
-import type { HexColor } from '@/domain/value-objects'
-import type { Image } from '@/domain/value-objects/attachment'
+import type { HexColor, Image } from '@/domain/value-objects'
 
 export interface SendEmbedMessageDto {
   readonly guildId: string

@@ -14,8 +14,7 @@ import type { SendAuditLogUseCase, SendEmbedMessageUseCase } from '@/application
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
 import { Exception, ForbiddenException, InvalidArgumentException } from '@/domain/errors'
-import { HexColor } from '@/domain/value-objects'
-import { Image } from '@/domain/value-objects/attachment'
+import { HexColor, Image } from '@/domain/value-objects'
 import { channelsId } from '@/infrastructure/config'
 import { colors } from '@/presentation/constants'
 import { StaffOnlyMiddleware, OnErrorModalSubmitMiddleware } from '@/presentation/middlewares'

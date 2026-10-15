@@ -1,6 +1,5 @@
 import type { GuildId } from '@/domain/types'
-import type { UserId, BanPeriod } from '@/domain/value-objects'
-import type { Image } from '@/domain/value-objects/attachment'
+import type { UserId, BanPeriod, Image } from '@/domain/value-objects'
 
 export interface BanAuditLogDto {
   readonly guildId: GuildId

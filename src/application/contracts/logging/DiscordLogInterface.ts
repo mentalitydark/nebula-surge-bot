@@ -1,4 +1,4 @@
-import type { Image } from '@/domain/value-objects/attachment'
+import type { Image } from '@/domain/value-objects'
 
 export interface DiscordLogField {
   readonly name: string
