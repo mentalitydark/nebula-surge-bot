@@ -1,11 +1,10 @@
 import { inject, injectable } from 'tsyringe'
 
 import type { UseCaseInterface, BanUserInterface, BanAuditLogInterface } from '@/application/contracts'
-import type { Image } from '@/domain/value-objects/attachment'
 
 import { APPLICATION_TOKENS } from '@/application/container/tokens'
 import { Exception, ForbiddenException } from '@/domain/errors'
-import { type BanPeriod, UserId } from '@/domain/value-objects'
+import { type BanPeriod, type Image, UserId } from '@/domain/value-objects'
 
 export interface BanUserInput {
   readonly guildId: string
@@ -29,10 +28,10 @@ export class BanUserUseCase implements UseCaseInterface<BanUserInput, void> {
   public async execute(data: BanUserInput): Promise<void> {
     const memberInfo = await this.banUserProvider.getMemberInfo(data.guildId, data.targetUserId)
 
-    if (!memberInfo) throw new Exception('Membro não encontrado')
-    if (memberInfo.id === data.executorId) throw new ForbiddenException('Não é possível banir a si mesmo')
-    if (memberInfo.isStaff) throw new ForbiddenException('Não é possível banir um membro da equipe')
-    if (memberInfo.isBot) throw new ForbiddenException('Não é possível banir um bot')
+    if (!memberInfo) throw new Exception('Membro não encontrado.')
+    if (memberInfo.id === data.executorId) throw new ForbiddenException('Não é possível banir a si mesmo.')
+    if (memberInfo.isStaff) throw new ForbiddenException('Não é possível banir um membro da equipe.')
+    if (memberInfo.isBot) throw new ForbiddenException('Não é possível banir um bot.')
 
     await this.banUserProvider.ban({
       guildId: data.guildId,
